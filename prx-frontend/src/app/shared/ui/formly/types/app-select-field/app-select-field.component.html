@@ -1,0 +1,53 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label [for]="inputId" class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <p-select
+    class="w-full"
+    [inputId]="inputId"
+    [formControl]="formControl"
+    [formlyAttributes]="field"
+    [options]="selectOptions"
+    [optionLabel]="props['optionLabel'] ?? null"
+    [optionValue]="props['optionValue'] ?? null"
+    [optionDisabled]="props['optionDisabled'] ?? null"
+    [placeholder]="props['placeholder'] ?? ''"
+    [required]="props['required'] ?? false"
+    [readonly]="props['readonly'] ?? false"
+    [loading]="props['loading'] ?? false"
+    [filter]="props['filter'] ?? false"
+    [filterBy]="props['filterBy'] ?? null"
+    [filterFields]="props['filterFields'] ?? null"
+    [filterPlaceholder]="props['filterPlaceholder'] ?? null"
+    [showClear]="props['showClear'] ?? false"
+    [editable]="props['editable'] ?? false"
+    [group]="props['group'] ?? false"
+    [optionGroupLabel]="props['optionGroupLabel'] ?? null"
+    [optionGroupChildren]="props['optionGroupChildren'] ?? null"
+    [appendTo]="props['appendTo'] ?? 'body'"
+    [virtualScroll]="props['virtualScroll'] ?? false"
+    [virtualScrollItemSize]="props['virtualScrollItemSize'] ?? null"
+    [dataKey]="props['dataKey'] ?? null"
+    [emptyMessage]="props['emptyMessage'] ?? 'No hay opciones disponibles.'"
+    [emptyFilterMessage]="props['emptyFilterMessage'] ?? 'No se encontraron resultados.'"
+    [checkmark]="props['checkmark'] ?? false"
+    [autofocus]="props['autofocus'] ?? false"
+    [variant]="props['variant'] ?? null"
+    [attr.aria-invalid]="showError"
+    [class.ng-invalid]="showError"
+    [class.ng-dirty]="showError"
+  ></p-select>
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

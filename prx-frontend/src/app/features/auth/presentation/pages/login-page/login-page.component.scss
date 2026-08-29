@@ -1,0 +1,43 @@
+.login-page__container {
+  max-width: 30rem;
+}
+
+.login-page__logo {
+  width: 7rem;
+  max-width: 100%;
+}
+
+.login-page__panel {
+  backdrop-filter: blur(6px);
+}
+
+.login-page__link {
+  color: var(--color-primary);
+  transition: color 0.2s ease;
+}
+
+.login-page__link:hover {
+  color: var(--color-primary-hover);
+}
+
+.login-page__divider {
+  position: relative;
+  min-height: 1rem;
+}
+
+.login-page__divider::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto 0;
+  border-top: 1px solid var(--color-border);
+  transform: translateY(-50%);
+}
+
+.login-page__divider-dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background-color: var(--color-text-soft);
+  position: relative;
+  z-index: 1;
+}

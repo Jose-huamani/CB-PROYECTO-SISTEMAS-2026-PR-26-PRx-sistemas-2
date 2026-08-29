@@ -1,0 +1,51 @@
+<section class="flex align-items-center justify-content-center w-full">
+  <div class="w-full mx-auto px-3 sm:px-4 login-page__container">
+    <div class="flex flex-column align-items-center text-center mb-4 md:mb-5">
+      <a routerLink="/">
+        <img src="/logo/prx-logo.png" alt="Logo de PRX" class="mb-3 login-page__logo" />
+      </a>
+
+      <p class="m-0 text-sm text-color-secondary">Transformando realidades</p>
+    </div>
+
+    <div class="p-3 md:p-4 login-page__panel">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-3">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+        <div class="flex justify-content-end">
+          <a
+            routerLink="/auth/forgot-password"
+            class="text-sm font-medium no-underline login-page__link"
+          >
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+
+        <p-button
+          type="submit"
+          label="Iniciar sesión"
+          icon="pi pi-sign-in"
+          styleClass="w-full"
+          size="large"
+          [raised]="true"
+          [loading]="submitting()"
+          [disabled]="submitting()"
+        ></p-button>
+
+        <div class="flex align-items-center justify-content-center my-1 login-page__divider">
+          <span class="login-page__divider-dot"></span>
+        </div>
+
+        <div class="text-center text-sm">
+          <span class="text-color-secondary">¿No tienes una cuenta?</span>
+          <a
+            routerLink="/auth/register-request"
+            class="ml-1 font-medium no-underline login-page__link"
+          >
+            Crear cuenta
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

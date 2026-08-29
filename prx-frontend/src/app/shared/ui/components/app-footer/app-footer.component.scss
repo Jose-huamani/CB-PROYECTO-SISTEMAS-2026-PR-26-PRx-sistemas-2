@@ -1,0 +1,18 @@
+.app-footer {
+  background-color: var(--color-text);
+}
+
+.app-footer__logo {
+  height: 7rem;
+  width: auto;
+  object-fit: contain;
+}
+
+.app-footer__link {
+  color: var(--color-background);
+  transition: color 0.2s ease;
+}
+
+.app-footer__link:hover {
+  color: var(--color-text-inverse);
+}

@@ -1,0 +1,94 @@
+<div [style.--repository-color]="getRepositoryColor()" class="h-full">
+  <p-card class="repository-card h-full">
+    <ng-template pTemplate="content">
+      <div class="flex flex-column h-full gap-3">
+        <div class="flex align-items-start justify-content-between gap-3">
+          <div class="flex flex-column gap-1 min-w-0">
+            <h2 class="m-0 text-xl repository-card__text-cut">
+              {{ repository().name }}
+            </h2>
+
+            <span class="text-sm text-color-secondary repository-card__text-cut">
+              {{ getRepositoryPath() }}
+            </span>
+          </div>
+
+          @if (showVisibility()) {
+            <p-tag [value]="getVisibilityLabel()" [rounded]="true"></p-tag>
+          }
+        </div>
+
+        <p class="m-0 text-sm line-height-3 text-color-secondary repository-card__description">
+          {{ getRepositoryDescription() }}
+        </p>
+
+        <div class="grid formgrid -mx-2">
+          <div class="col-12 sm:col-6 px-2 mb-2 sm:mb-0">
+            <span class="block text-xs text-color-secondary mb-1">Categoría</span>
+            <span class="block text-sm font-semibold repository-card__text-cut">
+              {{ repository().category.name }}
+            </span>
+          </div>
+
+          <div class="col-12 sm:col-6 px-2">
+            <span class="block text-xs text-color-secondary mb-1">Actualizado</span>
+            <span class="block text-sm font-semibold">
+              {{ repository().updatedAt | date: 'dd/MM/yyyy' }}
+            </span>
+          </div>
+        </div>
+
+        @if (showOwner()) {
+          <button
+            type="button"
+            class="repository-card__owner-button flex align-items-center gap-2 text-left"
+            (click)="handleOwnerClick()"
+          >
+            <img
+              [src]="repository().owner.avatarUrl"
+              [alt]="repository().owner.username"
+              class="repository-card__avatar"
+            />
+
+            <div class="flex flex-column min-w-0">
+              <span class="text-xs text-color-secondary">Propietario</span>
+              <span class="text-sm font-semibold repository-card__text-cut">
+                {{ repository().owner.username }}
+              </span>
+            </div>
+          </button>
+        }
+
+        <div class="flex flex-wrap gap-2 repository-card__tags">
+          @if (repository().tags.length) {
+            @for (tag of getVisibleTags(); track tag.id) {
+              <p-tag [value]="tag.name" severity="secondary" [rounded]="true"></p-tag>
+            }
+
+            @if (getRemainingTags()) {
+              <p-tag
+                [value]="'+' + getRemainingTags()"
+                severity="secondary"
+                [rounded]="true"
+              ></p-tag>
+            }
+          } @else {
+            <span class="text-sm text-color-secondary">Sin etiquetas.</span>
+          }
+        </div>
+
+        <div class="mt-auto">
+          <p-button
+            type="button"
+            [label]="actionLabel()"
+            [icon]="actionIcon()"
+            severity="secondary"
+            variant="outlined"
+            styleClass="w-full"
+            (onClick)="handleActionClick()"
+          ></p-button>
+        </div>
+      </div>
+    </ng-template>
+  </p-card>
+</div>

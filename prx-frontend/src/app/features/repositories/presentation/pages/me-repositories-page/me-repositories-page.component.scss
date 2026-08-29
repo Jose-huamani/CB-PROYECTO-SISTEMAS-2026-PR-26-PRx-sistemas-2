@@ -1,0 +1,21 @@
+:host ::ng-deep .me-repositories-page__filters-card .p-card-content {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+:host ::ng-deep .me-repositories-page__control,
+:host ::ng-deep .me-repositories-page__select,
+:host ::ng-deep .me-repositories-page__clear-button {
+  height: 2.75rem;
+  min-height: 2.75rem;
+}
+
+:host ::ng-deep .me-repositories-page__select {
+  display: flex;
+  align-items: center;
+}
+
+:host ::ng-deep .me-repositories-page__select .p-select-label {
+  display: flex;
+  align-items: center;
+}

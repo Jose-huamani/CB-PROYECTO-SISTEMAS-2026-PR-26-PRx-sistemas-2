@@ -1,0 +1,22 @@
+.repository-users-dialog {
+  min-height: 12rem;
+  max-height: 55vh;
+  overflow-y: auto;
+}
+
+.repository-users-dialog__user-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  border-radius: 0.75rem;
+}
+
+.repository-users-dialog__avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  object-fit: cover;
+}

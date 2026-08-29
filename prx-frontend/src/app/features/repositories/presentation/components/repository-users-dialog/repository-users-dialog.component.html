@@ -1,0 +1,99 @@
+<p-dialog
+  [visible]="visible()"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [closable]="true"
+  [style]="{ width: 'min(92vw, 36rem)' }"
+  [breakpoints]="{ '640px': '94vw' }"
+  appendTo="body"
+  (visibleChange)="handleVisibleChange($event)"
+  (onHide)="close()"
+>
+  <ng-template pTemplate="header">
+    <div class="flex flex-column gap-1">
+      <span>{{ title() }}</span>
+
+      @if (subtitle()) {
+        <span class="text-sm text-color-secondary">{{ subtitle() }}</span>
+      }
+    </div>
+  </ng-template>
+
+  <div class="flex flex-column gap-3 repository-users-dialog">
+    @if (loading()) {
+      <div class="flex flex-column gap-3">
+        <div class="flex align-items-center gap-3">
+          <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+
+          <div class="flex flex-column gap-2 flex-1">
+            <p-skeleton height="0.9rem" width="65%"></p-skeleton>
+            <p-skeleton height="0.75rem" width="40%"></p-skeleton>
+          </div>
+        </div>
+
+        <div class="flex align-items-center gap-3">
+          <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+
+          <div class="flex flex-column gap-2 flex-1">
+            <p-skeleton height="0.9rem" width="55%"></p-skeleton>
+            <p-skeleton height="0.75rem" width="35%"></p-skeleton>
+          </div>
+        </div>
+
+        <div class="flex align-items-center gap-3">
+          <p-skeleton shape="circle" size="2.5rem"></p-skeleton>
+
+          <div class="flex flex-column gap-2 flex-1">
+            <p-skeleton height="0.9rem" width="60%"></p-skeleton>
+            <p-skeleton height="0.75rem" width="45%"></p-skeleton>
+          </div>
+        </div>
+      </div>
+    } @else if (users().length) {
+      <div class="flex flex-column gap-2">
+        @for (repositoryUser of users(); track repositoryUser.id) {
+          @if (repositoryUser.user) {
+            <button
+              type="button"
+              class="repository-users-dialog__user-button flex align-items-center gap-3 p-2 w-full"
+              (click)="openProfile(repositoryUser.user.id)"
+            >
+              <img
+                [src]="repositoryUser.user.avatarUrl"
+                [alt]="repositoryUser.user.username"
+                class="repository-users-dialog__avatar"
+              />
+
+              <div class="flex flex-column align-items-start gap-1">
+                <span class="font-medium text-sm">{{ repositoryUser.user.username }}</span>
+                <span class="text-xs text-color-secondary">Ver perfil</span>
+              </div>
+            </button>
+          }
+        }
+      </div>
+    } @else {
+      <div
+        class="flex flex-column align-items-center justify-content-center text-center gap-2 py-5"
+      >
+        <i class="pi pi-users text-4xl text-color-secondary"></i>
+        <span class="text-sm text-color-secondary">{{ emptyMessage() }}</span>
+      </div>
+    }
+  </div>
+
+  <ng-template pTemplate="footer">
+    @if (!loading() && shouldShowPagination()) {
+      <app-pagination
+        [first]="getFirst()"
+        [rows]="limit()"
+        [totalRecords]="total()"
+        [rowsPerPageOptions]="[]"
+        [showPageLinks]="false"
+        [showFirstLastIcon]="false"
+        (pageChange)="handlePageChange($event)"
+      ></app-pagination>
+    }
+  </ng-template>
+</p-dialog>

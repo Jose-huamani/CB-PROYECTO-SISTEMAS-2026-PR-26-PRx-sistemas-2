@@ -1,0 +1,428 @@
+<section class="w-full repository-team-page">
+  <div class="w-full mx-auto px-3 sm:px-4 py-4 md:py-5 repository-team-page__container">
+    @if (
+      isPageLoading() ||
+      !repository() ||
+      !repositoryFunctions() ||
+      repositoryFunctions().length === 0
+    ) {
+      <div class="flex flex-column gap-3">
+        <p-skeleton height="7rem" borderRadius="1rem"></p-skeleton>
+        <p-skeleton height="20rem" borderRadius="1rem"></p-skeleton>
+        <p-skeleton height="20rem" borderRadius="1rem"></p-skeleton>
+      </div>
+    } @else if (repository(); as repository) {
+      <div
+        class="flex flex-column gap-3"
+        [style.--repository-color]="getRepositoryColor(repository)"
+      >
+        <p-card class="repository-team-page__header-card">
+          <ng-template pTemplate="content">
+            <div
+              class="flex flex-column md:flex-row md:align-items-center md:justify-content-between gap-3"
+            >
+              <div class="flex flex-column gap-2">
+                <h1 class="m-0">Equipo del Repositorio</h1>
+                <p class="m-0 text-sm text-color-secondary">
+                  Panel para administrar copropietarios, cocreadores y miembros del repositorio.
+                </p>
+              </div>
+
+              <div class="flex justify-content-start md:justify-content-end">
+                <p-button
+                  type="button"
+                  label="Volver al Repositorio"
+                  icon="pi pi-arrow-left"
+                  severity="primary"
+                  variant="outlined"
+                  class="w-full md:w-auto"
+                  [disabled]="submitting()"
+                  (onClick)="backToRepository()"
+                ></p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+
+        <p-card>
+          <ng-template pTemplate="content">
+            <div class="flex flex-column gap-4">
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-user-plus text-xl"></i>
+                  <h3 class="m-0">Invitar a nuevo colaborador</h3>
+                </div>
+
+                @if (repositoryFunctions() && repositoryFunctions().length > 0) {
+                  <form [formGroup]="form" (ngSubmit)="submit()">
+                    <formly-form [form]="form" [fields]="fields()" [model]="model"></formly-form>
+
+                    <div class="flex justify-content-end mt-3">
+                      <p-button
+                        label="Enviar invitación"
+                        type="submit"
+                        [loading]="submitting()"
+                        [disabled]="submitting()"
+                      >
+                      </p-button>
+                    </div>
+                  </form>
+                } @else {
+                  <div class="flex flex-column gap-3">
+                    <p-skeleton height="4rem" borderRadius="0.5rem"></p-skeleton>
+                    <p-skeleton height="4rem" borderRadius="0.5rem"></p-skeleton>
+                    <p-skeleton height="6rem" borderRadius="0.5rem"></p-skeleton>
+                  </div>
+                }
+              </section>
+
+              <div class="repository-team-page__divider"></div>
+
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-star text-xl"></i>
+                  <h3 class="m-0">Propiedad del Repositorio</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <p-table
+                    [value]="owners()"
+                    class="p-datatable-sm p-datatable-striped"
+                    [loading]="teamTableLoading()"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Función</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-member>
+                      <tr>
+                        <td>
+                          <div class="flex align-items-center gap-2">
+                            <img
+                              [src]="member.user?.avatarUrl || 'assets/layout/images/avatar.png'"
+                              class="user-avatar"
+                              alt="avatar"
+                            />
+                            <span class="font-medium">{{ member.user?.username }}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="text-color-secondary">{{ member.user?.email }}</span>
+                        </td>
+                        <td><span class="role-label">Propietario</span></td>
+                        <td>
+                          <span class="text-color-secondary">{{
+                            getFunctionName(member.repositoryFunctionId) | titlecase
+                          }}</span>
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </section>
+
+              <div class="repository-team-page__divider"></div>
+
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-users text-xl"></i>
+                  <h3 class="m-0">Copropietarios</h3>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <p-table
+                    [value]="coOwners()"
+                    class="p-datatable-sm p-datatable-striped"
+                    [loading]="teamTableLoading()"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Función</th>
+                        @if (isOwner()) {
+                          <th class="text-center" style="width: 120px">Acciones</th>
+                        }
+                      </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-member>
+                      <tr>
+                        <td>
+                          <div class="flex align-items-center gap-2">
+                            <img
+                              [src]="member.user?.avatarUrl || 'assets/layout/images/avatar.png'"
+                              class="user-avatar"
+                              alt="avatar"
+                            />
+                            <span class="font-medium">{{ member.user?.username }}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="text-color-secondary">{{ member.user?.email }}</span>
+                        </td>
+                        <td><span class="role-label">Copropietario</span></td>
+                        <td>
+                          @if (canEditUserFunction(member)) {
+                            <p-select
+                              [options]="repositoryFunctions()"
+                              [(ngModel)]="member.repositoryFunctionId"
+                              [ngModelOptions]="{ standalone: true }"
+                              optionLabel="name"
+                              optionValue="id"
+                              (onChange)="updateUserFunction(member, $event.value)"
+                              appendTo="body"
+                              class="w-full capitalize"
+                            >
+                              <ng-template pTemplate="item" let-funcion>
+                                <span class="capitalize">{{ funcion.name }}</span>
+                              </ng-template>
+                            </p-select>
+                          } @else {
+                            <span class="text-color-secondary">{{
+                              getFunctionName(member.repositoryFunctionId) | titlecase
+                            }}</span>
+                          }
+                        </td>
+                        @if (isOwner()) {
+                          <td class="text-center">
+                            @if (canShowOwnerActions(member)) {
+                              <div class="flex justify-content-center gap-2">
+                                <p-button
+                                  icon="pi pi-star"
+                                  text
+                                  rounded
+                                  severity="info"
+                                  pTooltip="Transferir Propiedad"
+                                  (onClick)="confirmPromote(member)"
+                                ></p-button>
+                                <p-button
+                                  icon="pi pi-arrow-down"
+                                  text
+                                  rounded
+                                  severity="warn"
+                                  pTooltip="Descender a Cocreador"
+                                  (onClick)="confirmDemote(member)"
+                                ></p-button>
+                                <p-button
+                                  icon="pi pi-trash"
+                                  text
+                                  rounded
+                                  severity="danger"
+                                  pTooltip="Eliminar"
+                                  (onClick)="removeUser(member)"
+                                ></p-button>
+                              </div>
+                            }
+                          </td>
+                        }
+                      </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="emptymessage">
+                      <tr>
+                        <td colspan="5" class="text-center p-4 text-color-secondary font-medium">
+                          Aún no hay copropietarios en este repositorio.
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+              </section>
+
+              <div class="repository-team-page__divider"></div>
+
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-id-card text-xl"></i>
+                  <h3 class="m-0">Equipo del Repositorio</h3>
+                </div>
+
+                <div class="flex flex-column md:flex-row align-items-end gap-3 mb-4">
+                  <div class="flex-grow-1 w-full md:w-auto">
+                    <label class="block text-sm font-semibold mb-1">Buscar</label>
+                    <input
+                      pInputText
+                      [ngModel]="searchTerm()"
+                      placeholder="Usuario o correo..."
+                      class="w-full"
+                      (input)="onSearch($event)"
+                    />
+                  </div>
+
+                  <div class="w-full md:w-14rem">
+                    <label class="block text-sm font-semibold mb-1">Rol</label>
+                    <p-select
+                      [options]="filteredTeamRoles()"
+                      [ngModel]="filterRole()"
+                      (ngModelChange)="filterRole.set($event); loadTeam()"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="Todos"
+                      optionLabel="name"
+                      appendTo="body"
+                      class="w-full capitalize"
+                      [showClear]="true"
+                    ></p-select>
+                  </div>
+
+                  <div class="w-full md:w-14rem">
+                    <label class="block text-sm font-semibold mb-1">Función</label>
+                    <p-select
+                      [options]="capitalizedFunctions()"
+                      [ngModel]="filterFunction()"
+                      (ngModelChange)="filterFunction.set($event); loadTeam()"
+                      [ngModelOptions]="{ standalone: true }"
+                      placeholder="Todas"
+                      optionLabel="name"
+                      appendTo="body"
+                      class="w-full capitalize"
+                      [showClear]="true"
+                    ></p-select>
+                  </div>
+
+                  <div class="flex gap-2 w-full md:w-auto mt-2 md:mt-0">
+                    <p-button
+                      icon="pi pi-search"
+                      label="Buscar"
+                      (onClick)="loadTeam()"
+                      class="w-full md:w-auto px-4"
+                    ></p-button>
+
+                    <p-button
+                      icon="pi pi-filter-slash"
+                      label="Limpiar"
+                      (onClick)="clearFilters()"
+                      severity="secondary"
+                      variant="outlined"
+                      class="w-full md:w-auto px-4"
+                    ></p-button>
+                  </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <p-table
+                    [value]="teamUsers()"
+                    class="p-datatable-sm p-datatable-striped"
+                    [loading]="teamTableLoading()"
+                  >
+                    <ng-template pTemplate="header">
+                      <tr>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Función</th>
+                        @if (canShowTeamActionsColumn()) {
+                          <th class="text-center" style="width: 120px">Acciones</th>
+                        }
+                      </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="body" let-member>
+                      <tr>
+                        <td>
+                          <div class="flex align-items-center gap-2">
+                            <img
+                              [src]="member.user?.avatarUrl || 'assets/layout/images/avatar.png'"
+                              class="user-avatar"
+                              alt="avatar"
+                            />
+                            <span class="font-medium">{{ member.user?.username }}</span>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="text-color-secondary">{{ member.user?.email }}</span>
+                        </td>
+                        <td>
+                          <span class="role-label">{{
+                            getRoleName(member.repositoryRoleId) | titlecase
+                          }}</span>
+                        </td>
+                        <td>
+                          <p-select
+                            [options]="capitalizedFunctions()"
+                            [(ngModel)]="member.repositoryFunctionId"
+                            [ngModelOptions]="{ standalone: true }"
+                            optionLabel="name"
+                            optionValue="id"
+                            (onChange)="updateUserFunction(member, $event.value)"
+                            appendTo="body"
+                            class="w-full capitalize"
+                            [disabled]="!canEditUserFunction(member) || teamTableLoading()"
+                          >
+                            <ng-template pTemplate="item" let-funcion>
+                              <span class="capitalize">{{ funcion.name }}</span>
+                            </ng-template>
+                          </p-select>
+                        </td>
+
+                        @if (canShowTeamActionsColumn()) {
+                          <td class="text-center">
+                            <div class="flex justify-content-center gap-2">
+                              @if (canShowPromote(member)) {
+                                <p-button
+                                  icon="pi pi-arrow-up"
+                                  text
+                                  rounded
+                                  severity="success"
+                                  pTooltip="Ascender a Copropietario"
+                                  (onClick)="confirmPromote(member)"
+                                ></p-button>
+                              }
+                              @if (canShowOwnerActions(member)) {
+                                <p-button
+                                  icon="pi pi-trash"
+                                  text
+                                  rounded
+                                  severity="danger"
+                                  pTooltip="Eliminar"
+                                  (onClick)="removeUser(member)"
+                                ></p-button>
+                              }
+                            </div>
+                          </td>
+                        }
+                      </tr>
+                    </ng-template>
+
+                    <ng-template pTemplate="emptymessage">
+                      <tr>
+                        <td colspan="5" class="text-center p-4 text-color-secondary font-medium">
+                          @if (isInitializing() || teamTableLoading()) {
+                            <div class="flex align-items-center justify-content-center gap-2">
+                              <i class="pi pi-spin pi-spinner"></i>
+                              <span>Cargando equipo...</span>
+                            </div>
+                          } @else if (searchTerm() || filterRole() || filterFunction()) {
+                            No se encontraron resultados para los filtros aplicados.
+                          } @else {
+                            Aún no hay miembros o co creadores en el equipo de este repositorio.
+                          }
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
+                </div>
+
+                @if (teamTotalRecords() > 0) {
+                  <div class="mt-2">
+                    <app-pagination
+                      [first]="(teamPage() - 1) * teamLimit()"
+                      [rows]="teamLimit()"
+                      [totalRecords]="teamTotalRecords()"
+                      (pageChange)="onPageChange($event)"
+                    ></app-pagination>
+                  </div>
+                }
+              </section>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+    }
+  </div>
+</section>

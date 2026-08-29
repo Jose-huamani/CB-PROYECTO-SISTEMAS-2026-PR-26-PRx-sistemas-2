@@ -1,0 +1,86 @@
+<section class="w-full create-repository-page">
+  <div class="w-full mx-auto px-3 sm:px-4 py-4 md:py-5 create-repository-page__container">
+    <div class="text-center mb-4 md:mb-5">
+      <h1 class="m-0">Crea un nuevo Repositorio</h1>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-4">
+      <section class="flex flex-column gap-3">
+        <div class="flex align-items-center gap-2 create-repository-page__section-title">
+          <i class="pi pi-info-circle text-xl"></i>
+          <h3 class="m-0">Información General</h3>
+        </div>
+
+        <formly-form
+          [form]="form"
+          [fields]="[
+            {
+              fieldGroupClassName: 'grid formgrid p-fluid -mx-2',
+              fieldGroup: [
+                fields[0].fieldGroup![0],
+                fields[0].fieldGroup![1],
+                fields[0].fieldGroup![2],
+                fields[0].fieldGroup![3],
+              ],
+            },
+          ]"
+          [model]="model"
+        ></formly-form>
+      </section>
+
+      <div class="create-repository-page__divider"></div>
+
+      <section class="flex flex-column gap-3">
+        <div class="flex align-items-center gap-2 create-repository-page__section-title">
+          <i class="pi pi-cog text-xl"></i>
+          <h3 class="m-0">Configuración</h3>
+        </div>
+
+        <formly-form
+          [form]="form"
+          [fields]="[
+            {
+              fieldGroupClassName: 'grid formgrid p-fluid -mx-2',
+              fieldGroup: [
+                fields[0].fieldGroup![4],
+                fields[0].fieldGroup![5],
+                fields[0].fieldGroup![6],
+              ],
+            },
+          ]"
+          [model]="model"
+        ></formly-form>
+      </section>
+
+      <div class="create-repository-page__divider"></div>
+
+      <div class="grid formgrid p-fluid -mx-2">
+        <div class="col-12 md:col-6 px-2">
+          <p-button
+            type="submit"
+            severity="primary"
+            label="Crear Repositorio"
+            icon="pi pi-folder-plus"
+            styleClass="w-full"
+            [loading]="submitting()"
+            [disabled]="submitting()"
+          ></p-button>
+        </div>
+
+        <div class="col-12 md:col-6 px-2 mt-2 md:mt-0">
+          <p-button
+            type="button"
+            label="Cancelar"
+            icon="pi pi-times"
+            severity="secondary"
+            variant="outlined"
+            icon="pi pi-times"
+            styleClass="w-full"
+            [disabled]="submitting()"
+            (onClick)="cancel()"
+          ></p-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

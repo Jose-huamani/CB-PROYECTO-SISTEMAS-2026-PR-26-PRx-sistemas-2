@@ -1,0 +1,223 @@
+<header class="app-header">
+  <div class="max-w-screen-xl mx-auto px-3 md:px-4 py-2">
+    <div class="hidden md:flex align-items-center justify-content-between gap-3">
+      <div class="flex align-items-center gap-5">
+        <a
+          routerLink="/"
+          class="flex align-items-center"
+          (click)="closeMobileMenu()"
+          aria-label="Ir al inicio"
+        >
+          <img src="/logo/prx-logo.png" alt="PRX" class="app-header__logo" />
+        </a>
+
+        <span class="font-medium text-color-secondary">
+          @if (isAuthenticated()) {
+            Bienvenido de nuevo
+          } @else {
+            Bienvenido a PRX
+          }
+        </span>
+      </div>
+
+      @if (isAuthenticated()) {
+        <p-menubar [model]="menuItems()" class="app-header__menubar border-none bg-transparent" />
+      }
+
+      <div class="flex align-items-center gap-3">
+        @if (!isAuthenticated()) {
+          <p-button label="Iniciar sesión" icon="pi pi-sign-in" routerLink="/auth/login" />
+
+          <p-button
+            label="Registrarse"
+            icon="pi pi-user-plus"
+            variant="outlined"
+            routerLink="/auth/register-request"
+          />
+        } @else {
+          <p-button
+            icon="pi pi-bell"
+            variant="text"
+            [badge]="
+              notificationsFacade.unreadCount() > 0
+                ? notificationsFacade.unreadCount().toString()
+                : undefined
+            "
+            routerLink="/notifications/me"
+            ariaLabel="Notificaciones"
+          />
+
+          <button
+            pButton
+            type="button"
+            class="p-button-text p-button-rounded app-header__user-trigger"
+            [label]="username()"
+            iconPos="right"
+            icon="pi pi-angle-down"
+            (click)="userMenu.toggle($event)"
+          >
+            <p-avatar [image]="avatarUrl()" shape="circle" size="normal" class="mr-2" />
+          </button>
+
+          <p-menu #userMenu [model]="userMenuItems()" [popup]="true" appendTo="body" />
+        }
+      </div>
+    </div>
+
+    <div class="flex md:hidden align-items-center justify-content-between gap-2">
+      <a
+        routerLink="/"
+        class="flex align-items-center"
+        (click)="closeMobileMenu()"
+        aria-label="Ir al inicio"
+      >
+        <img src="/logo/prx-logo.png" alt="PRX" class="app-header__logo" />
+      </a>
+
+      <div class="flex align-items-center gap-1">
+        @if (isAuthenticated()) {
+          <p-avatar [image]="avatarUrl()" shape="circle" />
+
+          <p-button
+            icon="pi pi-bell"
+            variant="text"
+            [badge]="
+              notificationsFacade.unreadCount() > 0
+                ? notificationsFacade.unreadCount().toString()
+                : undefined
+            "
+            ariaLabel="Notificaciones"
+            (onClick)="navigateAndClose('/notifications/me')"
+          />
+        }
+
+        <p-button
+          [icon]="mobileMenuOpen() ? 'pi pi-times' : 'pi pi-bars'"
+          variant="text"
+          ariaLabel="Abrir menú"
+          (onClick)="toggleMobileMenu()"
+        />
+      </div>
+    </div>
+
+    @if (mobileMenuOpen()) {
+      <div class="md:hidden mt-3 flex flex-column gap-3">
+        @if (isAuthenticated()) {
+          <div class="flex flex-column">
+            <button
+              pButton
+              type="button"
+              text
+              class="app-header__mobile-item"
+              (click)="navigateAndClose('/repositories/explore')"
+            >
+              <span class="flex align-items-center gap-3">
+                <i class="pi pi-compass"></i>
+                <span>Explorar</span>
+              </span>
+            </button>
+
+            <button
+              pButton
+              type="button"
+              text
+              class="app-header__mobile-item"
+              (click)="toggleMobileRepositories()"
+            >
+              <span class="flex align-items-center gap-3">
+                <i class="pi pi-folder"></i>
+                <span>Mis repositorios</span>
+              </span>
+
+              <i
+                class="pi"
+                [class.pi-chevron-down]="!mobileRepositoriesOpen()"
+                [class.pi-chevron-up]="mobileRepositoriesOpen()"
+              ></i>
+            </button>
+
+            @if (mobileRepositoriesOpen()) {
+              <div class="flex flex-column gap-1 pl-4">
+                @for (item of menuItems()[1].items; track item.label) {
+                  <button
+                    pButton
+                    type="button"
+                    text
+                    class="app-header__mobile-sub-item"
+                    (click)="navigateAndClose(item.routerLink?.toString() ?? '/')"
+                  >
+                    <span class="flex align-items-center gap-3">
+                      <i [class]="item.icon ?? 'pi pi-folder'"></i>
+                      <span>{{ item.label }}</span>
+                    </span>
+                  </button>
+                }
+              </div>
+            }
+
+            <button
+              pButton
+              type="button"
+              text
+              class="app-header__mobile-item"
+              (click)="navigateAndClose('/binnacles/me')"
+            >
+              <span class="flex align-items-center gap-3">
+                <i class="pi pi-book"></i>
+                <span>Bitácora</span>
+              </span>
+            </button>
+          </div>
+
+          <div class="border-top-1 surface-border pt-3 flex flex-column">
+            <button
+              pButton
+              type="button"
+              text
+              class="app-header__mobile-item"
+              (click)="navigateAndClose('/profiles/edit')"
+            >
+              <span class="flex align-items-center gap-3">
+                <i class="pi pi-user"></i>
+                <span>Ver perfil</span>
+              </span>
+            </button>
+
+            <button
+              pButton
+              type="button"
+              text
+              class="app-header__mobile-item"
+              [disabled]="loggingOut()"
+              (click)="logout()"
+            >
+              <span class="flex align-items-center gap-3">
+                <i class="pi pi-sign-out"></i>
+                <span>{{ loggingOut() ? 'Cerrando sesión...' : 'Cerrar sesión' }}</span>
+              </span>
+            </button>
+          </div>
+        } @else {
+          <div class="flex flex-column gap-2">
+            <p-button
+              label="Iniciar sesión"
+              icon="pi pi-sign-in"
+              styleClass="w-full"
+              routerLink="/auth/login"
+              (onClick)="closeMobileMenu()"
+            />
+
+            <p-button
+              label="Registrarse"
+              icon="pi pi-user-plus"
+              variant="outlined"
+              styleClass="w-full"
+              routerLink="/auth/register-request"
+              (onClick)="closeMobileMenu()"
+            />
+          </div>
+        }
+      </div>
+    }
+  </div>
+</header>

@@ -1,0 +1,171 @@
+<div class="become-member-page overflow-hidden">
+  <p-scrollTop></p-scrollTop>
+
+  <section
+    class="hero-section relative flex flex-column align-items-center justify-content-center text-center px-3 px-md-4 py-6"
+  >
+    <div class="hero-content z-1">
+      <p-chip
+        label="Acceso por membresía"
+        icon="pi pi-credit-card"
+        class="mb-3 mb-md-4 hero-chip"
+      ></p-chip>
+      <h1 class="text-3xl md:text-6xl font-bold text-white m-0 mb-2 mb-md-3 leading-tight">
+        Conviértete en <span class="text-primary">Miembro</span>
+      </h1>
+      <p
+        class="text-md md:text-xl text-white-alpha-90 m-0 mb-4 mb-md-5 max-w-40rem mx-auto line-height-3 px-2"
+      >
+        Obtén los mismos permisos que un Cocreador y empieza a crear, editar y colaborar en un
+        repositorio.
+      </p>
+      <div class="flex flex-column sm:flex-row gap-3 justify-content-center">
+        <p-button
+          label="Explorar repositorios"
+          icon="pi pi-folder-open"
+          size="large"
+          styleClass="p-button-outlined p-button-rounded hero-button-secondary"
+          routerLink="/repositories/explore"
+        ></p-button>
+      </div>
+    </div>
+    <div class="hero-blur-1"></div>
+    <div class="hero-blur-2"></div>
+    <div class="hero-blur-3"></div>
+  </section>
+
+  <div class="benefits-section py-5 py-md-8 px-3 px-md-4 surface-ground">
+    <div class="max-w-screen-xl mx-auto text-center">
+      <p-chip label="Ventajas" icon="pi pi-gift" class="mb-3"></p-chip>
+      <h2 class="text-2xl md:text-5xl font-bold mt-2 mb-3">¿Qué obtienes como Miembro?</h2>
+      <p class="text-color-secondary text-base md:text-lg mb-4 md:mb-5 max-w-30rem mx-auto px-2">
+        Con la membresía obtienes las mismas herramientas de colaboración que un Cocreador.
+      </p>
+
+      <div class="grid">
+        @for (benefit of benefits; track benefit.title) {
+          <div class="col-12 md:col-6 lg:col-4 mb-3 mb-md-4">
+            <div class="benefit-card p-3 p-md-4 border-round-xl surface-card shadow-2 h-full">
+              <div
+                class="w-3rem h-3rem md:w-4rem md:h-4rem flex align-items-center justify-content-center border-round-2xl mb-3"
+                [style.backgroundColor]="benefit.color + '20'"
+              >
+                <i
+                  [class]="benefit.icon + ' text-xl md:text-2xl'"
+                  [style.color]="benefit.color"
+                ></i>
+              </div>
+              <h3 class="text-md md:text-xl font-semibold m-0 mb-2">{{ benefit.title }}</h3>
+              <p class="text-color-secondary m-0 line-height-3 text-sm md:text-base">
+                {{ benefit.description }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="permissions-section py-5 py-md-8 px-3 px-md-4">
+    <div class="max-w-screen-xl mx-auto">
+      <div class="flex flex-column lg:flex-row align-items-center gap-4 gap-md-6">
+        <div class="lg:w-6">
+          <p-chip label="Capacidades" icon="pi pi-check-circle" class="mb-3"></p-chip>
+          <h2 class="text-2xl md:text-4xl font-bold mt-2 mb-3">¿Qué puedes hacer como Miembro?</h2>
+          <p class="text-color-secondary text-base md:text-lg mb-4 max-w-40rem">
+            Como Miembro, tienes exactamente los mismos permisos que un Cocreador para crear y
+            editar contenido dentro del repositorio.
+          </p>
+
+          <div class="grid mt-4">
+            @for (permission of permissions; track permission.action) {
+              <div class="col-12 sm:col-6 mb-2">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-check-circle text-primary text-lg"></i>
+                  <span class="text-color">{{ permission.action }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="lg:w-6 flex justify-content-center">
+          <div
+            class="permissions-card border-round-3xl p-3 p-md-4 shadow-6 w-full"
+            style="background: linear-gradient(135deg, #ec489910, #3b82f610)"
+          >
+            <div class="flex align-items-center gap-3 mb-4">
+              <i class="pi pi-sync text-3xl text-primary"></i>
+              <h3 class="text-xl font-bold m-0">Miembro vs Cocreador</h3>
+            </div>
+            <p class="text-color-secondary mb-3">
+              Los Cocreadores y los Miembros tienen exactamente los mismos permisos sobre el
+              contenido del repositorio. La diferencia está en cómo se obtiene el rol:
+            </p>
+            <ul class="list-none p-0 m-0">
+              <li class="flex align-items-start gap-2 mb-3">
+                <i class="pi pi-user-plus text-primary mt-1"></i>
+                <span class="text-color-secondary"
+                  ><strong>Cocreador:</strong> acceso por invitación directa del propietario o
+                  copropietarios, sin costo.</span
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonials-section py-5 py-md-8 px-3 px-md-4 surface-ground">
+    <div class="max-w-screen-xl mx-auto text-center">
+      <p-chip label="Experiencias" icon="pi pi-users" class="mb-3"></p-chip>
+      <h2 class="text-2xl md:text-4xl font-bold mt-2 mb-3">Lo que dicen nuestros Miembros</h2>
+      <p class="text-color-secondary text-base md:text-lg mb-4 md:mb-5 max-w-30rem mx-auto px-2">
+        +4000 miembros activos disfrutan de PRX todos los días.
+      </p>
+
+      <div class="grid">
+        @for (testimonial of testimonials; track testimonial.name) {
+          <div class="col-12 md:col-4 mb-3 mb-md-4">
+            <div class="testimonial-card p-3 p-md-4 border-round-xl surface-card shadow-2 h-full">
+              <div class="flex align-items-center gap-3 mb-3">
+                <p-avatar [image]="testimonial.avatar" shape="circle" size="large"></p-avatar>
+                <div>
+                  <h4 class="m-0 font-semibold">{{ testimonial.name }}</h4>
+                  <p-tag [value]="testimonial.role" severity="info" [rounded]="true"></p-tag>
+                </div>
+              </div>
+              <i class="pi pi-quote-left text-primary-alpha-50 text-xl mr-1"></i>
+              <p class="m-0 text-color-secondary line-height-3 text-sm md:text-base">
+                {{ testimonial.message }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="faq-section py-5 py-md-8 px-3 px-md-4">
+    <div class="max-w-screen-xl mx-auto">
+      <div class="text-center mb-4 md:mb-5">
+        <p-chip label="Preguntas frecuentes" icon="pi pi-question-circle" class="mb-3"></p-chip>
+        <h2 class="text-2xl md:text-4xl font-bold mt-2 mb-3">Resuelve tus dudas</h2>
+        <p class="text-color-secondary text-base md:text-lg max-w-40rem mx-auto px-2">
+          Todo lo que necesitas saber antes de unirte como miembro.
+        </p>
+      </div>
+
+      <div class="flex flex-column gap-2 md:gap-3 max-w-screen-lg mx-auto">
+        @for (faq of faqs; track faq.title; let i = $index) {
+          <p-panel [header]="faq.title" [toggleable]="true" [collapsed]="i !== 0">
+            <p class="m-0 text-color-secondary line-height-3 text-sm md:text-base">
+              {{ faq.content }}
+            </p>
+          </p-panel>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,21 @@
+.confirm-register-page__container {
+  max-width: 30rem;
+}
+
+.confirm-register-page__logo {
+  width: 7rem;
+  max-width: 100%;
+}
+
+.confirm-register-page__panel {
+  backdrop-filter: blur(6px);
+}
+
+.confirm-register-page__link {
+  color: var(--color-primary);
+  transition: color 0.2s ease;
+}
+
+.confirm-register-page__link:hover {
+  color: var(--color-primary-hover);
+}

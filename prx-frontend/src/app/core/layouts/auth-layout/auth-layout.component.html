@@ -1,0 +1,25 @@
+<div class="auth-layout grid grid-nogutter min-h-screen">
+  <section class="col-12 lg:col-6 lg:h-screen auth-layout__image-section">
+    <div class="w-full h-full auth-layout__image-wrapper">
+      <img
+        class="auth-layout__image auth-layout__image--desktop hidden lg:block"
+        [src]="images().desktop"
+        [alt]="images().alt"
+      />
+
+      <img
+        class="auth-layout__image auth-layout__image--mobile block lg:hidden"
+        [src]="images().mobile"
+        [alt]="images().alt"
+      />
+    </div>
+  </section>
+
+  <section
+    class="col-12 lg:col-6 flex align-items-center justify-content-center px-3 md:px-4 lg:px-6 py-3 lg:py-0 lg:h-screen auth-layout__content"
+  >
+    <div class="w-full auth-layout__content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </section>
+</div>

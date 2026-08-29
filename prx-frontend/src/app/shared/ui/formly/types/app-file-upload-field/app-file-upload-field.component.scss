@@ -1,0 +1,39 @@
+:host ::ng-deep .app-file-upload-field__upload {
+  border: 0;
+  background: transparent;
+}
+
+:host ::ng-deep .app-file-upload-field__upload .p-fileupload-header {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+:host ::ng-deep .app-file-upload-field__upload .p-fileupload-content {
+  padding: 0.75rem 0 0;
+  border: 0;
+  background: transparent;
+}
+
+.app-file-upload-field__file {
+  min-height: 4.25rem;
+}
+
+.app-file-upload-field__file-icon,
+.app-file-upload-field__empty-icon {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  background: var(--p-primary-50);
+  color: var(--p-primary-600);
+}
+
+.app-file-upload-field__empty {
+  min-height: 4rem;
+}
+
+:host ::ng-deep formly-validation-message {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-warning);
+}

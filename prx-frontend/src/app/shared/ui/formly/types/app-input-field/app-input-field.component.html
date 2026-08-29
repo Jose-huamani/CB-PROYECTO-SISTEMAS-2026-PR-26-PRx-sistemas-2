@@ -1,0 +1,50 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label [for]="inputId" class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <input
+    pInputText
+    class="w-full"
+    [id]="inputId"
+    [name]="props['name'] ?? field.key"
+    [type]="inputType"
+    [formControl]="formControl"
+    [formlyAttributes]="field"
+    [hidden]="props.hidden ?? false"
+    [required]="props.required ?? false"
+    [placeholder]="props.placeholder ?? ''"
+    [readonly]="props.readonly ?? false"
+    [minlength]="props.minLength ?? null"
+    [maxlength]="props.maxLength ?? null"
+    [min]="props.min ?? null"
+    [max]="props.max ?? null"
+    [attr.pattern]="props.pattern ?? null"
+    [autocomplete]="props['autocomplete'] ?? 'off'"
+    [attr.inputmode]="props['inputmode'] ?? null"
+    [attr.step]="props.step ?? null"
+    [attr.spellcheck]="props['spellcheck'] ?? false"
+    [autofocus]="props['autofocus'] ?? false"
+    [pKeyFilter]="props['pKeyFilter'] ?? null"
+    [email]="props['email'] ?? false"
+    [attr.aria-invalid]="showError"
+    [class.ng-invalid]="showError"
+    [class.ng-dirty]="showError"
+    [email]="props['email'] ?? false"
+    [variant]="props['variant'] ?? null"
+    (input)="handleInputTransform($event)"
+    (blur)="handleBlurTransform($event)"
+  />
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

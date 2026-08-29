@@ -1,0 +1,97 @@
+<div
+  class="notification-item border-1 surface-border border-round p-4 mb-3 flex flex-column gap-3"
+  [ngClass]="notification().isRead ? 'notification-item--read' : 'notification-item--unread'"
+>
+  @if (deleteLoading() || (isInvitation() && (invitationLoading() || actionLoading()))) {
+    <div class="flex align-items-start justify-content-between gap-2">
+      <div class="flex align-items-start gap-2 min-w-0 flex-1">
+        <p-skeleton shape="circle" size="3rem"></p-skeleton>
+
+        <div class="flex flex-column gap-2 min-w-0">
+          <p-skeleton width="9rem" height="1.25rem" borderRadius="6px"></p-skeleton>
+          <p-skeleton width="14rem" height="1.5rem" borderRadius="6px"></p-skeleton>
+        </div>
+      </div>
+
+      <p-skeleton width="5rem" height="1rem" borderRadius="6px"></p-skeleton>
+    </div>
+
+    @if (isInvitation()) {
+      <div class="flex justify-content-end gap-2 mt-1">
+        <p-skeleton width="5rem" height="2.25rem" borderRadius="6px"></p-skeleton>
+        <p-skeleton width="4.5rem" height="2.25rem" borderRadius="6px"></p-skeleton>
+      </div>
+    }
+  } @else {
+    <div class="flex align-items-start justify-content-between gap-2">
+      <div class="flex align-items-start gap-2 min-w-0 flex-1">
+        <a [routerLink]="['/profiles/view', notification().senderUserId]">
+          <p-avatar [image]="notification().senderUser.avatarUrl" shape="circle" size="large" />
+        </a>
+
+        <div class="flex flex-column gap-2 min-w-0">
+          @if (isInvitation()) {
+            <span class="notification-item__badge">
+              Invitación a repositorio
+              @if (invitation()?.repositoryName) {
+                : {{ invitation()!.repositoryName }}
+              }
+            </span>
+
+            @if (invitation()?.senderName) {
+              <span class="text-sm text-color-secondary">
+                De:
+                <a
+                  [routerLink]="['/profiles/view', notification().senderUserId]"
+                  class="text-primary font-medium hover:underline"
+                  >{{ invitation()!.senderName }} {{ invitation()!.senderLastName }}</a
+                >
+              </span>
+            }
+          }
+
+          <h3 class="m-0 text-lg font-semibold">{{ notification().title }}</h3>
+
+          @if (notification().message) {
+            <p class="m-0 text-base text-color-secondary">{{ notification().message }}</p>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-column align-items-end gap-2 flex-shrink-0">
+        <small class="text-color-secondary white-space-nowrap text-xs">
+          {{ notification().createdAt | date: 'short' }}
+        </small>
+
+        <p-button
+          icon="pi pi-trash"
+          severity="secondary"
+          variant="text"
+          size="small"
+          class="notification-item__delete-btn"
+          ariaLabel="Eliminar notificación"
+          (onClick)="onDelete()"
+        />
+      </div>
+    </div>
+
+    @if (isInvitation() && canRespond()) {
+      <div class="flex justify-content-end gap-2 mt-1">
+        <p-button
+          label="Rechazar"
+          severity="secondary"
+          variant="outlined"
+          size="small"
+          (onClick)="reject()"
+        />
+        <p-button label="Aceptar" severity="primary" size="small" (onClick)="accept()" />
+      </div>
+    }
+
+    @if (isInvitation() && invitation() && !canRespond()) {
+      <div class="flex justify-content-end mt-1">
+        <span class="notification-item__status">{{ invitation()!.invitationStatus }}</span>
+      </div>
+    }
+  }
+</div>

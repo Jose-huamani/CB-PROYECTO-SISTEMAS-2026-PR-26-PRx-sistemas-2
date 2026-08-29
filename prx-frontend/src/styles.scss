@@ -1,0 +1,96 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import 'primeicons/primeicons.css';
+@import 'primeflex/primeflex.css';
+
+:root {
+  --font-family-base:
+    'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  /* PrimeNG mapped tokens */
+  --color-primary: var(--p-primary-600);
+  --color-primary-hover: var(--p-primary-700);
+  --color-secondary: var(--p-primary-500);
+  --color-secondary-hover: var(--p-primary-600);
+
+  --color-background: var(--p-surface-0);
+  --color-surface: var(--p-surface-0);
+  --color-surface-muted: var(--p-surface-50);
+  --color-border: var(--p-surface-400);
+
+  --color-text: var(--p-surface-900);
+  --color-text-soft: var(--p-surface-700);
+  --color-text-inverse: var(--p-surface-0);
+
+  /* Custom semantic/support colors not fully modeled in Prime preset */
+  --color-accent: #d9b504;
+  --color-accent-hover: #c0a104;
+
+  --color-success: #73d9a9;
+  --color-warning: #f26052;
+  --color-warning-hover: #e04a3c;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-family-base);
+}
+
+body {
+  min-height: 100vh;
+}
+
+body,
+.p-component {
+  font-family: var(--font-family-base);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+::selection {
+  background-color: color-mix(in srgb, var(--color-primary) 18%, white);
+  color: var(--color-text);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--color-border) 85%, var(--color-text-soft));
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--color-border) 65%, var(--color-text-soft));
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--color-surface-muted);
+}
+
+.app-form-field__label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-text);
+}

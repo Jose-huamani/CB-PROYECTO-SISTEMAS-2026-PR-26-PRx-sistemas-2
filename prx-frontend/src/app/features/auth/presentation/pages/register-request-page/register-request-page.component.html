@@ -1,0 +1,46 @@
+<section class="flex align-items-center justify-content-center w-full">
+  <div class="w-full mx-auto px-3 sm:px-4 register-request-page__container">
+    <div class="flex flex-column align-items-center text-center mb-4 md:mb-5">
+      <a routerLink="/">
+        <img src="/logo/prx-logo.png" alt="Logo de PRX" class="mb-3 register-request-page__logo" />
+      </a>
+
+      <h1 class="m-0">Crear tu cuenta</h1>
+
+      <p class="m-0">Completa tus datos para comenzar en PRX</p>
+    </div>
+
+    <div class="p-3 md:p-4 register-request-page__panel">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-3">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+        <p-button
+          type="submit"
+          label="Crear cuenta"
+          icon="pi pi-user-plus"
+          size="large"
+          styleClass="w-full"
+          [raised]="true"
+          [loading]="submitting()"
+          [disabled]="submitting()"
+        ></p-button>
+
+        <div
+          class="flex align-items-center justify-content-center my-1 register-request-page__divider"
+        >
+          <span class="register-request-page__divider-dot"></span>
+        </div>
+
+        <div class="text-center text-sm">
+          <span class="text-color-secondary">¿Ya tienes una cuenta?</span>
+          <a
+            routerLink="/auth/login"
+            class="ml-1 font-medium no-underline register-request-page__link"
+          >
+            Inicia sesión
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

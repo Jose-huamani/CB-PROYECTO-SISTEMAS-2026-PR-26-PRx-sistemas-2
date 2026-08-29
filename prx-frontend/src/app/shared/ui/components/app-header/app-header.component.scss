@@ -1,0 +1,38 @@
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app-header__logo {
+  height: 3rem;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.app-header__mobile-item,
+.app-header__mobile-sub-item {
+  width: 100%;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.app-header__mobile-sub-item {
+  justify-content: flex-start;
+}
+
+:host ::ng-deep .app-header__menubar .p-menubar-root-list {
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .app-header__menubar .p-menuitem-link {
+  border-radius: 0.75rem;
+}
+
+:host ::ng-deep .app-header__user-trigger {
+  padding: 0;
+  border: none;
+}

@@ -1,0 +1,86 @@
+<div class="profile-public-page">
+  <div class="profile-public-page__container">
+    @if (loading()) {
+    <div class="flex justify-content-center align-items-center" style="min-height: 60vh">
+      <p-skeleton height="7rem" borderRadius="1rem"></p-skeleton>
+    </div>
+    } @else {
+    @if (profile(); as profile) {
+    <div class="profile-public-card">
+      <p-card class="profile-public-card__shell">
+        <div class="profile-public-card__header">
+          @if (avatarImageUrl) {
+          <p-avatar [image]="avatarImageUrl" class="profile-public-card__avatar"></p-avatar>
+          } @else {
+          <p-avatar icon="pi pi-user" class="profile-public-card__avatar"></p-avatar>
+          }
+          <div class="profile-public-card__meta">
+            <h2>
+              {{ profile.firstName }} {{ profile.lastName
+              }}{{ profile.secondLastName ? ' ' + profile.secondLastName : '' }}
+            </h2>
+            @if (profile.isEmailVisible && profile.email) {
+            <div>{{ profile.email }}</div>
+            }
+            @if (getLocationLabel(profile)) {
+            <div class="profile-public-card__area">
+              {{ getLocationLabel(profile) | uppercase }}
+            </div>
+            }
+            @if (isOwner()) {
+            <div class="profile-public-card__actions">
+              <a [routerLink]="['/profiles/edit']" style="
+                        color: var(--primary-color);
+                        text-decoration: none;
+                        font-weight: 600;
+                        cursor: pointer;
+                      ">
+                Editar perfil
+              </a>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="profile-public-card__body">
+          @if (profile.biography) {
+          <p class="m-0 text-sm line-height-3 text-color-secondary">
+            {{ profile.biography }}
+          </p>
+          }
+
+          @if (resolvedSocialNetworks().length) {
+          <div class="profile-public-card__socials">
+            @for (sn of resolvedSocialNetworks(); track sn.id) {
+            <a class="profile-public-card__chip profile-public-card__chip--link" [href]="sn.url" target="_blank"
+              rel="noopener noreferrer">
+              <i [class]="sn.icon"></i>
+              <span>{{ sn.name }}</span>
+              <strong>{{ sn.username }}</strong>
+            </a>
+            }
+          </div>
+          }
+
+          @if (profile.tags.length) {
+          <div class="profile-public-card__tags">
+            @for (tag of profile.tags; track tag.id) {
+            <p-tag [value]="tag.name" severity="secondary" [rounded]="true"></p-tag>
+            }
+          </div>
+          }
+        </div>
+      </p-card>
+    </div>
+
+    <div class="px-3 sm:px-4 lg:px-0">
+      <app-user-public-repositories [userId]="profile.id"></app-user-public-repositories>
+    </div>
+    } @else if (profileNotFound()) {
+    <div class="flex justify-content-center p-4">
+      <p class="text-color-secondary">Este usuario aún no tiene perfil público.</p>
+    </div>
+    }
+    }
+  </div>
+</div>

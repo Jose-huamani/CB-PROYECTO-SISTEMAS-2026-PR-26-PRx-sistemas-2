@@ -1,0 +1,25 @@
+<section class="w-full create-note-page">
+  <div class="w-full mx-auto px-3 sm:px-4 py-4 md:py-5 create-note-page__container">
+    <div class="text-center mb-4 md:mb-5">
+      <h1 class="m-0">Crear nota</h1>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-4">
+      <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+      <div class="create-note-page__divider"></div>
+
+      <div class="grid formgrid p-fluid -mx-2 justify-content-center">
+        <div class="col-12 md:col-4 px-2">
+          <p-button type="submit" severity="primary" label="Guardar nota" icon="pi pi-check" styleClass="w-full"
+            [loading]="submitting()" [disabled]="submitting()"></p-button>
+        </div>
+
+        <div class="col-12 md:col-4 px-2 mt-2 md:mt-0 actions--right">
+          <p-button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" variant="outlined"
+            styleClass="w-full" [disabled]="submitting()" (onClick)="cancel()"></p-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</section>

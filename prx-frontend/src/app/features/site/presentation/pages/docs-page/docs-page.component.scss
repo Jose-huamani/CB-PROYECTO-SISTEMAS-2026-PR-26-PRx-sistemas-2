@@ -1,0 +1,99 @@
+.docs-page {
+  background-color: var(--surface-ground);
+
+  .hero-section {
+    min-height: 60vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-chip {
+      background: rgba(59, 130, 246, 0.2);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .hero-button-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-600));
+      border: none;
+    }
+
+    .hero-button-secondary {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .hero-blur-1 {
+      position: absolute;
+      top: -20%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 0;
+    }
+
+    .hero-blur-2 {
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent);
+      border-radius: 50%;
+      filter: blur(70px);
+      z-index: 0;
+    }
+
+    .hero-blur-3 {
+      position: absolute;
+      top: 40%;
+      left: 40%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent);
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+    }
+  }
+
+  .doc-item {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateX(4px);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .docs-page {
+    .hero-section h1 {
+      font-size: 2rem;
+    }
+  }
+}
+
+.hero-chip {
+  background: rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+
+  ::ng-deep .p-chip-label,
+  ::ng-deep .p-chip-icon {
+    color: #ffffff;
+  }
+}

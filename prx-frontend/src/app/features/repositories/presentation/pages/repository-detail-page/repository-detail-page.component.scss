@@ -1,0 +1,93 @@
+:host ::ng-deep .repository-detail-page__header-card {
+  border-top: 0.35rem solid var(--repository-color);
+}
+
+.repository-detail-page__description {
+  max-height: 12rem;
+  overflow-y: auto;
+}
+
+.repository-detail-page__avatar {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.repository-detail-page__profile-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  line-height: inherit;
+  width: fit-content;
+}
+
+.repository-detail-page__profile-button:hover {
+  color: var(--color-primary);
+}
+
+.repository-detail-page__profile-button:focus {
+  outline: none;
+}
+
+.repository-detail-page__profile-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+.repository-detail-page__link-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--color-text);
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  line-height: inherit;
+  text-decoration: underline;
+  width: fit-content;
+}
+
+.repository-detail-page__link-button:hover {
+  color: var(--color-primary);
+}
+
+.repository-detail-page__link-button:focus {
+  outline: none;
+}
+
+.repository-detail-page__link-button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 0.5rem;
+}
+
+:host ::ng-deep .repository-detail-page__explorer-card .p-card {
+  min-height: 36rem;
+}
+
+:host ::ng-deep .repository-detail-page__explorer-card .p-card-body,
+:host ::ng-deep .repository-detail-page__explorer-card .p-card-content {
+  height: 100%;
+}
+
+.repository-detail-page__file-placeholder {
+  min-height: 26rem;
+  border: 1px dashed var(--color-border);
+  border-radius: 0.75rem;
+  flex: 1;
+}
+
+.repository-detail-page__file-icon {
+  font-size: 2rem;
+  color: var(--color-primary);
+}

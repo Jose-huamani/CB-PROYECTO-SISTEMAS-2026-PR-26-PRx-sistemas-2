@@ -1,0 +1,8 @@
+export class CountryEntity {
+  constructor(
+    public readonly id: number | null,
+    public readonly name: string,
+    public readonly status: number,
+    public readonly phoneCode?: string | null,
+  ) { }
+}

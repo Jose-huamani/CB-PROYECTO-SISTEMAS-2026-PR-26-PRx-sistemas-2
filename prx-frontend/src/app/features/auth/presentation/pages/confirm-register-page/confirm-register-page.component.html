@@ -1,0 +1,64 @@
+<section class="flex align-items-center justify-content-center w-full">
+  <div class="w-full mx-auto px-3 sm:px-4 confirm-register-page__container">
+    <div class="flex flex-column align-items-center text-center mb-3 md:mb-4">
+      <img src="/logo/prx-logo.png" alt="Logo de PRX" class="mb-3 confirm-register-page__logo" />
+
+      <div class="flex align-items-center gap-2 mb-2">
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-left"
+          text
+          rounded
+          (click)="goBack()"
+        ></button>
+
+        <h1 class="m-0">Verificación en dos pasos</h1>
+      </div>
+
+      <p class="m-0 text-sm text-color-secondary">Ingresa el código enviado a tu correo</p>
+
+      @if (hasEmail()) {
+        <p class="mt-2 text-sm font-medium m-0">
+          {{ email() }}
+        </p>
+      }
+    </div>
+
+    <div class="p-3 md:p-4 confirm-register-page__panel">
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-3">
+        <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+
+        <p class="text-center text-sm text-color-secondary m-0">
+          El código expira en {{ verificationCodeExpiresMinutes }} minutos.
+        </p>
+
+        <p-button
+          type="submit"
+          label="Enviar"
+          styleClass="w-full"
+          size="large"
+          [raised]="true"
+          [loading]="submitting()"
+          [disabled]="submitting()"
+        ></p-button>
+
+        <div class="text-center text-sm text-color-secondary">
+          @if (resendCooldown() > 0) {
+            <span>Puedes reenviar en {{ resendCooldown() }}s</span>
+          } @else {
+            <p-button
+              variant="text"
+              class="confirm-register-page__link"
+              (click)="resendCode()"
+              [loading]="resending()"
+              [disabled]="isResendBlocked()"
+            >
+              Reenviar código
+            </p-button>
+          }
+        </div>
+      </form>
+    </div>
+  </div>
+</section>

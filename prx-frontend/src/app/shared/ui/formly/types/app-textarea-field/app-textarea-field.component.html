@@ -1,0 +1,41 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label [for]="inputId" class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <textarea
+    pTextarea
+    class="w-full"
+    [id]="inputId"
+    [name]="props['name'] ?? field.key"
+    [formControl]="formControl"
+    [formlyAttributes]="field"
+    [hidden]="props.hidden ?? false"
+    [required]="props.required ?? false"
+    [placeholder]="props.placeholder ?? ''"
+    [readonly]="props.readonly ?? false"
+    [rows]="props['rows'] ?? 3"
+    [cols]="props['cols'] ?? null"
+    [autoResize]="props['autoResize'] ?? true"
+    [maxlength]="props.maxLength ?? null"
+    [attr.minlength]="props.minLength ?? null"
+    [attr.aria-invalid]="showError"
+    [class.ng-invalid]="showError"
+    [class.ng-dirty]="showError"
+    [variant]="props['variant'] ?? null"
+    (input)="handleInputTransform($event)"
+    (blur)="handleBlurTransform($event)"
+  ></textarea>
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

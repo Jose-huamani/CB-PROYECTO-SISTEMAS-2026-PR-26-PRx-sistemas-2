@@ -1,0 +1,52 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+:host ::ng-deep .repository-card {
+  border-top: 0.35rem solid var(--repository-color);
+}
+
+:host ::ng-deep .repository-card .p-card {
+  height: 22rem;
+}
+
+:host ::ng-deep .repository-card .p-card-body,
+:host ::ng-deep .repository-card .p-card-content {
+  height: 100%;
+}
+
+.repository-card__text-cut {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.repository-card__description {
+  min-height: 4rem;
+  max-height: 4rem;
+  overflow: hidden;
+}
+
+.repository-card__owner-button {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.repository-card__avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  object-fit: cover;
+  flex: 0 0 auto;
+}
+
+.repository-card__tags {
+  min-height: 2rem;
+  max-height: 4.25rem;
+  overflow: hidden;
+}

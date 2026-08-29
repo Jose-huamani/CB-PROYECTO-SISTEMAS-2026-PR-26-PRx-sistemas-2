@@ -1,0 +1,123 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label [for]="inputId" class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <p-fileUpload
+    [id]="inputId"
+    mode="advanced"
+    [name]="props['name'] ?? field.key"
+    [accept]="accept"
+    [maxFileSize]="maxFileSize"
+    [multiple]="multiple"
+    [fileLimit]="maxFiles"
+    [auto]="false"
+    [customUpload]="true"
+    [showUploadButton]="false"
+    [showCancelButton]="false"
+    [disabled]="props.disabled ?? false"
+    [invalidFileSizeMessageSummary]="invalidFileSizeMessageSummary"
+    [invalidFileSizeMessageDetail]="invalidFileSizeMessageDetail"
+    [invalidFileTypeMessageSummary]="invalidFileTypeMessageSummary"
+    [invalidFileTypeMessageDetail]="invalidFileTypeMessageDetail"
+    styleClass="app-file-upload-field__upload"
+    (onSelect)="handleSelect($event)"
+  >
+    <ng-template
+      pTemplate="header"
+      let-chooseCallback="chooseCallback"
+      let-clearCallback="clearCallback"
+    >
+      <div class="flex flex-column gap-2">
+        <div class="flex flex-column sm:flex-row gap-2">
+          <p-button
+            type="button"
+            [label]="chooseLabel"
+            [icon]="chooseIcon"
+            [disabled]="!canChooseFile"
+            (onClick)="chooseCallback()"
+          ></p-button>
+
+          @if (selectedFiles.length) {
+            <p-button
+              type="button"
+              [label]="clearLabel"
+              icon="pi pi-times"
+              severity="secondary"
+              variant="outlined"
+              (onClick)="clearFiles(clearCallback)"
+            ></p-button>
+          }
+        </div>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="content" let-removeFileCallback="removeFileCallback">
+      @if (selectedFiles.length) {
+        <div class="flex flex-column gap-2">
+          @for (file of selectedFiles; track index; let index = $index) {
+            <div
+              class="app-file-upload-field__file flex align-items-center justify-content-between gap-3 p-3 border-1 border-round-xl surface-border surface-50"
+            >
+              <div class="flex align-items-center gap-3 min-w-0">
+                <div
+                  class="app-file-upload-field__file-icon flex align-items-center justify-content-center flex-shrink-0"
+                >
+                  <i [class]="getFileIcon(file)"></i>
+                </div>
+
+                <div class="flex flex-column gap-1 min-w-0">
+                  <span
+                    class="font-medium white-space-nowrap overflow-hidden text-overflow-ellipsis"
+                  >
+                    {{ file.name }}
+                  </span>
+
+                  <small class="text-color-secondary">
+                    {{ getFileSize(file) }}
+                  </small>
+                </div>
+              </div>
+
+              <p-button
+                type="button"
+                icon="pi pi-times"
+                severity="secondary"
+                variant="text"
+                [rounded]="true"
+                [disabled]="props.disabled ?? false"
+                (onClick)="removeFile($event, index, removeFileCallback)"
+              ></p-button>
+            </div>
+          }
+        </div>
+      } @else {
+        <div
+          class="app-file-upload-field__empty flex align-items-center gap-3 p-3 border-1 border-dashed border-round-xl surface-border surface-50 text-color-secondary"
+        >
+          <div
+            class="app-file-upload-field__empty-icon flex align-items-center justify-content-center flex-shrink-0"
+          >
+            <i class="pi pi-cloud-upload"></i>
+          </div>
+
+          <span class="text-sm line-height-3">
+            Selecciona un archivo para subir al repositorio.
+          </span>
+        </div>
+      }
+    </ng-template>
+  </p-fileUpload>
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

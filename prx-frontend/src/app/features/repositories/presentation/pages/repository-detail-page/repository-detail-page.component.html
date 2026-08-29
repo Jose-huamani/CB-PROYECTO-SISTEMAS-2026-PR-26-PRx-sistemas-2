@@ -1,0 +1,379 @@
+<section class="w-full repository-detail-page">
+  <div class="w-full px-3 sm:px-4 py-4 md:py-5">
+    @if (loading()) {
+      <div class="flex flex-column gap-3">
+        <p-skeleton height="11rem" borderRadius="1rem"></p-skeleton>
+
+        <div class="grid formgrid -mx-2">
+          <div class="col-12 md:col-4 px-2">
+            <p-skeleton height="36rem" borderRadius="1rem"></p-skeleton>
+          </div>
+
+          <div class="col-12 md:col-8 px-2 mt-3 md:mt-0">
+            <p-skeleton height="36rem" borderRadius="1rem"></p-skeleton>
+          </div>
+        </div>
+      </div>
+    } @else if (repository(); as repository) {
+      <div class="flex flex-column gap-3">
+        <div [style.--repository-color]="getRepositoryColor(repository)">
+          <p-card class="repository-detail-page__header-card">
+            <ng-template pTemplate="content">
+              <div class="flex flex-column gap-3">
+                <div
+                  class="flex flex-column md:flex-row md:align-items-start md:justify-content-between gap-3"
+                >
+                  <div class="flex flex-column gap-2">
+                    <h1 class="m-0">
+                      {{ getRepositoryTitle(repository) }}
+                    </h1>
+
+                    <div
+                      class="flex flex-column sm:flex-row sm:align-items-center gap-2 text-sm text-color-secondary"
+                    >
+                      <span>{{ getRepositoryPath(repository) }}</span>
+                      <span class="hidden sm:inline">›</span>
+                      <span>
+                        Última actualización:
+                        {{ repository.updatedAt | date: 'dd/MM/yyyy' }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="flex justify-content-start md:justify-content-end">
+                    <p-tag
+                      [value]="repository.category.name"
+                      [rounded]="true"
+                      class="px-4 py-1"
+                    ></p-tag>
+                  </div>
+                </div>
+
+                <div class="grid formgrid p-fluid -mx-2">
+                  @if (canShowJoin()) {
+                    <div class="col-12 sm:col-6 lg:col-3 px-2 mb-2 lg:mb-0">
+                      <p-button
+                        type="button"
+                        label="Unirte como Miembro"
+                        icon="pi pi-user-plus"
+                        severity="secondary"
+                        variant="outlined"
+                        styleClass="w-full"
+                        (onClick)="joinRepository()"
+                      ></p-button>
+                    </div>
+                  }
+
+                  @if (canShowSettings()) {
+                    <div class="col-12 sm:col-6 lg:col-3 px-2 mb-2 lg:mb-0">
+                      <p-button
+                        type="button"
+                        label="Configuración"
+                        icon="pi pi-cog"
+                        severity="secondary"
+                        variant="outlined"
+                        styleClass="w-full"
+                        (onClick)="openSettings()"
+                      ></p-button>
+                    </div>
+                  }
+
+                  @if (canShowTeam()) {
+                    <div class="col-12 sm:col-6 lg:col-3 px-2 mb-2 lg:mb-0">
+                      <p-button
+                        type="button"
+                        label="Equipo"
+                        icon="pi pi-users"
+                        severity="secondary"
+                        variant="outlined"
+                        styleClass="w-full"
+                        (onClick)="openTeam()"
+                      ></p-button>
+                    </div>
+                  }
+
+                  @if (canShowNotes()) {
+                    <div class="col-12 sm:col-6 lg:col-3 px-2">
+                      <p-button
+                        type="button"
+                        label="Notas"
+                        icon="pi pi-file-edit"
+                        severity="secondary"
+                        variant="outlined"
+                        styleClass="w-full"
+                        (onClick)="openNotes()"
+                      ></p-button>
+                    </div>
+                  }
+                </div>
+              </div>
+            </ng-template>
+          </p-card>
+        </div>
+
+        <div class="grid formgrid -mx-2 align-items-stretch">
+          <div class="col-12 md:col-4 px-2">
+            <p-card class="h-full">
+              <ng-template pTemplate="content">
+                <div class="flex flex-column gap-4 px-2 py-1">
+                  <div class="flex flex-column gap-3">
+                    <div class="grid formgrid -mx-2">
+                      <div class="col-5 px-2">
+                        <span class="font-semibold text-sm">Tipo:</span>
+                      </div>
+
+                      <div class="col-7 px-2">
+                        <span class="text-sm">
+                          {{ getVisibilityLabel(repository.visibility) }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="grid formgrid -mx-2">
+                      <div class="col-5 px-2">
+                        <span class="font-semibold text-sm">Creación:</span>
+                      </div>
+
+                      <div class="col-7 px-2">
+                        <span class="text-sm">
+                          {{ repository.createdAt | date: 'dd/MM/yyyy' }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div>
+                      <span class="block mb-2 font-semibold text-sm"> Sobre el repositorio: </span>
+
+                      <div class="repository-detail-page__description pr-2">
+                        <p class="m-0 text-sm line-height-3 text-color-secondary">
+                          {{ repository.description || 'Este repositorio no tiene descripción.' }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div class="grid formgrid -mx-2">
+                      <div class="col-12 px-2">
+                        <span class="font-semibold text-sm">Propietario:</span>
+                      </div>
+
+                      <div class="col-12 px-2">
+                        <button
+                          type="button"
+                          class="repository-detail-page__profile-button flex align-items-center gap-2 mt-2"
+                          (click)="openProfile(repository.owner.id)"
+                        >
+                          <img
+                            [src]="repository.owner.avatarUrl"
+                            [alt]="repository.owner.username"
+                            class="repository-detail-page__avatar"
+                          />
+
+                          <span class="text-sm">{{ repository.owner.username }}</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    @if (!isIntimateRepository()) {
+                      <div class="grid formgrid -mx-2">
+                        <div class="col-12 px-2">
+                          <span class="font-semibold text-sm">Copropietarios:</span>
+                        </div>
+
+                        <div class="col-12 px-2">
+                          @if (repositoryUsersLoading()) {
+                            <p-skeleton height="2rem" borderRadius="0.75rem"></p-skeleton>
+                          } @else if (coOwners()?.items?.length) {
+                            <div class="flex flex-column gap-2 mt-2">
+                              @for (repositoryUser of coOwners()!.items; track repositoryUser.id) {
+                                @if (repositoryUser.user) {
+                                  <button
+                                    type="button"
+                                    class="repository-detail-page__profile-button flex align-items-center gap-2"
+                                    (click)="openProfile(repositoryUser.user.id)"
+                                  >
+                                    <img
+                                      [src]="repositoryUser.user.avatarUrl"
+                                      [alt]="repositoryUser.user.username"
+                                      class="repository-detail-page__avatar"
+                                    />
+
+                                    <span class="text-sm">{{ repositoryUser.user.username }}</span>
+                                  </button>
+                                }
+                              }
+                            </div>
+                          } @else {
+                            <span class="block mt-2 text-sm text-color-secondary">
+                              Sin copropietarios.
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="grid formgrid -mx-2">
+                        <div class="col-5 px-2">
+                          <span class="font-semibold text-sm">Cocreadores:</span>
+                        </div>
+
+                        <div class="col-7 px-2">
+                          <span class="text-sm">{{ coCreators()?.total ?? 0 }}</span>
+                        </div>
+
+                        <div class="col-12 px-2">
+                          @if (repositoryUsersLoading()) {
+                            <p-skeleton height="2rem" borderRadius="0.75rem"></p-skeleton>
+                          } @else if (coCreators()?.items?.length) {
+                            <div class="flex flex-wrap align-items-center gap-2 mt-2">
+                              @for (
+                                repositoryUser of coCreators()!.items;
+                                track repositoryUser.id
+                              ) {
+                                @if (repositoryUser.user) {
+                                  <button
+                                    type="button"
+                                    class="repository-detail-page__profile-button"
+                                    (click)="openProfile(repositoryUser.user.id)"
+                                  >
+                                    <img
+                                      [src]="repositoryUser.user.avatarUrl"
+                                      [alt]="repositoryUser.user.username"
+                                      class="repository-detail-page__avatar"
+                                    />
+                                  </button>
+                                }
+                              }
+                            </div>
+
+                            @if (
+                              getRemainingUsersCount(
+                                coCreators()!.total,
+                                coCreators()!.items.length
+                              )
+                            ) {
+                              <button
+                                type="button"
+                                class="repository-detail-page__link-button mt-2 text-sm"
+                                (click)="openCoCreatorsDialog()"
+                              >
+                                +{{
+                                  getRemainingUsersCount(
+                                    coCreators()!.total,
+                                    coCreators()!.items.length
+                                  )
+                                }}
+                                Cocreadores
+                              </button>
+                            }
+                          } @else {
+                            <span class="block mt-2 text-sm text-color-secondary">
+                              Sin cocreadores.
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      <div class="grid formgrid -mx-2">
+                        <div class="col-5 px-2">
+                          <span class="font-semibold text-sm">Miembros:</span>
+                        </div>
+
+                        <div class="col-7 px-2">
+                          <span class="text-sm">{{ members()?.total ?? 0 }}</span>
+                        </div>
+
+                        <div class="col-12 px-2">
+                          @if (repositoryUsersLoading()) {
+                            <p-skeleton height="2rem" borderRadius="0.75rem"></p-skeleton>
+                          } @else if (members()?.items?.length) {
+                            <div class="flex flex-wrap align-items-center gap-2 mt-2">
+                              @for (repositoryUser of members()!.items; track repositoryUser.id) {
+                                @if (repositoryUser.user) {
+                                  <button
+                                    type="button"
+                                    class="repository-detail-page__profile-button"
+                                    (click)="openProfile(repositoryUser.user.id)"
+                                  >
+                                    <img
+                                      [src]="repositoryUser.user.avatarUrl"
+                                      [alt]="repositoryUser.user.username"
+                                      class="repository-detail-page__avatar"
+                                    />
+                                  </button>
+                                }
+                              }
+                            </div>
+
+                            @if (
+                              getRemainingUsersCount(members()!.total, members()!.items.length)
+                            ) {
+                              <button
+                                type="button"
+                                class="repository-detail-page__link-button mt-2 text-sm"
+                                (click)="openMembersDialog()"
+                              >
+                                +{{
+                                  getRemainingUsersCount(members()!.total, members()!.items.length)
+                                }}
+                                Miembros
+                              </button>
+                            }
+                          } @else {
+                            <span class="block mt-2 text-sm text-color-secondary">
+                              Sin miembros.
+                            </span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+
+                  <div class="flex flex-column gap-2">
+                    @if (!isIntimateRepository()) {
+                      <span class="font-semibold text-sm">Etiquetas:</span>
+                      @if (repository.tags.length) {
+                        <div class="flex flex-wrap gap-2">
+                          @for (tag of repository.tags; track tag.id) {
+                            <p-tag
+                              [value]="tag.name"
+                              severity="secondary"
+                              [rounded]="true"
+                              class="px-2 py-1"
+                            ></p-tag>
+                          }
+                        </div>
+                      } @else {
+                        <span class="text-sm text-color-secondary">Sin etiquetas.</span>
+                      }
+                    }
+                  </div>
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+
+          <div class="col-12 md:col-8 px-2 mt-3 md:mt-0">
+            <app-file-explorer
+              [repository]="repository"
+              (repositoryUpdated)="handleRepositoryUpdated($event)"
+            ></app-file-explorer>
+          </div>
+        </div>
+
+        <app-repository-users-dialog
+          [visible]="usersDialogVisible()"
+          [title]="usersDialogTitle()"
+          [subtitle]="usersDialogSubtitle()"
+          [users]="usersDialogUsers()"
+          [total]="usersDialogTotal()"
+          [page]="usersDialogPage()"
+          [limit]="usersDialogLimit()"
+          [loading]="usersDialogLoading()"
+          emptyMessage="No se encontraron usuarios."
+          (visibleChange)="handleUsersDialogVisibleChange($event)"
+          (pageChange)="handleUsersDialogPageChange($event)"
+          (profileOpen)="openProfile($event)"
+        ></app-repository-users-dialog>
+      </div>
+    }
+  </div>
+</section>

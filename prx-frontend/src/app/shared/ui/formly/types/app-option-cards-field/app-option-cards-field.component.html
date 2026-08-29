@@ -1,0 +1,56 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <div
+    class="app-option-cards"
+    role="radiogroup"
+    [attr.aria-invalid]="showError"
+    [style.--app-option-cards-columns]="columns"
+  >
+    @for (option of cardOptions; track option.value) {
+      <button
+        type="button"
+        class="app-option-cards__item flex gap-3 w-full text-left"
+        role="radio"
+        [disabled]="isFieldDisabled || option.disabled"
+        [class.app-option-cards__item--selected]="isSelected(option.value)"
+        [class.app-option-cards__item--disabled]="option.disabled"
+        [attr.aria-checked]="isSelected(option.value)"
+        [attr.aria-label]="option.label"
+        (click)="selectOption(option)"
+      >
+        @if (option.icon) {
+          <span class="app-option-cards__icon flex align-items-center justify-content-center">
+            <i [class]="getIconClass(option)"></i>
+          </span>
+        }
+
+        <span class="flex flex-column gap-1">
+          <span class="app-option-cards__label">
+            {{ option.label }}
+          </span>
+
+          @if (option.description) {
+            <small class="app-option-cards__description">
+              {{ option.description }}
+            </small>
+          }
+        </span>
+      </button>
+    }
+  </div>
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

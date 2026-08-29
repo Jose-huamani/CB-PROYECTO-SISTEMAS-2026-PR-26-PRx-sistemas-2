@@ -1,0 +1,53 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label [for]="inputId" class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <p-autocomplete
+    class="w-full"
+    [inputId]="inputId"
+    [name]="props['name'] ?? field.key"
+    [formControl]="formControl"
+    [formlyAttributes]="field"
+    [suggestions]="suggestions"
+    [optionLabel]="props['optionLabel'] ?? null"
+    [placeholder]="props.placeholder ?? ''"
+    [dropdown]="props['dropdown'] ?? false"
+    [forceSelection]="props['forceSelection'] ?? false"
+    [multiple]="props['multiple'] ?? false"
+    [typeahead]="props['typeahead'] ?? true"
+    [addOnBlur]="props['addOnBlur'] ?? false"
+    [addOnTab]="props['addOnTab'] ?? false"
+    [separator]="props['separator'] ?? null"
+    [delay]="props['delay'] ?? 300"
+    [minLength]="props['minLength'] ?? 1"
+    [maxlength]="props.maxLength ?? null"
+    [readonly]="props.readonly ?? false"
+    [required]="props.required ?? false"
+    [emptyMessage]="emptyMessage"
+    [showEmptyMessage]="showEmptyMessage"
+    [fluid]="true"
+    [attr.aria-invalid]="showError"
+    [class.ng-invalid]="showError"
+    [class.ng-dirty]="showError"
+    (input)="handleInputTransform($event)"
+    (keydown)="handleKeyDown($event)"
+    (completeMethod)="handleComplete($event)"
+    (onBlur)="handleBlurTransform()"
+    (onSelect)="handleItemsTransform()"
+    (onUnselect)="handleItemsTransform()"
+    (onClear)="handleItemsTransform()"
+  ></p-autocomplete>
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

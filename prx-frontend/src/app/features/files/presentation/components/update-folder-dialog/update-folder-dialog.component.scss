@@ -1,0 +1,10 @@
+:host ::ng-deep formly-validation-message {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-warning);
+}
+
+.update-folder-dialog__form-locked {
+  pointer-events: none;
+  opacity: 0.75;
+}

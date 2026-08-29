@@ -1,0 +1,418 @@
+<p-card class="h-full file-explorer">
+  <ng-template pTemplate="content">
+    <div class="file-explorer__content flex flex-column gap-4 h-full">
+      <div
+        class="flex flex-column xl:flex-row xl:align-items-start xl:justify-content-between gap-3"
+      >
+        <div class="flex flex-column gap-1">
+          <span class="font-semibold text-base">Explorador de archivos</span>
+          <span class="text-sm text-color-secondary">
+            Organiza carpetas y archivos del repositorio.
+          </span>
+        </div>
+
+        @if (canCreateContent()) {
+          <div class="flex flex-column sm:flex-row gap-2">
+            <p-button
+              type="button"
+              label="Nueva carpeta"
+              icon="pi pi-folder-plus"
+              severity="secondary"
+              variant="outlined"
+              size="small"
+              styleClass="w-full sm:w-auto"
+              [disabled]="actionLoading()"
+              (onClick)="openCreateFolderDialog()"
+            ></p-button>
+
+            <p-button
+              type="button"
+              label="Subir archivo"
+              icon="pi pi-upload"
+              size="small"
+              styleClass="w-full sm:w-auto"
+              [disabled]="actionLoading()"
+              (onClick)="openCreateFileDialog()"
+            ></p-button>
+          </div>
+        }
+      </div>
+
+      @if (loading()) {
+        <div class="flex flex-column gap-3 flex-1">
+          <div class="px-3 py-2 border-1 surface-border border-round-lg surface-50">
+            <p-skeleton height="1.5rem" borderRadius="0.75rem"></p-skeleton>
+          </div>
+
+          <div class="flex flex-column lg:flex-row gap-2">
+            <p-skeleton height="3.25rem" borderRadius="0.75rem" class="flex-1"></p-skeleton>
+
+            <div class="flex flex-column sm:flex-row gap-2 justify-content-end">
+              <p-skeleton height="3.25rem" width="9rem" borderRadius="0.75rem"></p-skeleton>
+              <p-skeleton height="3.25rem" width="9rem" borderRadius="0.75rem"></p-skeleton>
+            </div>
+          </div>
+
+          <div class="file-explorer__table-container flex-1 overflow-hidden">
+            <div
+              class="file-explorer__skeleton-table border-1 surface-border border-round-lg overflow-hidden"
+            >
+              <div class="grid align-items-center m-0 px-3 py-3 surface-50">
+                <div class="col-5 px-2">
+                  <p-skeleton height="1.1rem" width="5.5rem"></p-skeleton>
+                </div>
+
+                <div class="col-2 px-2">
+                  <p-skeleton height="1.1rem" width="3.5rem"></p-skeleton>
+                </div>
+
+                <div class="col-2 px-2">
+                  <p-skeleton height="1.1rem" width="6rem"></p-skeleton>
+                </div>
+
+                <div class="col-2 px-2">
+                  <p-skeleton height="1.1rem" width="5rem"></p-skeleton>
+                </div>
+
+                <div class="col-1 px-2"></div>
+              </div>
+
+              <div class="file-explorer__skeleton-table-body overflow-hidden">
+                @for (row of skeletonRows; track row) {
+                  <div class="grid align-items-center m-0 px-3 py-3 border-top-1 surface-border">
+                    <div class="col-5 px-2">
+                      <div class="flex align-items-center gap-3">
+                        <p-skeleton
+                          width="2.75rem"
+                          height="2.75rem"
+                          borderRadius="0.9rem"
+                        ></p-skeleton>
+
+                        <div class="flex flex-column gap-2 flex-1">
+                          <p-skeleton height="1rem" width="11rem"></p-skeleton>
+                          <p-skeleton height="0.85rem" width="4rem"></p-skeleton>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-2 px-2">
+                      <p-skeleton height="1.75rem" width="5.5rem" borderRadius="999px"></p-skeleton>
+                    </div>
+
+                    <div class="col-2 px-2">
+                      <div class="flex align-items-center gap-2">
+                        <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                        <p-skeleton height="1rem" width="7rem"></p-skeleton>
+                      </div>
+                    </div>
+
+                    <div class="col-2 px-2">
+                      <p-skeleton height="1rem" width="5.75rem"></p-skeleton>
+                    </div>
+
+                    <div class="col-1 px-2">
+                      <div class="flex justify-content-end">
+                        <p-skeleton shape="circle" size="2rem"></p-skeleton>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      } @else {
+        <div class="flex flex-column gap-3 flex-1">
+          @if (breadcrumbItems().length) {
+            <div class="px-3 py-2 border-1 surface-border border-round-lg surface-50">
+              <p-breadcrumb
+                [model]="breadcrumbItems()"
+                styleClass="file-explorer__breadcrumb"
+              ></p-breadcrumb>
+            </div>
+          }
+
+          <div class="flex flex-column lg:flex-row gap-2">
+            <p-iconfield class="flex-1">
+              <p-inputicon class="pi pi-search"></p-inputicon>
+
+              <input
+                pInputText
+                type="text"
+                class="w-full"
+                placeholder="Buscar por nombre o etiquetas..."
+                [ngModel]="search()"
+                (ngModelChange)="handleSearchChange($event)"
+                (keydown.enter)="submitSearch()"
+              />
+            </p-iconfield>
+
+            <div class="flex flex-column sm:flex-row gap-2 justify-content-end">
+              <p-button
+                type="button"
+                label="Buscar"
+                icon="pi pi-search"
+                severity="secondary"
+                variant="outlined"
+                styleClass="w-full sm:w-auto"
+                [disabled]="actionLoading()"
+                (onClick)="submitSearch()"
+              ></p-button>
+
+              <p-button
+                type="button"
+                label="Limpiar"
+                icon="pi pi-filter-slash"
+                severity="secondary"
+                variant="outlined"
+                styleClass="w-full sm:w-auto"
+                [disabled]="actionLoading() || (!hasSearch() && !hasSort())"
+                (onClick)="clearFilters()"
+              ></p-button>
+            </div>
+          </div>
+
+          @if (hasContent()) {
+            <div class="file-explorer__table-container flex-1 overflow-hidden">
+              <div class="border-1 surface-border border-round-lg overflow-hidden">
+                <p-table
+                  [value]="sortedItems()"
+                  dataKey="key"
+                  [rowHover]="true"
+                  [scrollable]="true"
+                  scrollHeight="30rem"
+                  [customSort]="true"
+                  [sortField]="sortField()"
+                  [sortOrder]="sortOrder()"
+                  styleClass="file-explorer__table"
+                  [tableStyle]="{ 'min-width': '48rem' }"
+                  (sortFunction)="handleTableSort($event)"
+                >
+                  <ng-template pTemplate="header">
+                    <tr>
+                      <th pSortableColumn="data.name">
+                        <div class="flex align-items-center gap-2">
+                          <span>Nombre</span>
+                          <p-sortIcon field="data.name"></p-sortIcon>
+                        </div>
+                      </th>
+
+                      <th pSortableColumn="type" class="w-9rem">
+                        <div class="flex align-items-center gap-2">
+                          <span>Tipo</span>
+                          <p-sortIcon field="type"></p-sortIcon>
+                        </div>
+                      </th>
+
+                      <th pSortableColumn="data.creator.username" class="w-12rem">
+                        <div class="flex align-items-center gap-2">
+                          <span>Creado por</span>
+                          <p-sortIcon field="data.creator.username"></p-sortIcon>
+                        </div>
+                      </th>
+
+                      <th pSortableColumn="data.createdAt" class="w-9rem">
+                        <div class="flex align-items-center gap-2">
+                          <span>Creación</span>
+                          <p-sortIcon field="data.createdAt"></p-sortIcon>
+                        </div>
+                      </th>
+
+                      <th class="w-4rem"></th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template pTemplate="body" let-item>
+                    <tr>
+                      <td>
+                        <div class="flex align-items-center gap-3 min-w-0">
+                          @if (item.type === 'folder') {
+                            <button
+                              type="button"
+                              class="file-explorer__item-icon file-explorer__folder-icon flex align-items-center justify-content-center flex-shrink-0 border-none cursor-pointer"
+                              [style.background]="getFolderColor(item.data)"
+                              (click)="openFolder(item.data.id)"
+                            >
+                              <i class="pi pi-folder"></i>
+                            </button>
+                          } @else {
+                            <div
+                              class="file-explorer__item-icon file-explorer__file-icon flex align-items-center justify-content-center flex-shrink-0"
+                            >
+                              <i [class]="getItemIcon(item)"></i>
+                            </div>
+                          }
+
+                          <div
+                            class="file-explorer__item-content flex flex-column justify-content-center gap-1 min-w-0"
+                          >
+                            @if (item.type === 'folder') {
+                              <button
+                                type="button"
+                                class="file-explorer__name-button text-left border-none p-0 bg-transparent font-medium cursor-pointer white-space-nowrap overflow-hidden text-overflow-ellipsis"
+                                (click)="openFolder(item.data.id)"
+                              >
+                                {{ getItemName(item) }}
+                              </button>
+
+                              <span class="text-xs text-color-secondary">Carpeta</span>
+                            } @else {
+                              <button
+                                type="button"
+                                class="file-explorer__name-button text-left border-none p-0 bg-transparent font-medium cursor-pointer white-space-nowrap overflow-hidden text-overflow-ellipsis"
+                                (click)="downloadFile(item.data)"
+                              >
+                                {{ getItemName(item) }}
+                              </button>
+
+                              <span class="text-xs text-color-secondary">
+                                {{ getFileSize(item.data) }}
+                              </span>
+                            }
+                          </div>
+                        </div>
+                      </td>
+
+                      <td>
+                        <p-tag
+                          [value]="getItemTypeLabel(item)"
+                          [severity]="getItemTypeSeverity(item)"
+                          [rounded]="true"
+                        ></p-tag>
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          class="file-explorer__creator-button flex align-items-center gap-2 min-w-0 border-none bg-transparent p-0 cursor-pointer"
+                          (click)="openCreatorProfile(item)"
+                        >
+                          <p-avatar [image]="getItemCreatorAvatar(item)" shape="circle"></p-avatar>
+
+                          <span
+                            class="file-explorer__creator-name text-sm white-space-nowrap overflow-hidden text-overflow-ellipsis text-color"
+                          >
+                            {{ getItemCreatorName(item) }}
+                          </span>
+                        </button>
+                      </td>
+
+                      <td>
+                        <span class="text-sm text-color-secondary">
+                          {{ getItemCreationDate(item) | date: 'dd/MM/yyyy' }}
+                        </span>
+                      </td>
+
+                      <td>
+                        <div class="flex justify-content-end">
+                          <p-button
+                            type="button"
+                            icon="pi pi-ellipsis-v"
+                            severity="secondary"
+                            variant="text"
+                            [rounded]="true"
+                            pTooltip="Acciones"
+                            tooltipPosition="top"
+                            (onClick)="openActionsMenu($event, item, actionsMenu)"
+                          ></p-button>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          } @else {
+            <div
+              class="file-explorer__empty flex flex-column align-items-center justify-content-center text-center gap-3 p-4 border-1 border-dashed surface-border border-round-xl surface-50 flex-1"
+            >
+              @if (hasSearch()) {
+                <i class="pi pi-search file-explorer__empty-icon"></i>
+
+                <div class="flex flex-column gap-1">
+                  <h3 class="m-0">No se encontraron resultados</h3>
+                  <p class="m-0 text-sm text-color-secondary line-height-3">
+                    No hay carpetas ni archivos que coincidan con “{{ search() }}”.
+                  </p>
+                </div>
+
+                <p-button
+                  type="button"
+                  label="Limpiar búsqueda"
+                  icon="pi pi-times"
+                  severity="secondary"
+                  variant="outlined"
+                  size="small"
+                  (onClick)="clearFilters()"
+                ></p-button>
+              } @else {
+                <i class="pi pi-folder-open file-explorer__empty-icon"></i>
+
+                <div class="flex flex-column gap-1">
+                  <h3 class="m-0">Esta ubicación está vacía</h3>
+                  <p class="m-0 text-sm text-color-secondary line-height-3">
+                    Crea una carpeta o sube un archivo para comenzar.
+                  </p>
+                </div>
+
+                @if (canCreateContent()) {
+                  <div class="flex flex-column sm:flex-row gap-2">
+                    <p-button
+                      type="button"
+                      label="Nueva carpeta"
+                      icon="pi pi-folder-plus"
+                      severity="secondary"
+                      variant="outlined"
+                      size="small"
+                      styleClass="w-full sm:w-auto"
+                      (onClick)="openCreateFolderDialog()"
+                    ></p-button>
+
+                    <p-button
+                      type="button"
+                      label="Subir archivo"
+                      icon="pi pi-upload"
+                      size="small"
+                      styleClass="w-full sm:w-auto"
+                      (onClick)="openCreateFileDialog()"
+                    ></p-button>
+                  </div>
+                }
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </ng-template>
+</p-card>
+
+<p-menu #actionsMenu [model]="menuItems()" [popup]="true" appendTo="body"></p-menu>
+
+@if (createFolderDialogVisible()) {
+  <app-create-folder-dialog
+    [visible]="true"
+    [loading]="actionLoading()"
+    (visibleChange)="handleCreateFolderDialogVisibleChange($event)"
+    (create)="createFolder($event)"
+  ></app-create-folder-dialog>
+}
+
+@if (updateFolderDialogVisible()) {
+  <app-update-folder-dialog
+    [visible]="true"
+    [loading]="actionLoading()"
+    [folder]="selectedFolder()"
+    (visibleChange)="handleUpdateFolderDialogVisibleChange($event)"
+    (update)="updateFolder($event)"
+  ></app-update-folder-dialog>
+}
+
+@if (createFileDialogVisible()) {
+  <app-create-file-dialog
+    [visible]="true"
+    [loading]="actionLoading()"
+    (visibleChange)="handleCreateFileDialogVisibleChange($event)"
+    (create)="createFile($event)"
+  ></app-create-file-dialog>
+}

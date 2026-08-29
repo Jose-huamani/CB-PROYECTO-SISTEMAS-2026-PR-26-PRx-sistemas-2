@@ -1,0 +1,37 @@
+<div
+  class="app-pagination w-full flex flex-column md:flex-row align-items-center justify-content-center md:justify-content-between gap-3"
+>
+  @if (hasRowsPerPageOptions()) {
+    <div
+      class="w-full md:w-auto flex flex-row flex-wrap align-items-center justify-content-center gap-2"
+    >
+      <span class="app-pagination__label text-center">
+        {{ itemsPerPageLabel() }}
+      </span>
+
+      <p-select
+        [options]="selectOptions()"
+        optionLabel="label"
+        optionValue="value"
+        [ngModel]="rows()"
+        (ngModelChange)="handleRowsChange($event)"
+        appendTo="body"
+        class="app-pagination__select"
+      ></p-select>
+    </div>
+  }
+
+  <div class="w-full md:w-auto flex justify-content-center md:justify-content-end">
+    <p-paginator
+      [first]="first()"
+      [rows]="rows()"
+      [totalRecords]="totalRecords()"
+      [showCurrentPageReport]="showCurrentPageReport()"
+      [currentPageReportTemplate]="currentPageReportTemplate()"
+      [showPageLinks]="showPageLinks()"
+      [showFirstLastIcon]="showFirstLastIcon()"
+      (onPageChange)="handlePageChange($event)"
+      class="app-pagination__paginator"
+    ></p-paginator>
+  </div>
+</div>

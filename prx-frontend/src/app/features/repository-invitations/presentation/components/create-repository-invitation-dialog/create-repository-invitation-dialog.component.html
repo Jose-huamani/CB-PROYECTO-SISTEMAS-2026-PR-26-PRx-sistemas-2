@@ -1,0 +1,32 @@
+<p-dialog
+  header="Invitar colaborador"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  [style]="{ width: '32rem' }"
+  [breakpoints]="{ '640px': '95vw' }"
+>
+  <form [formGroup]="form" class="flex flex-column gap-2" (ngSubmit)="submit()">
+    <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
+  </form>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancelar"
+      severity="secondary"
+      variant="text"
+      [disabled]="submitting()"
+      (onClick)="close()"
+    />
+    <p-button
+      label="Enviar invitación"
+      icon="pi pi-send"
+      type="submit"
+      [loading]="submitting()"
+      [disabled]="submitting()"
+      (onClick)="submit()"
+    />
+  </ng-template>
+</p-dialog>

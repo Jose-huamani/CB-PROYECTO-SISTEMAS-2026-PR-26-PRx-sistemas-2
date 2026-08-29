@@ -1,0 +1,88 @@
+<footer class="app-footer border-top-1 surface-border">
+  <div class="max-w-screen-xl mx-auto px-3 md:px-4 py-4 md:py-5">
+    <div class="grid align-items-start">
+      <div
+        class="col-12 md:col-3 flex justify-content-center md:justify-content-start mb-4 md:mb-0"
+      >
+        <a
+          routerLink="/"
+          class="flex align-items-center justify-content-center md:justify-content-start"
+        >
+          <img src="/logo/prx-logo.png" alt="PRX" class="app-footer__logo block" />
+        </a>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <div class="grid text-center md:text-left">
+          <div class="col-12 sm:col-4 mb-4 sm:mb-0">
+            <h4 class="m-0 mb-2 text-white text-base font-semibold">Navegación</h4>
+            <div class="flex flex-column gap-2">
+              <a routerLink="/" class="app-footer__link" fragment="inicio">Inicio</a>
+              <a routerLink="/" class="app-footer__link" fragment="que-es-prx">Qué es PRX</a>
+              <a routerLink="/" class="app-footer__link" fragment="repositorio">Repositorio</a>
+            </div>
+          </div>
+
+          <div class="col-12 sm:col-4 mb-4 sm:mb-0">
+            <h4 class="m-0 mb-2 text-white text-base font-semibold">Comunidad</h4>
+            <div class="flex flex-column gap-2">
+              <a routerLink="/community/co-creator" class="app-footer__link">Ser Cocreador</a>
+              <a routerLink="/community/member" class="app-footer__link">Ser Miembro</a>
+            </div>
+          </div>
+
+          <div class="col-12 sm:col-4">
+            <h4 class="m-0 mb-2 text-white text-base font-semibold">Recursos</h4>
+            <div class="flex flex-column gap-2">
+              <a routerLink="/docs" class="app-footer__link">Documentación</a>
+              <a routerLink="/guide" class="app-footer__link">Guía de uso</a>
+              <a routerLink="/faq" class="app-footer__link">Preguntas frecuentes</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div
+        class="col-12 md:col-3 flex flex-column align-items-center md:align-items-end justify-content-between gap-3"
+      >
+        <div class="flex align-items-center gap-2">
+          <p-button
+            icon="pi pi-facebook"
+            [rounded]="true"
+            severity="primary"
+            ariaLabel="Facebook"
+            (onClick)="openSocialLink('https://facebook.com/prx')"
+          ></p-button>
+
+          <p-button
+            icon="pi pi-instagram"
+            [rounded]="true"
+            severity="primary"
+            ariaLabel="Instagram"
+            (onClick)="openSocialLink('https://instagram.com/prx')"
+          ></p-button>
+
+          <p-button
+            icon="pi pi-youtube"
+            [rounded]="true"
+            severity="primary"
+            ariaLabel="YouTube"
+            (onClick)="openSocialLink('https://youtube.com/@prx')"
+          ></p-button>
+
+          <p-button
+            icon="pi pi-twitter"
+            [rounded]="true"
+            severity="primary"
+            ariaLabel="Twitter"
+            (onClick)="openSocialLink('https://twitter.com/prx')"
+          ></p-button>
+        </div>
+
+        <p class="m-0 text-sm text-center md:text-right text-white-alpha-80">
+          © {{ currentYear }} PRX — Cochabamba-Bolivia
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>

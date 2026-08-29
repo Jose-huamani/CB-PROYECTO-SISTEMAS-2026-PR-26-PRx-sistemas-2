@@ -1,0 +1,160 @@
+<section class="w-full repository-settings-page">
+  <div class="w-full mx-auto px-3 sm:px-4 py-4 md:py-5 repository-settings-page__container">
+    @if (loading() && !repository()) {
+      <div class="flex flex-column gap-3">
+        <p-skeleton height="7rem" borderRadius="1rem"></p-skeleton>
+        <p-skeleton height="36rem" borderRadius="1rem"></p-skeleton>
+      </div>
+    } @else if (repository(); as repository) {
+      <div
+        class="flex flex-column gap-3"
+        [style.--repository-color]="getRepositoryColor(repository)"
+      >
+        <p-card class="repository-settings-page__header-card">
+          <ng-template pTemplate="content">
+            <div
+              class="flex flex-column md:flex-row md:align-items-center md:justify-content-between gap-3"
+            >
+              <div class="flex flex-column gap-2">
+                <h1 class="m-0">Configuración del Repositorio</h1>
+
+                <p class="m-0 text-sm text-color-secondary">
+                  Panel para administrar visibilidad, nombre, categoría, etiquetas y acciones del
+                  repositorio.
+                </p>
+              </div>
+
+              <div class="flex justify-content-start md:justify-content-end">
+                <p-button
+                  type="button"
+                  label="Volver al Repositorio"
+                  icon="pi pi-arrow-left"
+                  severity="primary"
+                  variant="outlined"
+                  styleClass="w-full md:w-auto"
+                  [disabled]="submitting() || deleting()"
+                  (onClick)="backToRepository()"
+                ></p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+
+        <p-card>
+          <ng-template pTemplate="content">
+            <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-4">
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-info-circle text-xl"></i>
+                  <h3 class="m-0">Información General</h3>
+                </div>
+
+                <formly-form
+                  [form]="form"
+                  [fields]="[
+                    {
+                      fieldGroupClassName: 'grid formgrid p-fluid -mx-2',
+                      fieldGroup: [
+                        fields[0].fieldGroup![0],
+                        fields[0].fieldGroup![1],
+                        fields[0].fieldGroup![2],
+                        fields[0].fieldGroup![3],
+                      ],
+                    },
+                  ]"
+                  [model]="model"
+                ></formly-form>
+              </section>
+
+              <div class="repository-settings-page__divider"></div>
+
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2">
+                  <i class="pi pi-cog text-xl"></i>
+                  <h3 class="m-0">Configuración</h3>
+                </div>
+
+                <formly-form
+                  [form]="form"
+                  [fields]="[
+                    {
+                      fieldGroupClassName: 'grid formgrid p-fluid -mx-2',
+                      fieldGroup: [
+                        fields[0].fieldGroup![4],
+                        fields[0].fieldGroup![5],
+                        fields[0].fieldGroup![6],
+                      ],
+                    },
+                  ]"
+                  [model]="model"
+                ></formly-form>
+              </section>
+
+              <div class="repository-settings-page__divider"></div>
+
+              <div class="grid formgrid p-fluid -mx-2">
+                <div class="col-12 md:col-6 px-2">
+                  <p-button
+                    type="submit"
+                    severity="primary"
+                    label="Guardar cambios"
+                    icon="pi pi-save"
+                    styleClass="w-full"
+                    [loading]="submitting()"
+                    [disabled]="submitting() || deleting()"
+                  ></p-button>
+                </div>
+
+                <div class="col-12 md:col-6 px-2 mt-2 md:mt-0">
+                  <p-button
+                    type="button"
+                    label="Descartar cambios"
+                    icon="pi pi-times"
+                    severity="secondary"
+                    variant="outlined"
+                    styleClass="w-full"
+                    [disabled]="submitting() || deleting()"
+                    (onClick)="cancel()"
+                  ></p-button>
+                </div>
+              </div>
+            </form>
+          </ng-template>
+        </p-card>
+
+        @if (canDeleteRepository()) {
+          <p-card class="repository-settings-page__danger-card">
+            <ng-template pTemplate="content">
+              <section class="flex flex-column gap-3">
+                <div class="flex align-items-center gap-2 repository-settings-page__danger-text">
+                  <i class="pi pi-exclamation-triangle text-xl"></i>
+                  <h3 class="m-0">Zona de Peligro</h3>
+                </div>
+
+                <p class="m-0 text-sm repository-settings-page__danger-text">
+                  Acción permanente para eliminar este repositorio y todo su contenido asociado.
+                </p>
+
+                <div class="grid formgrid p-fluid -mx-2">
+                  <div class="col-12 md:col-4 px-2">
+                    <p-button
+                      type="button"
+                      label="Eliminar Repositorio"
+                      icon="pi pi-trash"
+                      severity="danger"
+                      variant="outlined"
+                      styleClass="w-full"
+                      [loading]="deleting()"
+                      [disabled]="submitting() || deleting()"
+                      (onClick)="deleteRepository()"
+                    ></p-button>
+                  </div>
+                </div>
+              </section>
+            </ng-template>
+          </p-card>
+        }
+      </div>
+    }
+  </div>
+</section>

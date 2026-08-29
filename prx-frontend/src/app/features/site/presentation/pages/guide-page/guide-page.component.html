@@ -1,0 +1,161 @@
+<div class="guide-page overflow-hidden">
+  <p-scrollTop></p-scrollTop>
+  <section
+    class="hero-section relative flex flex-column align-items-center justify-content-center text-center px-3 px-md-4 py-6"
+  >
+    <div class="hero-content z-1">
+      <p-chip label="Guía de uso" icon="pi pi-book" class="mb-3 mb-md-4 hero-chip"></p-chip>
+      <h1 class="text-3xl md:text-5xl font-bold text-white m-0 mb-2 mb-md-3 leading-tight">
+        Guía de uso de <span class="text-primary">PRX</span>
+      </h1>
+      <p
+        class="text-md md:text-xl text-white-alpha-90 m-0 mb-4 mb-md-5 max-w-40rem mx-auto line-height-3 px-2"
+      >
+        Aprende paso a paso cómo usar todas las funcionalidades de PRX y saca el máximo provecho.
+      </p>
+      <div class="flex flex-column sm:flex-row gap-3 justify-content-center">
+        <p-button
+          label="Comenzar ahora"
+          icon="pi pi-arrow-right"
+          iconPos="right"
+          size="large"
+          styleClass="p-button-rounded font-bold hero-button-primary"
+          routerLink="/auth/register"
+        ></p-button>
+        <p-button
+          label="Explorar repositorios"
+          icon="pi pi-folder-open"
+          size="large"
+          styleClass="p-button-outlined p-button-rounded hero-button-secondary"
+          routerLink="/repositories/explore"
+        ></p-button>
+      </div>
+    </div>
+    <div class="hero-blur-1"></div>
+    <div class="hero-blur-2"></div>
+    <div class="hero-blur-3"></div>
+  </section>
+
+  <div class="main-steps py-5 py-md-8 px-3 px-md-4 surface-ground">
+    <div class="max-w-screen-xl mx-auto text-center">
+      <h2 class="text-2xl md:text-4xl font-bold mb-5">¿Cómo empezar?</h2>
+      <div class="grid justify-content-center">
+        @for (step of mainSteps; track step.title) {
+          <div class="col-12 md:col-4 lg:col-2 mb-3 mb-md-4">
+            <div class="step-card p-3 text-center">
+              <div
+                class="w-4rem h-4rem mx-auto flex align-items-center justify-content-center border-round-full mb-3"
+                [style.backgroundColor]="step.color + '20'"
+              >
+                <i [class]="step.icon + ' text-2xl'" [style.color]="step.color"></i>
+              </div>
+              <h4 class="font-semibold m-0 mb-2">{{ step.title }}</h4>
+              <p class="text-color-secondary text-sm m-0">{{ step.description }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="repository-guide py-5 py-md-8 px-3 px-md-4">
+    <div class="max-w-screen-xl mx-auto">
+      <div class="text-center mb-5">
+        <h2 class="text-2xl md:text-4xl font-bold">Gestión de Repositorios</h2>
+        <p class="text-color-secondary">Aprende a crear y organizar tu contenido</p>
+      </div>
+
+      <div class="grid">
+        @for (item of repositoryGuide; track item.title) {
+          <div class="col-12 md:col-6 mb-4">
+            <p-panel [header]="item.title" class="guide-panel">
+              <ng-template pTemplate="icons">
+                <i [class]="item.icon + ' text-primary text-xl mr-2'"></i>
+              </ng-template>
+              <ul class="list-none p-0 m-0">
+                @for (step of item.steps; track step) {
+                  <li class="flex align-items-start gap-2 mb-2">
+                    <i class="pi pi-check-circle text-primary mt-1"></i>
+                    <span class="text-color-secondary">{{ step }}</span>
+                  </li>
+                }
+              </ul>
+            </p-panel>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="team-guide py-5 py-md-8 px-3 px-md-4 surface-ground">
+    <div class="max-w-screen-xl mx-auto">
+      <div class="text-center mb-5">
+        <h2 class="text-2xl md:text-4xl font-bold">Colaboración en Equipo</h2>
+        <p class="text-color-secondary">Invita colaboradores y gestiona roles</p>
+      </div>
+
+      <div class="grid">
+        @for (item of teamGuide; track item.title) {
+          <div class="col-12 md:col-6 mb-4">
+            <p-panel [header]="item.title" class="guide-panel">
+              <ng-template pTemplate="icons">
+                <i [class]="item.icon + ' text-primary text-xl mr-2'"></i>
+              </ng-template>
+              @if (item.steps) {
+                <ul class="list-none p-0 m-0">
+                  @for (step of item.steps; track step) {
+                    <li class="flex align-items-start gap-2 mb-2">
+                      <i class="pi pi-check-circle text-primary mt-1"></i>
+                      <span class="text-color-secondary">{{ step }}</span>
+                    </li>
+                  }
+                </ul>
+              }
+              @if (item.items) {
+                <div class="flex flex-column gap-2">
+                  @for (role of item.items; track role.role) {
+                    <div
+                      class="flex align-items-center justify-content-between p-2 border-round-lg surface-card"
+                    >
+                      <span class="font-semibold">{{ role.role }}</span>
+                      <span class="text-color-secondary text-sm">{{ role.description }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </p-panel>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="binnacle-guide py-5 py-md-8 px-3 px-md-4">
+    <div class="max-w-screen-xl mx-auto">
+      <div class="text-center mb-5">
+        <h2 class="text-2xl md:text-4xl font-bold">Notas</h2>
+        <p class="text-color-secondary">Documenta el progreso de tus proyectos</p>
+      </div>
+
+      <div class="grid">
+        @for (item of binnacleGuide; track item.title) {
+          <div class="col-12 md:col-6 mb-4 mx-auto">
+            <p-panel [header]="item.title" class="guide-panel">
+              <ng-template pTemplate="icons">
+                <i [class]="item.icon + ' text-primary text-xl mr-2'"></i>
+              </ng-template>
+              <ul class="list-none p-0 m-0">
+                @for (step of item.steps; track step) {
+                  <li class="flex align-items-start gap-2 mb-2">
+                    <i class="pi pi-check-circle text-primary mt-1"></i>
+                    <span class="text-color-secondary">{{ step }}</span>
+                  </li>
+                }
+              </ul>
+            </p-panel>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

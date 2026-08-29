@@ -1,0 +1,99 @@
+<div class="edit-profile-page">
+  <div class="edit-profile-page__container">
+    <div class="edit-profile-page__header">
+      <h1 class="edit-profile-page__title">Editar Perfil</h1>
+
+      <p-button type="button" label="Volver a perfil" icon="pi pi-arrow-left" severity="primary" variant="outlined"
+        size="small" styleClass="edit-profile-page__back-button" (onClick)="goBack()"></p-button>
+    </div>
+
+    @if (loading()) {
+    <div class="flex justify-content-center align-items-center" style="min-height: 60vh">
+      <p-skeleton height="7rem" borderRadius="1rem"></p-skeleton>
+    </div>
+    } @else {
+    <div class="grid formgrid -mx-2 align-items-start mb-3">
+      <div class="col-12 lg:col-2 px-2 mb-3 lg:mb-0">
+        <p-card class="edit-profile-page__card h-full">
+          <div class="flex flex-column align-items-center gap-3">
+            <input #avatarInput class="edit-profile-page__avatar-input" type="file"
+              accept="image/jpeg,image/png,image/webp" style="display: none" (change)="onAvatarSelected($event)" />
+
+            <div class="edit-profile-page__avatar-shell">
+              @if (avatarPreviewUrl()) {
+              <p-avatar [image]="avatarPreviewUrl() ?? undefined" shape="circle"
+                class="edit-profile-page__avatar"></p-avatar>
+              } @else {
+              <p-avatar icon="pi pi-user" shape="circle" size="xlarge" class="edit-profile-page__avatar"></p-avatar>
+              }
+
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-sm edit-profile-page__avatar-edit" aria-label="Editar foto"
+                (click)="openAvatarPicker()"></button>
+            </div>
+
+            <p class="m-0 text-center text-sm font-medium text-color-secondary">
+              {{ username() }}
+            </p>
+
+            <button pButton type="button" label="Cambiar contraseña" icon="pi pi-lock"
+              class="p-button-outlined p-button-sm w-full" routerLink="/auth/change-password"></button>
+          </div>
+        </p-card>
+      </div>
+
+      <div class="col-12 lg:col-10 px-2">
+        <p-card class="edit-profile-page__card">
+          <formly-form [form]="form" [fields]="[fields[0]]" [model]="model"></formly-form>
+        </p-card>
+      </div>
+    </div>
+
+    <p-card class="edit-profile-page__card">
+      <formly-form [form]="form" [fields]="[fields[1]]" [model]="model"></formly-form>
+    </p-card>
+
+    <p-card class="edit-profile-page__card">
+      <h3 class="edit-profile-page__section-title">Área geográfica</h3>
+      <formly-form [form]="form" [fields]="[fields[2]]" [model]="model"></formly-form>
+    </p-card>
+
+    <p-card class="edit-profile-page__card">
+      <h3 class="edit-profile-page__section-title">Social media</h3>
+
+      @if (socialNetworks().length) {
+      <div class="edit-profile-page__social-list">
+        @for (
+        socialNetwork of socialNetworks();
+        track trackSocialNetworkById($index, socialNetwork)
+        ) {
+        <div class="edit-profile-page__social-row">
+          <label class="edit-profile-page__social-label" [attr.for]="'social-network-' + socialNetwork.id">
+            {{ socialNetwork.name }}
+          </label>
+
+          <input pInputText [id]="'social-network-' + socialNetwork.id" [name]="'social-network-' + socialNetwork.id"
+            type="text" class="edit-profile-page__social-input" [placeholder]="'Tu usuario de ' + socialNetwork.name"
+            [(ngModel)]="socialNetworkValues[socialNetwork.id]" [ngModelOptions]="{ standalone: true }" />
+        </div>
+        }
+      </div>
+      } @else {
+      <p class="edit-profile-page__social-empty">No hay redes sociales configuradas todavía.</p>
+      }
+    </p-card>
+
+    <div class="grid">
+      <div class="col-12 md:col-6">
+        <button pButton type="button" label="Guardar cambios" icon="pi pi-check" class="p-button w-full"
+          [loading]="submitting()" [disabled]="form.invalid || submitting()" (click)="submit()"></button>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <p-button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" variant="outlined"
+          styleClass="w-full" [disabled]="submitting()" (onClick)="cancel()"></p-button>
+      </div>
+    </div>
+    }
+  </div>
+</div>

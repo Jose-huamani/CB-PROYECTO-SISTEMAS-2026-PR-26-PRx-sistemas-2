@@ -1,0 +1,9 @@
+:host ::ng-deep formly-validation-message {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-warning);
+}
+
+:host ::ng-deep .p-autocomplete {
+  width: 100%;
+}

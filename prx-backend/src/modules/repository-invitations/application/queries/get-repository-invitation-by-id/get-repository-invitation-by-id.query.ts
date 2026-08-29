@@ -1,0 +1,6 @@
+export class GetRepositoryInvitationByIdQuery {
+  constructor(
+    public readonly id: number,
+    public readonly userId: number,
+  ) {}
+}

@@ -1,0 +1,412 @@
+.landing-page {
+  background-color: var(--surface-ground);
+
+  .hero-section {
+    min-height: 90vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-chip {
+      background: rgba(59, 130, 246, 0.2);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .hero-button-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-600));
+      border: none;
+    }
+
+    .hero-button-secondary {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .hero-blur-1 {
+      position: absolute;
+      top: -20%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 0;
+    }
+
+    .hero-blur-2 {
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent);
+      border-radius: 50%;
+      filter: blur(70px);
+      z-index: 0;
+    }
+
+    .hero-blur-3 {
+      position: absolute;
+      top: 40%;
+      left: 40%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent);
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+    }
+  }
+
+  .custom-timeline {
+    .custom-marker {
+      display: flex;
+      width: 2.5rem;
+      height: 2.5rem;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .timeline-card {
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-4px);
+      }
+    }
+  }
+
+  .mission-card,
+  .vision-card {
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateX(4px);
+    }
+  }
+
+  .feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .role-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+        0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .testimonial-card {
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+
+  .resource-card {
+    cursor: pointer;
+
+    &:hover {
+      transform: translateX(4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .social-card {
+    cursor: pointer;
+    min-width: 100px;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .footer-section {
+    border-top: 1px solid var(--surface-border);
+  }
+
+  :host ::ng-deep {
+    .p-galleria .p-galleria-item-nav {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+    }
+
+    .p-carousel .p-carousel-indicators .p-carousel-indicator button {
+      background-color: var(--surface-border);
+
+      &:hover {
+        background-color: var(--primary-color);
+      }
+    }
+
+    .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
+      background-color: var(--primary-color);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-page {
+    .hero-section h1 {
+      font-size: 2.5rem;
+    }
+
+    .custom-timeline {
+      ::ng-deep .p-timeline-event-opposite {
+        display: none;
+      }
+
+      ::ng-deep .p-timeline-event-content {
+        margin-left: 1rem;
+      }
+    }
+  }
+}
+
+.landing-page {
+  background-color: var(--surface-ground);
+
+  .hero-section {
+    min-height: 90vh;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    position: relative;
+    overflow: hidden;
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+    }
+
+    .hero-chip {
+      background: rgba(59, 130, 246, 0.2);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    .hero-button-primary {
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-600));
+      border: none;
+    }
+
+    .hero-button-secondary {
+      border-color: rgba(255, 255, 255, 0.3);
+      color: white;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.1);
+      }
+    }
+
+    .hero-blur-1 {
+      position: absolute;
+      top: -20%;
+      left: -10%;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.3), transparent);
+      border-radius: 50%;
+      filter: blur(60px);
+      z-index: 0;
+    }
+
+    .hero-blur-2 {
+      position: absolute;
+      bottom: -20%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(139, 92, 246, 0.3), transparent);
+      border-radius: 50%;
+      filter: blur(70px);
+      z-index: 0;
+    }
+
+    .hero-blur-3 {
+      position: absolute;
+      top: 40%;
+      left: 40%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(236, 72, 153, 0.2), transparent);
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+    }
+  }
+
+  .custom-timeline {
+    .custom-marker {
+      display: flex;
+      width: 2.5rem;
+      height: 2.5rem;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .timeline-card {
+      transition: transform 0.3s ease;
+      text-align: left;
+
+      &:hover {
+        transform: translateY(-4px);
+      }
+    }
+  }
+
+  .timeline-mobile {
+    .step-marker {
+      transition: transform 0.2s ease;
+      
+      &:hover {
+        transform: scale(1.05);
+      }
+    }
+    
+    .step-line {
+      border-radius: 2px;
+    }
+  }
+
+  .mission-card, .vision-card {
+    transition: transform 0.3s ease;
+    text-align: left;
+
+    &:hover {
+      transform: translateX(4px);
+    }
+  }
+
+  .feature-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .role-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
+
+    &:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+  }
+
+  .testimonial-card {
+    transition: transform 0.3s ease;
+    text-align: left;
+
+    &:hover {
+      transform: translateY(-4px);
+    }
+  }
+
+  .resource-card {
+    cursor: pointer;
+    text-align: left;
+
+    &:hover {
+      transform: translateX(4px);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .social-card {
+    cursor: pointer;
+    min-width: 100px;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  .footer-section {
+    border-top: 1px solid var(--surface-border);
+  }
+
+  :host ::ng-deep {
+    .p-galleria .p-galleria-item-nav {
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      border-radius: 50%;
+      width: 2.5rem;
+      height: 2.5rem;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.8);
+      }
+    }
+
+    .p-carousel .p-carousel-indicators .p-carousel-indicator button {
+      background-color: var(--surface-border);
+
+      &:hover {
+        background-color: var(--primary-color);
+      }
+    }
+
+    .p-carousel .p-carousel-indicators .p-carousel-indicator.p-highlight button {
+      background-color: var(--primary-color);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .landing-page {
+    .hero-section h1 {
+      font-size: 2.5rem;
+    }
+  }
+}
+
+.hero-chip {
+  background: rgba(59, 130, 246, 0.2);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.25);
+
+  ::ng-deep .p-chip-label,
+  ::ng-deep .p-chip-icon {
+    color: #ffffff;
+  }
+}

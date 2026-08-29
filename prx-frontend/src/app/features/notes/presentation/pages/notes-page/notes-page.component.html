@@ -1,0 +1,90 @@
+<section class="w-full repository-settings-page">
+  <div class="w-full mx-auto px-3 sm:px-4 py-4 md:py-5 repository-settings-page__container">
+    <div class="notes-page__wrap">
+      @if (!initialized() || loading()) {
+      <div class="loading-grid">
+        @for (item of [1, 2, 3]; track item) {
+        <div class="loading-card">
+          <p-skeleton width="100%" height="10rem"></p-skeleton>
+        </div>
+        }
+      </div>
+      } @else if (repository(); as repository) {
+      <div [style.--repository-color]="getRepositoryColor()">
+        <p-card class="repository-settings-page__header-card">
+          <ng-template pTemplate="content">
+            <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between gap-3">
+              <div class="flex flex-column gap-2">
+                <h1 class="m-0">Notas del repositorio</h1>
+                <p class="m-0 text-sm text-color-secondary">
+                  Listado de notas registradas por los miembros del repositorio
+                </p>
+              </div>
+
+              <div class="flex justify-content-start md:justify-content-end gap-2">
+                <p-button type="button" label="Nueva nota" icon="pi pi-plus" severity="secondary" variant="outlined"
+                  styleClass="w-full md:w-auto" (onClick)="openCreateNote()"></p-button>
+
+                <p-button type="button" icon="pi pi-arrow-left" label="Volver al Repositorio" severity="primary"
+                  variant="outlined" styleClass="w-full md:w-auto" (onClick)="backToRepository()"></p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      @if ((notes()?.items ?? []).length) {
+      <div class="notes-grid mb-4">
+        @for (note of notes()?.items ?? []; track note.id) {
+        <article class="note-card">
+          <div
+            class="note-card__header flex flex-column md:flex-row md:align-items-start md:justify-content-between gap-3">
+            <div class="flex flex-column gap-2">
+              <h2>{{ note.title }}</h2>
+              <span class="note-creator-text" (click)="openCreatorProfile(note.createdBy.id)">
+                {{ note.createdBy.username }}
+              </span>
+            </div>
+
+            <div class="note-card__header-meta flex align-items-center gap-2 flex-wrap justify-content-end">
+              <span class="note-card__date">{{ note.createdAt | date: 'mediumDate' }}</span>
+              <button pButton type="button" icon="pi pi-trash" severity="danger" class="p-button-text"
+                (click)="deleteNote(note)" [disabled]="!canDeleteNote(note)" title="Eliminar nota"></button>
+            </div>
+          </div>
+
+          <p class="note-content">{{ getNotePreview(note) }}</p>
+
+          @if (note.files.length > 0) {
+          <div class="note-files flex flex-wrap gap-2">
+            @for (file of note.files; track file.id) {
+            <div class="file-tag-container flex align-items-center gap-2">
+              <p-tag [value]="file.name" severity="info" class="note-file-tag"></p-tag>
+              <button type="button" pButton icon="pi pi-download" class="p-button-text p-button-sm download-button"
+                (click)="downloadNoteFile(file)" [loading]="actionLoading() && downloadingFileId() === file.id"
+                title="Descargar archivo"></button>
+            </div>
+            }
+          </div>
+          }
+        </article>
+        }
+      </div>
+
+      <app-pagination [first]="(page() - 1) * limit()" [rows]="limit()" [totalRecords]="notes()?.total ?? 0"
+        (pageChange)="handlePageChange($event)"></app-pagination>
+      } @else {
+      <div class="empty-state">
+        <h2>Sin notas</h2>
+        <p>No hay notas registradas para este repositorio por el momento.</p>
+      </div>
+      }
+      } @else {
+      <div class="empty-state">
+        <h2>Repositorio no encontrado</h2>
+        <p>Verifica que la ruta del repositorio sea válida.</p>
+      </div>
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,19 @@
+.app-pagination__label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+:host ::ng-deep .app-pagination__select.p-select {
+  min-width: 5.5rem;
+}
+
+:host ::ng-deep .app-pagination__paginator .p-paginator-content {
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+:host ::ng-deep .app-pagination__paginator .p-paginator {
+  justify-content: center;
+}

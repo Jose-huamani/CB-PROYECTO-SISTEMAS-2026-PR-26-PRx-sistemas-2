@@ -1,0 +1,30 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label [for]="inputId" class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <div class="flex justify-content-center w-full">
+    <p-inputotp
+      [id]="inputId"
+      [formControl]="formControl"
+      [formlyAttributes]="field"
+      [length]="length"
+      [integerOnly]="integerOnly"
+      [mask]="mask"
+      [variant]="props['variant'] ?? null"
+      styleClass="app-form-field__otp"
+    />
+  </div>
+
+  @if (helperText && !showError) {
+    <small class="text-center text-sm text-color-secondary">
+      {{ helperText }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

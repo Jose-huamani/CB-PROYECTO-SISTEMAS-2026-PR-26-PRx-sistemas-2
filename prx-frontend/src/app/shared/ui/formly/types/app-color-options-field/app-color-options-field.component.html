@@ -1,0 +1,45 @@
+<div class="app-form-field flex flex-column gap-2 w-full">
+  @if (props.label) {
+    <label class="app-form-field__label">
+      {{ props.label }}
+    </label>
+  }
+
+  <div class="app-color-options" role="radiogroup" [attr.aria-invalid]="showError">
+    @for (option of colorOptions; track option.value) {
+      <button
+        type="button"
+        class="app-color-options__item"
+        role="radio"
+        [disabled]="isFieldDisabled || option.disabled"
+        [class.app-color-options__item--selected]="isSelected(option.value)"
+        [class.app-color-options__item--disabled]="option.disabled"
+        [attr.aria-label]="option.label"
+        [attr.aria-checked]="isSelected(option.value)"
+        [title]="option.label"
+        (click)="selectOption(option)"
+      >
+        <span
+          class="app-color-options__color"
+          [style.background-color]="getColorValue(option.value)"
+        ></span>
+
+        @if (props['showLabels']) {
+          <span class="app-color-options__label">
+            {{ option.label }}
+          </span>
+        }
+      </button>
+    }
+  </div>
+
+  @if (props['helperText'] && !showError) {
+    <small class="text-color-secondary text-xs">
+      {{ props['helperText'] }}
+    </small>
+  }
+
+  @if (showError) {
+    <formly-validation-message [field]="field"></formly-validation-message>
+  }
+</div>

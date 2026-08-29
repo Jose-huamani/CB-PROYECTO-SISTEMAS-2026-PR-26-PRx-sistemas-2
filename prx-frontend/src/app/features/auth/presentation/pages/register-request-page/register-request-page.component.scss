@@ -1,0 +1,43 @@
+.register-request-page__container {
+  max-width: 30rem;
+}
+
+.register-request-page__logo {
+  width: 7rem;
+  max-width: 100%;
+}
+
+.register-request-page__panel {
+  backdrop-filter: blur(6px);
+}
+
+.register-request-page__link {
+  color: var(--color-primary);
+  transition: color 0.2s ease;
+}
+
+.register-request-page__link:hover {
+  color: var(--color-primary-hover);
+}
+
+.register-request-page__divider {
+  position: relative;
+  min-height: 1rem;
+}
+
+.register-request-page__divider::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto 0;
+  border-top: 1px solid var(--color-border);
+  transform: translateY(-50%);
+}
+
+.register-request-page__divider-dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background-color: var(--color-text-soft);
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,43 @@
+:host {
+  display: block;
+}
+
+.repository-explore-page__subtitle {
+  max-width: 52rem;
+}
+
+.repository-explore-page__illustration {
+  width: 7.5rem;
+  height: 7.5rem;
+  min-width: 7.5rem;
+}
+
+.repository-explore-page__hero-image {
+  width: 10.5rem;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+:host ::ng-deep .repository-explore-page__hero-card .p-card-content {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+:host ::ng-deep .repository-explore-page__filters-card .p-card-content {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+:host ::ng-deep .repository-explore-page__control,
+:host ::ng-deep .repository-explore-page__clear-button {
+  height: 2.75rem;
+  min-height: 2.75rem;
+}
+
+:host ::ng-deep .p-autocomplete {
+  width: 100%;
+}
+
+:host ::ng-deep .p-autocomplete-input {
+  width: 100%;
+}

@@ -1,0 +1,296 @@
+<div class="landing-page overflow-hidden">
+  <p-scrollTop></p-scrollTop>
+
+  <section
+    id="inicio"
+    class="hero-section relative flex flex-column align-items-center justify-content-center text-center px-3 px-md-4 py-6"
+  >
+    <div class="hero-content z-1">
+      <p-chip
+        label="Plataforma Colaborativa Next-Gen"
+        icon="pi pi-sparkles"
+        class="mb-3 mb-md-4 hero-chip"
+      ></p-chip>
+      <h1 class="text-3xl md:text-7xl font-bold text-white m-0 mb-2 mb-md-3 leading-tight">
+        Transforma la realidad a través del <span class="text-primary">conocimiento colectivo</span>
+      </h1>
+      <p
+        class="text-md md:text-xl text-white-alpha-90 m-0 mb-4 mb-md-5 max-w-40rem mx-auto line-height-3 px-2"
+      >
+        PRX es una plataforma diseñada para democratizar el acceso a la información, empoderando a
+        través de la colaboración.
+      </p>
+      <div class="flex flex-column sm:flex-row gap-3 justify-content-center">
+        <p-button
+          label="Explorar repositorios"
+          icon="pi pi-folder-open"
+          size="large"
+          styleClass="p-button-outlined p-button-rounded hero-button-secondary"
+          routerLink="/repositories/explore"
+        ></p-button>
+      </div>
+    </div>
+    <div class="hero-blur-1"></div>
+    <div class="hero-blur-2"></div>
+    <div class="hero-blur-3"></div>
+  </section>
+
+  <div class="how-it-works-section py-5 py-md-8 px-3 px-md-4 surface-ground">
+    <div class="max-w-screen-xl mx-auto text-center">
+      <p-chip label="Flujo de trabajo" icon="pi pi-chart-line" class="mb-3"></p-chip>
+      <h2 class="text-2xl md:text-5xl font-bold mt-2 mb-3">¿Cómo funciona la plataforma?</h2>
+      <p class="text-color-secondary text-base md:text-lg mb-4 md:mb-5 max-w-30rem mx-auto px-2">
+        Cinco pasos simples para empezar a construir realidades.
+      </p>
+
+      <div class="timeline-desktop hidden md:block">
+        <p-timeline [value]="timelineEvents" align="alternate" styleClass="custom-timeline">
+          <ng-template pTemplate="marker" let-event>
+            <span class="custom-marker p-shadow-2" [style.backgroundColor]="event.color">
+              <i [class]="event.icon"></i>
+            </span>
+          </ng-template>
+          <ng-template pTemplate="content" let-event>
+            <p-card styleClass="timeline-card">
+              <ng-template pTemplate="header">
+                <div class="p-3 pb-0">
+                  <h3 class="text-lg md:text-xl font-bold m-0">{{ event.title }}</h3>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="content">
+                <p class="m-0 text-color-secondary line-height-3">{{ event.description }}</p>
+              </ng-template>
+            </p-card>
+          </ng-template>
+        </p-timeline>
+      </div>
+
+      <div class="timeline-mobile md:hidden">
+        <div class="flex flex-column gap-4">
+          @for (event of timelineEvents; track event.title; let i = $index) {
+            <div class="flex gap-3">
+              <div class="flex flex-column align-items-center">
+                <div
+                  class="step-marker w-3rem h-3rem flex align-items-center justify-content-center border-round-full shadow-2"
+                  [style.backgroundColor]="event.color"
+                >
+                  <i [class]="event.icon" class="text-white text-lg"></i>
+                </div>
+                @if (i < timelineEvents.length - 1) {
+                  <div
+                    class="step-line w-2px h-4rem my-1"
+                    [style.backgroundColor]="event.color + '40'"
+                  ></div>
+                }
+              </div>
+              <div class="flex-1 text-left mb-4">
+                <h3 class="text-lg font-bold m-0 mb-2">{{ event.title }}</h3>
+                <p class="text-color-secondary m-0 text-sm">{{ event.description }}</p>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="que-es-prx" class="what-is-prx-section py-5 py-md-8 px-3 px-md-4">
+    <div
+      class="max-w-screen-xl mx-auto flex flex-column lg:flex-row align-items-center gap-4 gap-md-6"
+    >
+      <div class="lg:w-6">
+        <p-chip label="Nuestra esencia" icon="pi pi-heart-fill" class="mb-3"></p-chip>
+        <h2 class="text-2xl md:text-5xl font-bold mt-2 mb-3">
+          ¿Qué es <span class="text-primary">PRX</span>?
+        </h2>
+
+        <div class="mission-card p-3 p-md-4 border-round-xl bg-primary-alpha-10 mb-3 mb-md-4">
+          <div class="flex align-items-center gap-2 mb-2">
+            <i class="pi pi-flag-fill text-primary text-xl md:text-2xl"></i>
+            <h3 class="text-lg md:text-xl font-semibold m-0">Misión</h3>
+          </div>
+          <p class="text-color-secondary m-0 line-height-3 text-sm md:text-base">
+            Crear una plataforma digital colaborativa que integre el arte, la filosofía, la ciencia
+            y la tecnología, permitiendo a las personas compartir conocimiento, experiencias y
+            recursos para comprender y transformar la realidad.
+          </p>
+        </div>
+
+        <div class="vision-card p-3 p-md-4 border-round-xl bg-secondary-alpha-10">
+          <div class="flex align-items-center gap-2 mb-2">
+            <i class="pi pi-eye text-primary text-xl md:text-2xl"></i>
+            <h3 class="text-lg md:text-xl font-semibold m-0">Visión</h3>
+          </div>
+          <p class="text-color-secondary m-0 line-height-3 text-sm md:text-base">
+            Ser una comunidad digital de referencia donde personas de distintas disciplinas puedan
+            conectarse, colaborar y generar conocimiento para la transformación de realidades
+            sociales.
+          </p>
+        </div>
+      </div>
+
+      <div class="lg:w-6 flex justify-content-center mt-4 lg:mt-0">
+        <div class="relative w-full max-w-30rem">
+          <div class="what-is-prx-card border-round-3xl p-3 p-md-4 shadow-6 overflow-hidden">
+            <div
+              class="absolute top-0 right-0 w-8rem h-8rem md:w-10rem md:h-10rem bg-primary-alpha-10 border-round-50 -mr-4 -mt-4"
+            ></div>
+            <i
+              class="pi pi-quote-right text-4xl md:text-6xl text-primary-alpha-30 absolute top-2 right-2 md:top-3 md:right-3"
+            ></i>
+            <div class="relative border-round-xl overflow-hidden">
+              <img
+                src="images/landing-page/colaboration.jpg"
+                alt="Colaboración en equipo"
+                class="w-full h-12rem md:h-17rem"
+                style="object-fit: cover"
+              />
+              <div class="absolute bottom-0 left-0 right-0 p-2 p-md-3 text-white bg-black-alpha-60">
+                <h4 class="m-0 text-sm md:text-base">Colabora sin límites</h4>
+                <p class="m-0 text-xs md:text-sm">
+                  Conecta con personas de todo el mundo y construye conocimiento colectivo.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="repositorio" class="repository-section py-5 py-md-8 px-3 px-md-4 surface-ground">
+    <div class="max-w-screen-xl mx-auto text-center">
+      <p-chip label="Poder central" icon="pi pi-folder" class="mb-3"></p-chip>
+      <h2 class="text-2xl md:text-5xl font-bold mt-2 mb-3">
+        Gestiona tu <span class="text-primary">Repositorio</span>
+      </h2>
+      <p class="text-color-secondary text-base md:text-lg mb-4 md:mb-5 max-w-40rem mx-auto px-2">
+        Todo lo que necesitas para organizar tu conocimiento y colaborar con tu equipo.
+      </p>
+
+      <div class="grid">
+        @for (feature of repositoryFeatures; track feature.title) {
+          <div class="col-12 md:col-6 lg:col-4 mb-3 mb-md-4">
+            <div
+              class="feature-card p-3 p-md-4 border-round-xl surface-card shadow-2 h-full transition-all transition-duration-300"
+            >
+              <div class="flex align-items-center justify-content-between mb-3">
+                <div
+                  class="w-3rem h-3rem md:w-4rem md:h-4rem flex align-items-center justify-content-center bg-primary-alpha-10 border-round-2xl"
+                >
+                  <i [class]="feature.icon + ' text-xl md:text-2xl text-primary'"></i>
+                </div>
+                @if (feature.badge) {
+                  <p-tag [value]="feature.badge" severity="info" [rounded]="true"></p-tag>
+                }
+              </div>
+              <h3 class="text-md md:text-xl font-semibold m-0 mb-2">{{ feature.title }}</h3>
+              <p class="text-color-secondary m-0 line-height-3 text-sm md:text-base">
+                {{ feature.description }}
+              </p>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="mt-4 md:mt-6">
+        <p-button
+          label="Explorar repositorios"
+          icon="pi pi-external-link"
+          iconPos="right"
+          size="large"
+          styleClass="p-button-rounded"
+          routerLink="/repositories/explore"
+        ></p-button>
+      </div>
+    </div>
+  </section>
+
+  <section id="comunidad" class="community-section py-5 py-md-8 px-3 px-md-4">
+    <div class="max-w-screen-xl mx-auto text-center">
+      <p-chip label="Únete al cambio" icon="pi pi-users" class="mb-3"></p-chip>
+      <h2 class="text-2xl md:text-5xl font-bold mt-2 mb-3">
+        Sé parte de la <span class="text-primary">Comunidad PRX</span>
+      </h2>
+      <p class="text-color-secondary text-base md:text-lg mb-4 md:mb-5 max-w-30rem mx-auto px-2">
+        Más de 5000 usuarios activos están transformando la realidad.
+      </p>
+
+      <div class="flex justify-content-center mb-4 md:mb-6">
+        <p-avatarGroup>
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+            shape="circle"
+            size="large"
+            pTooltip="Amy Elsner"
+            tooltipPosition="top"
+          ></p-avatar>
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/annafali.png"
+            shape="circle"
+            size="large"
+            pTooltip="Anna Fali"
+            tooltipPosition="top"
+          ></p-avatar>
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/asiyajavayant.png"
+            shape="circle"
+            size="large"
+            pTooltip="Asiya Javayant"
+            tooltipPosition="top"
+          ></p-avatar>
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/onyamalimba.png"
+            shape="circle"
+            size="large"
+            pTooltip="Onyamalimba"
+            tooltipPosition="top"
+          ></p-avatar>
+          <p-avatar
+            image="https://primefaces.org/cdn/primeng/images/demo/avatar/ionibowcher.png"
+            shape="circle"
+            size="large"
+            pTooltip="Ioni Bowcher"
+            tooltipPosition="top"
+          ></p-avatar>
+          <p-avatar
+            label="+2k"
+            shape="circle"
+            size="large"
+            styleClass="bg-primary text-white"
+          ></p-avatar>
+        </p-avatarGroup>
+      </div>
+
+      <div class="testimonials-section mt-6 md:mt-8">
+        <h3 class="text-xl md:text-2xl font-bold mb-3 md:mb-4">Lo que dice nuestra comunidad</h3>
+        <p-carousel
+          [value]="testimonials"
+          [numVisible]="1"
+          [numScroll]="1"
+          [responsiveOptions]="carouselResponsiveOptions"
+          [circular]="true"
+          autoplayInterval="5000"
+        >
+          <ng-template pTemplate="item" let-testimonial>
+            <div class="p-2">
+              <div class="testimonial-card p-3 p-md-4 border-round-xl surface-card shadow-2">
+                <div class="flex align-items-center gap-3 mb-3">
+                  <p-avatar [image]="testimonial.avatar" shape="circle" size="large"></p-avatar>
+                  <div>
+                    <h4 class="m-0 font-semibold text-base md:text-lg">{{ testimonial.name }}</h4>
+                    <p-tag [value]="testimonial.role" severity="info" [rounded]="true"></p-tag>
+                  </div>
+                </div>
+                <i class="pi pi-quote-left text-primary-alpha-50 text-lg md:text-xl mr-1"></i>
+                <p class="m-0 text-color-secondary line-height-3 text-sm md:text-base">
+                  {{ testimonial.message }}
+                </p>
+              </div>
+            </div>
+          </ng-template>
+        </p-carousel>
+      </div>
+    </div>
+  </section>
+</div>

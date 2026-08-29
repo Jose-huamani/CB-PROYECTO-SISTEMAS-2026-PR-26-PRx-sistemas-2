@@ -1,0 +1,54 @@
+<section class="w-full user-public-repositories">
+  @if (loading()) {
+    <div class="grid formgrid -mx-2">
+      @for (item of [1, 2]; track item) {
+        <div class="col-12 xl:col-6 px-2 mb-3">
+          <p-skeleton height="22rem" borderRadius="1rem"></p-skeleton>
+        </div>
+      }
+    </div>
+  } @else if (repositories().length) {
+    <div class="flex flex-column gap-3">
+      <div class="flex flex-column gap-2">
+        <h2 class="m-0 text-xl">Repositorios públicos</h2>
+
+        <p class="m-0 text-sm text-color-secondary line-height-3">
+          Repositorios públicos compartidos por este usuario.
+        </p>
+      </div>
+
+      <div class="grid formgrid -mx-2">
+        @for (repository of repositories(); track repository.id) {
+          <div class="col-12 xl:col-6 px-2 mb-3">
+            <app-repository-card
+              [repository]="repository"
+              actionLabel="Ver repositorio"
+              actionIcon="pi pi-folder-open"
+              (actionClick)="openRepository($event)"
+            ></app-repository-card>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <p-card>
+      <ng-template pTemplate="content">
+        <div
+          class="flex flex-column align-items-center justify-content-center text-center gap-3 py-5"
+        >
+          <i class="pi pi-folder-open text-4xl text-color-secondary"></i>
+
+          <div class="flex flex-column gap-2">
+            <h3 class="m-0 text-xl">
+              {{ REPOSITORY_MESSAGES.PUBLIC_BY_USER.EMPTY_TITLE }}
+            </h3>
+
+            <p class="m-0 text-sm text-color-secondary">
+              {{ REPOSITORY_MESSAGES.PUBLIC_BY_USER.EMPTY_DESCRIPTION }}
+            </p>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
+  }
+</section>

@@ -1,0 +1,162 @@
+.create-note-page {
+  width: 100%;
+  background: var(--color-background);
+}
+
+.create-note-page__container {
+  max-width: 74rem;
+  margin: 0 auto;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+:host ::ng-deep .p-inputtext,
+:host ::ng-deep .p-inputtextarea {
+  width: 100% !important;
+}
+
+.file-field {
+  margin-top: 0.5rem;
+}
+
+.upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  border-radius: 12px;
+  background: var(--surface-ground);
+  border: 2px dashed var(--surface-border);
+  cursor: pointer;
+  color: var(--color-text-soft);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.upload-dropzone i {
+  font-size: 2.2rem;
+  color: var(--color-primary);
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.upload-dropzone span {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.upload-dropzone:hover {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 8%, var(--surface-ground));
+}
+
+.upload-dropzone:hover i {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.upload-dropzone:active {
+  transform: scale(0.98);
+}
+
+.text-muted {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--color-text-soft);
+  margin-top: 0.5rem;
+}
+
+.selected-files {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.75rem 0;
+}
+
+.file-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--color-primary) 15%, var(--surface-0));
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  font-weight: 500;
+  max-width: 100%;
+  word-break: break-word;
+}
+
+.remove-file {
+  margin-left: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: auto;
+  height: auto;
+  padding: 0;
+}
+
+.remove-file:hover {
+  color: var(--color-primary);
+}
+
+.text-danger {
+  color: var(--red-500);
+  font-weight: 600;
+}
+
+small.text-danger {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--red-500);
+  font-weight: 500;
+}
+
+.create-note-page__divider {
+  height: 1px;
+  background: var(--surface-border);
+  margin: 0;
+}
+
+/* Action buttons layout adjustments requested */
+.actions--right {
+  justify-content: center !important;
+}
+
+/* Ensure primary/secondary buttons have the same minimum width */
+:host ::ng-deep .p-button,
+:host ::ng-deep button.p-button {
+  min-width: 180px;
+}
+
+/* Small circular remove file button styling */
+.file-item .remove-file {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  background: var(--surface-border);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.file-item .remove-file .pi {
+  font-size: 0.7rem;
+  color: var(--color-text);
+}

@@ -1,0 +1,10 @@
+export const AUTH_CONSTANTS = {
+  VERIFICATION: {
+    CODE_LENGTH: 6,
+    EXPIRES_MINUTES: 10,
+    RESEND_COOLDOWN_SECONDS: 60,
+  },
+  PASSWORD_RESET: {
+    EXPIRES_MINUTES: 10,
+  },
+} as const;
