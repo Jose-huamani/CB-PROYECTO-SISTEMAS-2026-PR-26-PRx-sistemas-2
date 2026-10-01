@@ -1,6 +1,7 @@
 export const NOTES_MESSAGES = {
   CONFIRM_DELETE: '¿Estás seguro que deseas eliminar la nota "{title}"?',
   CREATE_SUCCESS: 'Nota creada correctamente.',
+  UPDATE_SUCCESS: 'Nota actualizada correctamente.',
   DELETE_SUCCESS: 'Nota eliminada correctamente.',
   REPOSITORY_NOT_FOUND: 'Repositorio no encontrado.',
   DOWNLOAD_LINK_ERROR: 'No se pudo obtener el enlace de descarga.',

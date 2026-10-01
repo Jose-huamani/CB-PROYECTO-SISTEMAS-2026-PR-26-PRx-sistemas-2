@@ -1,0 +1,96 @@
+<section class="image-editor" role="dialog" aria-modal="true" aria-labelledby="image-editor-title">
+  <header class="image-editor__header">
+    <button type="button" class="tool-button tool-button--text" (click)="cancelled.emit()">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      <span>Volver</span>
+    </button>
+    <div>
+      <span class="image-editor__eyebrow">Editar imagen</span>
+      <h2 id="image-editor-title">{{ file.name }}</h2>
+    </div>
+    <div class="image-editor__history">
+      <button type="button" class="tool-button tool-button--icon" aria-label="Deshacer" [disabled]="!canUndo()" (click)="undo()">
+        <i class="pi pi-undo" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="tool-button tool-button--icon" aria-label="Rehacer" [disabled]="!canRedo()" (click)="redo()">
+        <i class="pi pi-refresh" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="image-editor__body">
+    <div #stageElement class="image-editor__stage" [class.is-loading]="loading()">
+      @if (loading()) {
+        <div class="image-editor__loading"><i class="pi pi-spin pi-spinner"></i> Preparando imagen...</div>
+      }
+      <canvas #canvasElement></canvas>
+    </div>
+
+    <aside class="image-editor__tools" aria-label="Herramientas de edición">
+      <h3>Herramientas</h3>
+
+      <div class="tool-grid">
+        <button type="button" class="tool-button" [class.is-active]="mode === 'select'" (click)="setMode('select')">
+          <i class="pi pi-arrows-alt" aria-hidden="true"></i><span>Seleccionar</span>
+        </button>
+        <button type="button" class="tool-button" [class.is-active]="mode === 'pencil'" (click)="setMode('pencil')">
+          <i class="pi pi-pencil" aria-hidden="true"></i><span>Pincel</span>
+        </button>
+        <button type="button" class="tool-button" [class.is-active]="mode === 'marker'" (click)="setMode('marker')">
+          <i class="pi pi-highlighter" aria-hidden="true"></i><span>Marcar</span>
+        </button>
+        <button type="button" class="tool-button" [class.is-active]="mode === 'crop'" (click)="setMode('crop')">
+          <i class="pi pi-stop" aria-hidden="true"></i><span>Recortar</span>
+        </button>
+        <button type="button" class="tool-button" (click)="addText()">
+          <i class="pi pi-align-left" aria-hidden="true"></i><span>Texto</span>
+        </button>
+        <button type="button" class="tool-button" (click)="rotate()">
+          <i class="pi pi-replay" aria-hidden="true"></i><span>Rotar 90°</span>
+        </button>
+      </div>
+
+      <div class="tool-section">
+        <label for="editor-color">Color</label>
+        <input id="editor-color" type="color" [(ngModel)]="color" (ngModelChange)="updateBrush()" />
+      </div>
+
+      <div class="tool-section">
+        <label for="brush-width">Grosor: {{ brushWidth }} px</label>
+        <input id="brush-width" type="range" min="2" max="30" [(ngModel)]="brushWidth" (ngModelChange)="updateBrush()" />
+      </div>
+
+      <div class="tool-section">
+        <span class="tool-section__label">Formas</span>
+        <div class="shape-actions">
+          <button type="button" class="tool-button tool-button--icon" aria-label="Agregar rectángulo" (click)="addRectangle()">
+            <i class="pi pi-stop" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="tool-button tool-button--icon" aria-label="Agregar círculo" (click)="addCircle()">
+            <i class="pi pi-circle" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="tool-button tool-button--icon" aria-label="Agregar flecha" (click)="addArrow()">
+            <i class="pi pi-arrow-right" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="tool-button tool-button--icon tool-button--danger" aria-label="Eliminar elemento seleccionado" (click)="deleteSelection()">
+            <i class="pi pi-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      @if (mode === 'crop') {
+        <button type="button" class="editor-action editor-action--crop" (click)="applyCrop()">
+          <i class="pi pi-check" aria-hidden="true"></i> Aplicar recorte
+        </button>
+      }
+    </aside>
+  </div>
+
+  <footer class="image-editor__footer">
+    <button type="button" class="editor-action editor-action--secondary" [disabled]="saving()" (click)="cancelled.emit()">Cancelar</button>
+    <button type="button" class="editor-action editor-action--primary" [disabled]="loading() || saving()" (click)="save()">
+      @if (saving()) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
+      Guardar cambios
+    </button>
+  </footer>
+</section>

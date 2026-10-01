@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@generated-prisma/client';
 
 import { NoteEntity } from '@modules/notes/domain/entities/note.entity';
 import { NoteRepository } from '@modules/notes/domain/repositories/note.repository';
@@ -83,6 +84,8 @@ export class PrismaNoteRepository
                 repositoryId: entity.repositoryId,
                 title: entity.title,
                 content: entity.content,
+                tasks: entity.tasks as unknown as Prisma.InputJsonValue,
+                links: entity.links as unknown as Prisma.InputJsonValue,
                 createdBy: entity.createdBy,
             },
             include: {
@@ -102,6 +105,12 @@ export class PrismaNoteRepository
             data: {
                 title: data.title,
                 content: data.content,
+                tasks: data.tasks === undefined
+                    ? undefined
+                    : data.tasks as unknown as Prisma.InputJsonValue,
+                links: data.links === undefined
+                    ? undefined
+                    : data.links as unknown as Prisma.InputJsonValue,
                 updatedBy: data.updatedBy,
                 status: data.status,
             },

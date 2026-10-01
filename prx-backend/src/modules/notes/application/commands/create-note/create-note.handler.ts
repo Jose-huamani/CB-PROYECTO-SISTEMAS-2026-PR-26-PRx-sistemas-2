@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { ForbiddenException, Inject, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Inject, NotFoundException } from '@nestjs/common';
 import { RepositoryVisibility } from '@generated-prisma/enums';
 
 import { CreateNoteCommand } from '@modules/notes/application/commands/create-note/create-note.command';
 import { NoteRepository } from '@modules/notes/domain/repositories/note.repository';
 import { NoteFileRepository } from '@modules/notes/domain/repositories/note-file.repository';
-import { NoteEntity } from '@modules/notes/domain/entities/note.entity';
+import { NoteEntity, NoteLink } from '@modules/notes/domain/entities/note.entity';
 import { NoteFileEntity } from '@modules/notes/domain/entities/note-file.entity';
 import { NoteResponseMapper } from '@modules/notes/application/mappers/note-response.mapper';
 import { NOTE_MESSAGES } from '@modules/notes/application/constants/note-messages.constants';
@@ -57,6 +57,7 @@ export class CreateNoteHandler implements ICommandHandler<CreateNoteCommand> {
         }
 
         const { title, content } = command.dto;
+        const links = this.parseLinks(command.dto.links);
 
         const note = new NoteEntity(
             null,
@@ -64,6 +65,14 @@ export class CreateNoteHandler implements ICommandHandler<CreateNoteCommand> {
             title,
             content,
             command.createdBy,
+            [],
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            undefined,
+            [],
+            links,
         );
 
         const created = await this.noteRepository.create(note);
@@ -98,5 +107,30 @@ export class CreateNoteHandler implements ICommandHandler<CreateNoteCommand> {
             message: NOTE_MESSAGES.CREATED,
             data: NoteResponseMapper.toNoteResponse(created),
         };
+    }
+
+    private parseLinks(raw?: string): NoteLink[] {
+        if (!raw) {
+            return [];
+        }
+
+        try {
+            const links = JSON.parse(raw) as unknown;
+            if (!Array.isArray(links) || links.length > 50) throw new Error();
+
+            return links.map((link) => {
+                const value = link as Partial<NoteLink>;
+                if (!value.id || typeof value.url !== 'string') throw new Error();
+                const url = value.url.trim();
+                new URL(url);
+
+                return {
+                    id: String(value.id),
+                    url: url.slice(0, 2048),
+                };
+            });
+        } catch {
+            throw new BadRequestException('La lista de enlaces no es válida');
+        }
     }
 }

@@ -13,10 +13,186 @@
       word-break: break-word;
       white-space: normal;
       overflow-wrap: break-word;
-      display: -webkit-box;  
+      display: -webkit-box;
       -webkit-box-orient: vertical;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+  }
+}
+
+.register-request-page > .flex {
+  max-width: 64rem;
+  margin: 0 auto;
+}
+
+.binnacle-extra-section {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  background: var(--surface-card);
+}
+
+.binnacle-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.8rem;
+}
+
+.binnacle-section-heading h2 {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 0.9rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.binnacle-section-heading h2 span,
+.binnacle-section-heading p {
+  color: var(--text-color-secondary);
+}
+
+.binnacle-section-heading p {
+  margin: 0.25rem 0 0;
+  font-size: 0.85rem;
+}
+
+.add-item-button {
+  display: inline-flex;
+  min-height: 2rem;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.7rem;
+  border: 0;
+  border-radius: 6px;
+  background: var(--primary-color);
+  color: var(--primary-color-text);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.binnacle-add-row input {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-ground);
+  color: var(--text-color);
+  font: inherit;
+}
+
+.binnacle-add-row input:focus {
+  border-color: var(--primary-color);
+  outline: 2px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.binnacle-link-list,
+.binnacle-task-list {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.binnacle-link-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--surface-border);
+  border-radius: 6px;
+  background: var(--surface-ground);
+}
+
+.binnacle-link-item a:not(.open-link-button) {
+  overflow: hidden;
+  color: var(--primary-color);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.binnacle-link-item button,
+.binnacle-task-item button,
+.open-link-button {
+  display: inline-grid;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.binnacle-link-item button:hover,
+.binnacle-task-item button:hover {
+  background: var(--red-50);
+  color: var(--red-600);
+}
+
+.binnacle-task-item {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid var(--surface-border);
+}
+
+.binnacle-task-item input {
+  width: 1.1rem;
+  height: 1.1rem;
+  flex: 0 0 auto;
+  accent-color: var(--primary-color);
+}
+
+.binnacle-task-item label,
+.binnacle-task-item span {
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.binnacle-task-item.is-complete label,
+.binnacle-task-item.is-complete span {
+  color: var(--text-color-secondary);
+  text-decoration: line-through;
+}
+
+.binnacle-empty-copy {
+  margin: 0;
+  padding: 0.25rem;
+  color: var(--text-color-secondary);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.saved-section {
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--surface-border);
+}
+
+.saved-section > strong {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+@media (max-width: 40rem) {
+  .binnacle-section-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .add-item-button {
+    align-self: flex-start;
   }
 }

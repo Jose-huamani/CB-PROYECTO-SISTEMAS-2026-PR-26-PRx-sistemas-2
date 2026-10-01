@@ -1,0 +1,199 @@
+<section class="note-detail">
+  <header class="note-detail__header">
+    <button type="button" class="icon-button" aria-label="Volver" title="Volver" (click)="back()">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+    </button>
+    <div class="note-detail__heading">
+      <span>Nota del repositorio</span>
+      <h1>{{ note()?.title || 'Cargando nota' }}</h1>
+    </div>
+    @if (!loading() && canEdit() && !editing()) {
+      <button type="button" class="command-button command-button--primary" (click)="startEditing()">
+        <i class="pi pi-pencil" aria-hidden="true"></i> Editar nota
+      </button>
+    }
+  </header>
+
+  @if (loading()) {
+    <div class="note-detail__loading"><i class="pi pi-spin pi-spinner"></i> Cargando nota...</div>
+  } @else if (note(); as currentNote) {
+    <main class="note-detail__content">
+      <section class="note-section note-section--content">
+        @if (editing()) {
+          <label for="note-title">Título</label>
+          <input id="note-title" type="text" [formControl]="form.controls.title" />
+          <label for="note-content">Contenido</label>
+          <textarea id="note-content" rows="7" [formControl]="form.controls.content"></textarea>
+        } @else {
+          <div class="note-meta">
+            <span><i class="pi pi-user"></i> {{ currentNote.createdBy.username }}</span>
+            <span><i class="pi pi-calendar"></i> {{ currentNote.updatedAt | date: 'medium' }}</span>
+          </div>
+          <p class="note-body">{{ currentNote.content }}</p>
+        }
+      </section>
+
+      <section class="note-section" aria-labelledby="links-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="links-title">Enlaces web</h2>
+            <p>{{ links().length }} enlace(s) agregado(s)</p>
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="link-add">
+            <input
+              type="url"
+              [(ngModel)]="newLinkUrl"
+              placeholder="https://ejemplo.com"
+              (keydown.enter)="$event.preventDefault(); addLink()"
+            />
+            <button type="button" class="icon-button icon-button--accent" aria-label="Agregar URL" title="Agregar URL" (click)="addLink()">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+
+        <div class="link-list">
+          @for (link of links(); track link.id) {
+            <div class="link-item">
+              <i class="pi pi-link" aria-hidden="true"></i>
+              <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.url }}</a>
+              @if (editing()) {
+                <button type="button" class="icon-button icon-button--danger" aria-label="Eliminar enlace" title="Eliminar enlace" (click)="removeLink(link.id)">
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                </button>
+              } @else {
+                <a class="icon-button" [href]="link.url" target="_blank" rel="noopener noreferrer" aria-label="Abrir enlace" title="Abrir enlace">
+                  <i class="pi pi-external-link" aria-hidden="true"></i>
+                </a>
+              }
+            </div>
+          } @empty {
+            <p class="empty-copy">Esta nota todavía no tiene enlaces web.</p>
+          }
+        </div>
+      </section>
+
+      <section class="note-section" aria-labelledby="tasks-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="tasks-title">Tareas</h2>
+            <p>{{ tasks().length }} tarea(s), {{ completedTaskCount() }} completada(s)</p>
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="task-add">
+            <input type="text" [(ngModel)]="newTaskTitle" placeholder="Agregar una tarea" (keydown.enter)="addTask()" />
+            <button type="button" class="icon-button icon-button--accent" aria-label="Agregar tarea" title="Agregar tarea" (click)="addTask()">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+
+        <div class="task-list">
+          @for (task of tasks(); track task.id) {
+            <div class="task-item" [class.is-complete]="task.completed">
+              <input type="checkbox" [id]="'task-' + task.id" [checked]="task.completed" [disabled]="!canEdit() || saving()" (change)="toggleTask(task)" />
+              <label [for]="'task-' + task.id">{{ task.title }}</label>
+              @if (editing()) {
+                <button type="button" class="icon-button icon-button--danger" aria-label="Eliminar tarea" title="Eliminar tarea" (click)="removeTask(task.id)">
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+          } @empty {
+            <p class="empty-copy">Esta nota todavía no tiene tareas.</p>
+          }
+        </div>
+      </section>
+
+      <section class="note-section" aria-labelledby="files-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="files-title">Archivos e imágenes</h2>
+            <p>Abre un archivo o continúa editando las imágenes de la nota.</p>
+          </div>
+        </div>
+
+        <div class="media-grid">
+          @for (file of existingFiles(); track file.id) {
+            <article class="media-item">
+              @if (file.isImage && file.url) {
+                <img [src]="file.url" [alt]="file.name" />
+              } @else {
+                <div class="file-icon"><i class="pi pi-file" aria-hidden="true"></i></div>
+              }
+              <div class="media-item__info">
+                <strong [title]="file.name">{{ file.name }}</strong>
+                <div class="media-actions">
+                  <button type="button" class="icon-button" aria-label="Ver o descargar archivo" title="Ver o descargar" (click)="download(file)">
+                    <i class="pi pi-external-link" aria-hidden="true"></i>
+                  </button>
+                  @if (editing() && file.isImage) {
+                    <button type="button" class="icon-button icon-button--accent" aria-label="Editar imagen" title="Editar imagen" (click)="editExistingImage(file)">
+                      <i class="pi pi-pencil" aria-hidden="true"></i>
+                    </button>
+                  }
+                  @if (editing()) {
+                    <button type="button" class="icon-button icon-button--danger" aria-label="Quitar archivo" title="Quitar archivo" (click)="removeExistingFile(file.id)">
+                      <i class="pi pi-trash" aria-hidden="true"></i>
+                    </button>
+                  }
+                </div>
+              </div>
+            </article>
+          }
+
+          @for (image of newImages(); track image.id) {
+            <article class="media-item media-item--new">
+              <img [src]="image.previewUrl" [alt]="image.file.name" />
+              <div class="media-item__info">
+                <strong>{{ image.file.name }}</strong>
+                <div class="media-actions">
+                  <button type="button" class="icon-button icon-button--accent" aria-label="Editar imagen" (click)="editNewImage(image)"><i class="pi pi-pencil"></i></button>
+                  <button type="button" class="icon-button icon-button--danger" aria-label="Quitar imagen" (click)="removeImage(image.id)"><i class="pi pi-trash"></i></button>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+
+        @if (editing()) {
+          <div class="upload-actions">
+            <label class="upload-button">
+              <i class="pi pi-paperclip"></i> Adjuntar archivo
+              <input type="file" multiple (change)="selectAttachments($event)" />
+            </label>
+            <label class="upload-button">
+              <i class="pi pi-image"></i> Agregar imágenes
+              <input type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="selectImages($event)" />
+            </label>
+          </div>
+          @for (file of newAttachments(); track $index) {
+            <div class="pending-file">
+              <span><i class="pi pi-file"></i> {{ file.name }}</span>
+              <button type="button" class="icon-button icon-button--danger" aria-label="Quitar archivo" (click)="removeAttachment($index)"><i class="pi pi-trash"></i></button>
+            </div>
+          }
+        }
+      </section>
+    </main>
+
+    @if (editing()) {
+      <footer class="note-detail__footer">
+        <button type="button" class="command-button" [disabled]="saving()" (click)="cancelEditing()">Cancelar</button>
+        <button type="button" class="command-button command-button--primary" [disabled]="saving() || form.invalid" (click)="save()">
+          @if (saving()) { <i class="pi pi-spin pi-spinner"></i> }
+          Guardar cambios
+        </button>
+      </footer>
+    }
+  }
+</section>
+
+@if (imageBeingEdited(); as image) {
+  <app-note-image-editor [file]="image.file" (saved)="saveEditedImage($event)" (cancelled)="closeImageEditor()" />
+}

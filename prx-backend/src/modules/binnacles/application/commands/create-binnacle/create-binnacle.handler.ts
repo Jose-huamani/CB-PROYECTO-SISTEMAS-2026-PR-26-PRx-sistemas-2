@@ -13,10 +13,32 @@ export class CreateBinnacleHandler implements ICommandHandler<CreateBinnacleComm
     private readonly binnacleRepository: BinnacleRepository,
   ) {}
   async execute(command: CreateBinnacleCommand) {
-    const { content, name } = command.dto;
+    const { content, name, tasks = [], links = [] } = command.dto;
     const { userId } = command;
 
-    const binnacle = new BinnacleEntity(null, userId, content, name, userId);
+    const normalizedTasks = tasks.map((task) => ({
+      id: task.id,
+      title: task.title.trim(),
+      completed: task.completed,
+    }));
+    const normalizedLinks = links.map((link) => ({
+      id: link.id,
+      url: link.url.trim(),
+    }));
+
+    const binnacle = new BinnacleEntity(
+      null,
+      userId,
+      content,
+      name,
+      userId,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      normalizedTasks,
+      normalizedLinks,
+    );
 
     const savedBinnacle = await this.binnacleRepository.create(binnacle);
 

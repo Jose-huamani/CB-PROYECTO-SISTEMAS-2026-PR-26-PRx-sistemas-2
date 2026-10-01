@@ -49,6 +49,12 @@ export class ResendVerificationCodeHandler implements ICommandHandler<ResendVeri
       ),
     );
 
+    this.mailService.logCodeWhenDisabled(
+      'Nuevo codigo de verificacion',
+      email,
+      newCode,
+    );
+
     await this.mailService.sendMail(
       email,
       'Nuevo código de verificación',

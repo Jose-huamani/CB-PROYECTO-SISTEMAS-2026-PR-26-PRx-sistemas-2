@@ -58,6 +58,8 @@ export class RegisterRequestHandler implements ICommandHandler<RegisterRequestCo
       ),
     );
 
+    this.mailService.logCodeWhenDisabled('Codigo de verificacion', email, code);
+
     await this.mailService.sendMail(
       email,
       'Código de verificación',

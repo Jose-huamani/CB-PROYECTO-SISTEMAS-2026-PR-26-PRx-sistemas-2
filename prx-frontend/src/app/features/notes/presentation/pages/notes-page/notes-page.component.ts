@@ -72,6 +72,15 @@ export class NotesPageComponent implements OnInit {
     return note.id;
   }
 
+  protected openNote(note: NoteModel): void {
+    const repositoryId = this.getRepositoryId();
+    if (repositoryId) {
+      void this.router.navigate(['/notes/repositories', repositoryId, note.id]);
+      return;
+    }
+    void this.router.navigate(['/notes/repositories/me/intimate', note.id]);
+  }
+
   protected getNotePreview(note: NoteModel): string {
     return note.content.length > 180 ? `${note.content.slice(0, 180)}...` : note.content;
   }

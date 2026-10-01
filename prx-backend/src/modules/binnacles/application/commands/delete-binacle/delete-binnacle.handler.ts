@@ -22,6 +22,10 @@ export class DeleteBinnacleHandler implements ICommandHandler<DeleteBinnacleComm
       throw new NotFoundException(BINNACLE_MESSAGES.NOT_FOUND);
     }
 
+    if (binnacle.userId !== command.userId) {
+      throw new UnauthorizedException();
+    }
+
     await this.binnacleRepository.softDelete(command.id, command.userId);
 
     return {

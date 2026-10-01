@@ -11,6 +11,7 @@ import { PrismaNoteFileRepository } from '@modules/notes/infrastructure/persiste
 
 import { CreateNoteHandler } from '@modules/notes/application/commands/create-note/create-note.handler';
 import { DeleteNoteHandler } from '@modules/notes/application/commands/delete-note/delete-note.handler';
+import { UpdateNoteHandler } from '@modules/notes/application/commands/update-note/update-note.handler';
 import { GetNotesHandler } from '@modules/notes/application/queries/get-notes/get-notes.handler';
 import { GetNoteByIdHandler } from '@modules/notes/application/queries/get-note-by-id/get-note-by-id.handler';
 import { GetNoteFileDownloadUrlHandler } from '@modules/notes/application/queries/get-note-file-download-url/get-note-file-download-url.handler';
@@ -21,6 +22,7 @@ import { GetNoteFileDownloadUrlHandler } from '@modules/notes/application/querie
     providers: [
         CreateNoteHandler,
         DeleteNoteHandler,
+        UpdateNoteHandler,
         GetNotesHandler,
         GetNoteByIdHandler,
         GetNoteFileDownloadUrlHandler,

@@ -20,6 +20,7 @@
     "@ngx-formly/core": "^7.1.0",
     "@ngx-formly/primeng": "^7.1.0",
     "@primeuix/themes": "^2.0.3",
+    "fabric": "^7.4.0",
     "ngx-image-cropper": "^9.1.6",
     "primeflex": "^4.0.0",
     "primeicons": "^7.0.0",

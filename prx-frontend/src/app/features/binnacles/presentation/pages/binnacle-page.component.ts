@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { finalize } from 'rxjs';
@@ -25,11 +26,23 @@ interface CreateBinnacleFormValue {
   content: string;
 }
 
+interface BinnacleTaskDraft {
+  id: string;
+  title: string;
+  completed: boolean;
+}
+
+interface BinnacleLinkDraft {
+  id: string;
+  url: string;
+}
+
 @Component({
   selector: 'app-binnacle-page',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     ReactiveFormsModule,
     FormlyModule,
     ButtonModule,
@@ -43,10 +56,15 @@ export class BinnaclePageComponent {
   private readonly binnacleFacade = inject(BinnacleFacade);
   private readonly notificationService = inject(NotificationService);
   private readonly confirmService = inject(AppConfirmService);
+  private readonly router = inject(Router);
 
   protected readonly form = new FormGroup({});
   protected readonly fields: FormlyFieldConfig[] = buildCreateBinnacleFormFields();
   protected readonly submitting = signal(false);
+  protected readonly tasks = signal<BinnacleTaskDraft[]>([]);
+  protected readonly links = signal<BinnacleLinkDraft[]>([]);
+  protected newTaskTitle = '';
+  protected newLinkUrl = '';
 
   protected readonly binnacles = this.binnacleFacade.binnacles;
   protected readonly total = this.binnacleFacade.total;
@@ -74,6 +92,10 @@ export class BinnaclePageComponent {
 
     if (this.form.invalid) {
       this.handleInvalidForm();
+      return;
+    }
+
+    if (!this.addTask() || !this.addLink()) {
       return;
     }
 
@@ -113,6 +135,56 @@ export class BinnaclePageComponent {
     });
   }
 
+  protected openBinnacle(id: number): void {
+    void this.router.navigate(['/binnacles', id]);
+  }
+
+  protected addTask(): boolean {
+    const title = this.newTaskTitle.trim();
+    if (!title) {
+      return true;
+    }
+
+    if (title.length > 250) {
+      this.notificationService.warn('Bitácora', 'La tarea no puede superar los 250 caracteres.');
+      return false;
+    }
+
+    this.tasks.update((tasks) => [...tasks, { id: crypto.randomUUID(), title, completed: false }]);
+    this.newTaskTitle = '';
+    return true;
+  }
+
+  protected toggleTask(id: string): void {
+    this.tasks.update((tasks) =>
+      tasks.map((task) => (task.id === id ? { ...task, completed: !task.completed } : task)),
+    );
+  }
+
+  protected removeTask(id: string): void {
+    this.tasks.update((tasks) => tasks.filter((task) => task.id !== id));
+  }
+
+  protected addLink(): boolean {
+    const url = this.normalizeUrl(this.newLinkUrl);
+    if (!url) {
+      return true;
+    }
+
+    if (!this.isValidUrl(url)) {
+      this.notificationService.warn('Bitácora', 'Ingresa una URL válida.');
+      return false;
+    }
+
+    this.links.update((links) => [...links, { id: crypto.randomUUID(), url }]);
+    this.newLinkUrl = '';
+    return true;
+  }
+
+  protected removeLink(id: string): void {
+    this.links.update((links) => links.filter((link) => link.id !== id));
+  }
+
   private delete(id: number): void {
     this.submitting.set(true);
 
@@ -142,6 +214,8 @@ export class BinnaclePageComponent {
     return {
       name: rawValue.name,
       content: rawValue.content,
+      tasks: this.tasks(),
+      links: this.links(),
     };
   }
 
@@ -153,6 +227,10 @@ export class BinnaclePageComponent {
   private handleCreateSuccess(message: NotificationMessage): void {
     this.notificationService.success('Bitácora', message);
     this.form.reset();
+    this.tasks.set([]);
+    this.links.set([]);
+    this.newTaskTitle = '';
+    this.newLinkUrl = '';
     this.load();
   }
 
@@ -172,5 +250,23 @@ export class BinnaclePageComponent {
   private markFormAsTouched(): void {
     this.form.markAllAsTouched();
     this.form.updateValueAndValidity();
+  }
+
+  private normalizeUrl(value: string): string {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  }
+
+  private isValidUrl(value: string): boolean {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
   }
 }

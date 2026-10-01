@@ -338,6 +338,8 @@ model Binnacle {
   content String @db.VarChar(2000)
 
   // Atributos opcionales
+  tasks Json?
+  links Json?
 
   // Auditoría
   status    Int      @default(1) @db.UnsignedTinyInt
@@ -731,6 +733,8 @@ model Note {
   content String @db.Text
 
   // Atributos opcionales
+  tasks Json?
+  links Json?
 
   // Auditoría
   status    Int      @default(1) @db.UnsignedTinyInt

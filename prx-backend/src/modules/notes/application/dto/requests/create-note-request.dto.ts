@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 
 import { NormalizeSpaces } from '@shared/application/decorators/transforms/normalize-spaces.decorator';
 
@@ -23,4 +23,9 @@ export class CreateNoteRequestDto {
             `El contenido no puede superar los ${constraints[0]} caracteres`,
     })
     content!: string;
+
+    @ApiPropertyOptional({ description: 'Lista JSON de enlaces web de la nota' })
+    @IsOptional()
+    @IsString()
+    links?: string;
 }

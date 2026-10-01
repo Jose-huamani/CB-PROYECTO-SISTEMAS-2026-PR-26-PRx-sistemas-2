@@ -9,6 +9,7 @@ import { PaginatedResponseModel } from '@shared/models/paginated-response.model'
 import { BINNACLE_API_CONFIG } from '@features/binnacles/infrastructure/config/binnacle-api.config';
 import { CreateBinnacleRequest } from '@features/binnacles/domain/requests/create-binnacle.request';
 import { GetMeBinnaclesRequest } from '@features/binnacles/domain/requests/get-me-binnacles.request';
+import { UpdateBinnacleRequest } from '@features/binnacles/domain/requests/update-binnacle.request';
 
 @Injectable({
   providedIn: 'root',
@@ -29,6 +30,19 @@ export class BinnacleApi extends BaseFeatureApi implements BinnacleApiContract {
 
   create(data: CreateBinnacleRequest): Observable<ApiResponseModel<BinnacleModel>> {
     return this.post<BinnacleModel>(this.buildUrl(BINNACLE_API_CONFIG.endpoints.create), data);
+  }
+
+  findById(id: number): Observable<ApiResponseModel<BinnacleModel>> {
+    return this.get<BinnacleModel>(
+      this.buildUrl(BINNACLE_API_CONFIG.endpoints.findById.replace(':id', id.toString())),
+    );
+  }
+
+  update(id: number, data: UpdateBinnacleRequest): Observable<ApiResponseModel<BinnacleModel>> {
+    return this.put<BinnacleModel>(
+      this.buildUrl(BINNACLE_API_CONFIG.endpoints.update.replace(':id', id.toString())),
+      data,
+    );
   }
 
   deleteById(id: number): Observable<ApiResponseModel<void>> {

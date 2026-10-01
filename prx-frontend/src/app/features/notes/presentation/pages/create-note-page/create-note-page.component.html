@@ -1,25 +1,183 @@
-<section class="w-full create-note-page">
-  <div class="w-full mx-auto px-3 sm:px-4 py-4 md:py-5 create-note-page__container">
-    <div class="text-center mb-4 md:mb-5">
-      <h1 class="m-0">Crear nota</h1>
-    </div>
+<section class="create-note-page">
+  <div class="create-note-page__container">
+    <header class="create-note-page__header">
+      <div>
+        <span class="create-note-page__eyebrow">Notas del repositorio</span>
+        <h1>Crear nueva nota</h1>
+      </div>
+      <button type="button" class="back-button" [disabled]="submitting()" (click)="cancel()">
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+        Volver
+      </button>
+    </header>
 
-    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-column gap-4">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="create-note-form">
       <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
-      <div class="create-note-page__divider"></div>
-
-      <div class="grid formgrid p-fluid -mx-2 justify-content-center">
-        <div class="col-12 md:col-4 px-2">
-          <p-button type="submit" severity="primary" label="Guardar nota" icon="pi pi-check" styleClass="w-full"
-            [loading]="submitting()" [disabled]="submitting()"></p-button>
+      <section class="upload-section" aria-labelledby="attachments-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="attachments-title">Adjuntar archivos <span>(opcional)</span></h2>
+            <p>Documentos, hojas de cálculo, PDF u otros recursos.</p>
+          </div>
+          <span class="file-counter">{{ attachmentFiles().length + images().length }}/5</span>
         </div>
 
-        <div class="col-12 md:col-4 px-2 mt-2 md:mt-0 actions--right">
-          <p-button type="button" label="Cancelar" icon="pi pi-times" severity="secondary" variant="outlined"
-            styleClass="w-full" [disabled]="submitting()" (onClick)="cancel()"></p-button>
+        <input #attachmentInput type="file" multiple class="sr-only" (change)="selectAttachments($event)" />
+        <button
+          type="button"
+          class="upload-dropzone"
+          (click)="attachmentInput.click()"
+          (dragover)="allowDrop($event)"
+          (drop)="dropAttachments($event)"
+        >
+          <i class="pi pi-cloud-upload" aria-hidden="true"></i>
+          <span>Haz clic o arrastra tus archivos aquí</span>
+          <small>Máximo 50 MB por archivo</small>
+        </button>
+
+        @if (attachmentFiles().length > 0) {
+          <div class="attachment-list">
+            @for (file of attachmentFiles(); track file.name + file.lastModified; let index = $index) {
+              <div class="attachment-item">
+                <i class="pi pi-file" aria-hidden="true"></i>
+                <div>
+                  <strong>{{ file.name }}</strong>
+                  <span>{{ formatFileSize(file.size) }}</span>
+                </div>
+                <button type="button" aria-label="Quitar archivo" (click)="removeAttachment(index)">
+                  <i class="pi pi-times" aria-hidden="true"></i>
+                </button>
+              </div>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="upload-section" aria-labelledby="images-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="images-title">Adjuntar imágenes <span>(opcional)</span></h2>
+            <p>Cada imagen puede recortarse, rotarse y marcarse antes de guardar.</p>
+          </div>
         </div>
-      </div>
+
+        <input
+          #imageInput
+          type="file"
+          multiple
+          accept="image/jpeg,image/png,image/webp"
+          class="sr-only"
+          (change)="selectImages($event)"
+        />
+        <button
+          type="button"
+          class="upload-dropzone upload-dropzone--images"
+          (click)="imageInput.click()"
+          (dragover)="allowDrop($event)"
+          (drop)="dropImages($event)"
+        >
+          <i class="pi pi-images" aria-hidden="true"></i>
+          <span>Haz clic o arrastra imágenes JPG, PNG o WEBP</span>
+          <small>Podrás editar cada imagen por separado</small>
+        </button>
+
+        @if (images().length > 0) {
+          <div class="image-grid">
+            @for (image of images(); track image.id) {
+              <article class="image-card">
+                <img [src]="image.previewUrl" [alt]="image.file.name" />
+                <div class="image-card__body">
+                  <div>
+                    <strong>{{ image.file.name }}</strong>
+                    <span>{{ image.edited ? 'Imagen editada' : 'Sin editar' }}</span>
+                  </div>
+                  <div class="image-card__actions">
+                    <button type="button" class="image-action" (click)="editImage(image)">
+                      <i class="pi pi-pencil" aria-hidden="true"></i> Editar
+                    </button>
+                    <button
+                      type="button"
+                      class="image-action image-action--danger"
+                      aria-label="Quitar imagen"
+                      (click)="removeImage(image.id)"
+                    >
+                      <i class="pi pi-trash" aria-hidden="true"></i>
+                    </button>
+                  </div>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="links-section" aria-labelledby="links-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="links-title">Enlaces web <span>(opcional)</span></h2>
+            <p>Agrega URLs relacionadas con la nota.</p>
+          </div>
+          <button type="button" class="add-link-button" (click)="addLink()">
+            <i class="pi pi-plus" aria-hidden="true"></i>
+            Agregar URL
+          </button>
+        </div>
+
+        <div class="link-add">
+          <input
+            type="url"
+            [(ngModel)]="newLinkUrl"
+            name="noteLinkUrl"
+            placeholder="https://ejemplo.com"
+            (keydown.enter)="$event.preventDefault(); addLink()"
+          />
+        </div>
+
+        <div class="link-list">
+          @for (link of links(); track link.id) {
+            <div class="link-item">
+              <i class="pi pi-link" aria-hidden="true"></i>
+              <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.url }}</a>
+              <button type="button" aria-label="Quitar enlace" (click)="removeLink(link.id)">
+                <i class="pi pi-times" aria-hidden="true"></i>
+              </button>
+            </div>
+          } @empty {
+            <p class="empty-copy">Sin enlaces agregados.</p>
+          }
+        </div>
+      </section>
+
+      <footer class="create-note-form__actions">
+        <p-button
+          type="submit"
+          severity="primary"
+          label="Guardar nota"
+          icon="pi pi-check"
+          styleClass="w-full"
+          [loading]="submitting()"
+          [disabled]="submitting()"
+        ></p-button>
+        <p-button
+          type="button"
+          label="Cancelar"
+          icon="pi pi-times"
+          severity="secondary"
+          variant="outlined"
+          styleClass="w-full"
+          [disabled]="submitting()"
+          (onClick)="cancel()"
+        ></p-button>
+      </footer>
     </form>
   </div>
 </section>
+
+@if (imageBeingEdited(); as image) {
+  <app-note-image-editor
+    [file]="image.file"
+    (saved)="saveEditedImage($event)"
+    (cancelled)="closeImageEditor()"
+  />
+}

@@ -33,20 +33,6 @@ export function buildCreateNoteFormFields(): FormlyFieldConfig[] {
             normalizeSpaces: true,
           },
         },
-        {
-          key: 'files',
-          type: 'app-file-upload',
-          className: 'col-12 px-2 mb-3',
-          props: {
-            label: 'Archivos',
-            required: false,
-            chooseLabel: 'Seleccionar archivos',
-            chooseIcon: 'pi pi-upload',
-            multiple: true,
-            maxFiles: 5,
-            maxFileSize: 50 * 1024 * 1024,
-          },
-        },
       ],
     },
   ];

@@ -8,6 +8,7 @@ import { PaginatedResponseModel } from '@shared/models/paginated-response.model'
 import { CreateNoteRequest } from '@features/notes/domain/requests/create-note.request';
 import { NoteModel } from '@features/notes/domain/models/note.model';
 import { FileDownloadModel } from '@features/files/domain/models/file-download.model';
+import { UpdateNoteRequest } from '@features/notes/domain/requests/update-note.request';
 
 @Injectable({
   providedIn: 'root',
@@ -66,6 +67,26 @@ export class NoteFacade {
     files: File[],
   ): Observable<ApiResponseModel<NoteModel>> {
     return this.executeWithActionLoading(this.noteApi.create(repositoryId, data, files));
+  }
+
+  findById(id: number): Observable<ApiResponseModel<NoteModel>> {
+    this.noteStore.setLoading(true);
+    return this.noteApi.findById(id).pipe(
+      tap((response) => this.noteStore.setNote(response.data ?? null)),
+      finalize(() => this.noteStore.setLoading(false)),
+    );
+  }
+
+  update(
+    id: number,
+    data: UpdateNoteRequest,
+    files: File[],
+  ): Observable<ApiResponseModel<NoteModel>> {
+    return this.executeWithActionLoading(
+      this.noteApi.update(id, data, files).pipe(
+        tap((response) => this.noteStore.setNote(response.data ?? null)),
+      ),
+    );
   }
 
   deleteById(id: number): Observable<ApiResponseModel<void>> {

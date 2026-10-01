@@ -30,6 +30,14 @@ export abstract class BaseApi {
     return this.http.patch<ApiResponseModel<T>>(url, body, this.buildRequestOptions(queryParams));
   }
 
+  protected put<T>(
+    url: string,
+    body: unknown,
+    queryParams?: ApiQueryParamsModel,
+  ): Observable<ApiResponseModel<T>> {
+    return this.http.put<ApiResponseModel<T>>(url, body, this.buildRequestOptions(queryParams));
+  }
+
   protected delete<T>(
     url: string,
     queryParams?: ApiQueryParamsModel,

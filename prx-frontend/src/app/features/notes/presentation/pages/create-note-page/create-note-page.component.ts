@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { Component, computed, inject, OnDestroy, signal } from '@angular/core';
+import { FormsModule, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormlyFieldConfig, FormlyModule } from '@ngx-formly/core';
 import { ButtonModule } from 'primeng/button';
@@ -16,21 +16,45 @@ import { CreateNoteRequest } from '@features/notes/domain/requests/create-note.r
 import { getApiErrorNotificationMessage } from '@shared/utils/api-notification.util';
 import { UI_MESSAGES } from '@shared/constants/ui-messages.constants';
 import { NOTES_MESSAGES } from '@features/notes/constants/notes-messages.constants';
+import { NoteImageEditorComponent } from '@features/notes/presentation/components/note-image-editor/note-image-editor.component';
 
 interface CreateNoteFormModel {
   title: string;
   content: string;
-  files: File[] | null;
 }
+
+interface NoteLinkDraft {
+  id: string;
+  url: string;
+}
+
+interface NoteImageDraft {
+  id: string;
+  file: File;
+  previewUrl: string;
+  edited: boolean;
+}
+
+const MAX_NOTE_FILES = 5;
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const EDITABLE_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 
 @Component({
   selector: 'app-create-note-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormlyModule, ButtonModule, CardModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    FormlyModule,
+    ButtonModule,
+    CardModule,
+    NoteImageEditorComponent,
+  ],
   templateUrl: './create-note-page.component.html',
   styleUrl: './create-note-page.component.scss',
 })
-export class CreateNotePageComponent {
+export class CreateNotePageComponent implements OnDestroy {
   private readonly noteFacade = inject(NoteFacade);
   private readonly repositoryFacade = inject(RepositoryFacade);
   private readonly notificationService = inject(NotificationService);
@@ -40,11 +64,15 @@ export class CreateNotePageComponent {
   protected readonly form = new FormGroup({});
   protected readonly fields: FormlyFieldConfig[] = buildCreateNoteFormFields();
   protected readonly submitting = signal(false);
+  protected readonly attachmentFiles = signal<File[]>([]);
+  protected readonly images = signal<NoteImageDraft[]>([]);
+  protected readonly links = signal<NoteLinkDraft[]>([]);
+  protected readonly imageBeingEdited = signal<NoteImageDraft | null>(null);
+  protected newLinkUrl = '';
 
   protected model: CreateNoteFormModel = {
     title: '',
     content: '',
-    files: null,
   };
 
   protected readonly isIntimateRepository = computed(
@@ -68,9 +96,10 @@ export class CreateNotePageComponent {
     const request: CreateNoteRequest = {
       title: value.title,
       content: value.content,
+      links: this.links(),
     };
 
-    const files = value.files ?? [];
+    const files = [...this.attachmentFiles(), ...this.images().map((image) => image.file)];
     const repositoryId = this.getRepositoryId();
 
     if (repositoryId) {
@@ -122,6 +151,103 @@ export class CreateNotePageComponent {
     void this.router.navigate(['/notes/repositories', repositoryId]);
   }
 
+  ngOnDestroy(): void {
+    this.images().forEach((image) => URL.revokeObjectURL(image.previewUrl));
+  }
+
+  protected selectAttachments(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.addAttachments(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  protected selectImages(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.addImages(Array.from(input.files ?? []));
+    input.value = '';
+  }
+
+  protected dropAttachments(event: DragEvent): void {
+    event.preventDefault();
+    this.addAttachments(Array.from(event.dataTransfer?.files ?? []));
+  }
+
+  protected dropImages(event: DragEvent): void {
+    event.preventDefault();
+    this.addImages(Array.from(event.dataTransfer?.files ?? []));
+  }
+
+  protected allowDrop(event: DragEvent): void {
+    event.preventDefault();
+  }
+
+  protected removeAttachment(index: number): void {
+    this.attachmentFiles.update((files) => files.filter((_, fileIndex) => fileIndex !== index));
+  }
+
+  protected removeImage(id: string): void {
+    const image = this.images().find((item) => item.id === id);
+    if (image) {
+      URL.revokeObjectURL(image.previewUrl);
+    }
+    this.images.update((images) => images.filter((item) => item.id !== id));
+  }
+
+  protected editImage(image: NoteImageDraft): void {
+    this.imageBeingEdited.set(image);
+  }
+
+  protected saveEditedImage(file: File): void {
+    const current = this.imageBeingEdited();
+    if (!current) {
+      return;
+    }
+
+    URL.revokeObjectURL(current.previewUrl);
+    const updated: NoteImageDraft = {
+      ...current,
+      file,
+      previewUrl: URL.createObjectURL(file),
+      edited: true,
+    };
+
+    this.images.update((images) =>
+      images.map((image) => (image.id === current.id ? updated : image)),
+    );
+    this.imageBeingEdited.set(null);
+  }
+
+  protected closeImageEditor(): void {
+    this.imageBeingEdited.set(null);
+  }
+
+  protected formatFileSize(size: number): string {
+    if (size < 1024 * 1024) {
+      return `${Math.max(1, Math.round(size / 1024))} KB`;
+    }
+
+    return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  protected addLink(): void {
+    const url = this.normalizeUrl(this.newLinkUrl);
+    if (!url) {
+      return;
+    }
+
+    if (!this.isValidUrl(url)) {
+      this.notificationService.warn('Notas', 'Ingresa una URL válida.');
+      return;
+    }
+
+    this.links.update((links) => [...links, { id: crypto.randomUUID(), url }]);
+    this.newLinkUrl = '';
+  }
+
+  protected removeLink(id: string): void {
+    this.links.update((links) => links.filter((link) => link.id !== id));
+  }
+
   private createNote(
     repositoryId: number,
     request: CreateNoteRequest,
@@ -169,5 +295,93 @@ export class CreateNotePageComponent {
   private handleNoRepository(): void {
     this.notificationService.warn('Notas', NOTES_MESSAGES.REPOSITORY_NOT_FOUND);
     void this.router.navigateByUrl('/');
+  }
+
+  private addAttachments(files: File[]): void {
+    const validFiles = files.filter((file) => {
+      if (file.type.startsWith('image/')) {
+        this.notificationService.warn(
+          'Notas',
+          'Adjunta las imágenes en la sección de imágenes para poder editarlas.',
+        );
+        return false;
+      }
+
+      return this.validateFileSize(file);
+    });
+
+    this.appendWithinLimit(validFiles, (accepted) => {
+      this.attachmentFiles.update((current) => [...current, ...accepted]);
+    });
+  }
+
+  private addImages(files: File[]): void {
+    const validFiles = files.filter((file) => {
+      if (!EDITABLE_IMAGE_TYPES.includes(file.type)) {
+        this.notificationService.warn('Notas', 'Solo puedes editar imágenes JPG, PNG o WEBP.');
+        return false;
+      }
+
+      return this.validateFileSize(file);
+    });
+
+    this.appendWithinLimit(validFiles, (accepted) => {
+      const drafts = accepted.map((file) => ({
+        id: crypto.randomUUID(),
+        file,
+        previewUrl: URL.createObjectURL(file),
+        edited: false,
+      }));
+
+      this.images.update((current) => [...current, ...drafts]);
+      if (drafts.length > 0) {
+        this.imageBeingEdited.set(drafts[0]);
+      }
+    });
+  }
+
+  private appendWithinLimit(files: File[], append: (accepted: File[]) => void): void {
+    const available = MAX_NOTE_FILES - this.attachmentFiles().length - this.images().length;
+    if (available <= 0) {
+      this.notificationService.warn('Notas', 'La nota permite un máximo de 5 archivos e imágenes.');
+      return;
+    }
+
+    const accepted = files.slice(0, available);
+    append(accepted);
+
+    if (files.length > available) {
+      this.notificationService.warn(
+        'Notas',
+        'Solo se agregaron archivos hasta completar el máximo de 5.',
+      );
+    }
+  }
+
+  private validateFileSize(file: File): boolean {
+    if (file.size <= MAX_FILE_SIZE) {
+      return true;
+    }
+
+    this.notificationService.warn('Notas', `El archivo ${file.name} supera el límite de 50 MB.`);
+    return false;
+  }
+
+  private normalizeUrl(value: string): string {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return '';
+    }
+
+    return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+  }
+
+  private isValidUrl(value: string): boolean {
+    try {
+      const url = new URL(value);
+      return url.protocol === 'http:' || url.protocol === 'https:';
+    } catch {
+      return false;
+    }
   }
 }

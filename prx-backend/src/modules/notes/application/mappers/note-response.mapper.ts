@@ -11,6 +11,8 @@ export class NoteResponseMapper {
             repositoryId: note.repositoryId,
             title: note.title,
             content: note.content,
+            tasks: note.tasks ?? [],
+            links: note.links ?? [],
             files: NoteFileResponseMapper.toNoteFileResponseList(note.files ?? []),
             createdBy: UserResponseMapper.toUserResponse(note.createdByUser!),
             createdAt: note.createdAt as Date,

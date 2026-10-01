@@ -36,7 +36,7 @@
       @if ((notes()?.items ?? []).length) {
       <div class="notes-grid mb-4">
         @for (note of notes()?.items ?? []; track note.id) {
-        <article class="note-card">
+        <article class="note-card" tabindex="0" role="button" (click)="openNote(note)" (keydown.enter)="openNote(note)">
           <div
             class="note-card__header flex flex-column md:flex-row md:align-items-start md:justify-content-between gap-3">
             <div class="flex flex-column gap-2">
@@ -49,7 +49,7 @@
             <div class="note-card__header-meta flex align-items-center gap-2 flex-wrap justify-content-end">
               <span class="note-card__date">{{ note.createdAt | date: 'mediumDate' }}</span>
               <button pButton type="button" icon="pi pi-trash" severity="danger" class="p-button-text"
-                (click)="deleteNote(note)" [disabled]="!canDeleteNote(note)" title="Eliminar nota"></button>
+                (click)="$event.stopPropagation(); deleteNote(note)" [disabled]="!canDeleteNote(note)" title="Eliminar nota"></button>
             </div>
           </div>
 
@@ -61,7 +61,7 @@
             <div class="file-tag-container flex align-items-center gap-2">
               <p-tag [value]="file.name" severity="info" class="note-file-tag"></p-tag>
               <button type="button" pButton icon="pi pi-download" class="p-button-text p-button-sm download-button"
-                (click)="downloadNoteFile(file)" [loading]="actionLoading() && downloadingFileId() === file.id"
+                (click)="$event.stopPropagation(); downloadNoteFile(file)" [loading]="actionLoading() && downloadingFileId() === file.id"
                 title="Descargar archivo"></button>
             </div>
             }
