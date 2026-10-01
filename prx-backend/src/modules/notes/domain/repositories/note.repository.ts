@@ -5,6 +5,12 @@ import { RepositoryPort } from '@shared/domain/repository.port';
 export abstract class NoteRepository extends RepositoryPort<NoteEntity> {
     abstract findById(id: number): Promise<NoteEntity | null>;
 
+    abstract findActiveByRepositoryIdAndTitle(
+        repositoryId: number,
+        title: string,
+        excludeId?: number,
+    ): Promise<NoteEntity | null>;
+
     abstract findPaginatedByRepositoryId(
         repositoryId: number,
         page: number,

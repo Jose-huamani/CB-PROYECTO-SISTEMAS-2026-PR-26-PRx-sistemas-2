@@ -21,9 +21,15 @@
       <section class="note-section note-section--content">
         @if (editing()) {
           <label for="note-title">Título</label>
-          <input id="note-title" type="text" [formControl]="form.controls.title" />
+          <input id="note-title" type="text" maxlength="150" [formControl]="form.controls.title" />
+          @if (form.controls.title.touched && form.controls.title.invalid) {
+            <small class="field-error">El título es obligatorio y admite un máximo de 150 caracteres.</small>
+          }
           <label for="note-content">Contenido</label>
-          <textarea id="note-content" rows="7" [formControl]="form.controls.content"></textarea>
+          <textarea id="note-content" rows="7" maxlength="65535" [formControl]="form.controls.content"></textarea>
+          @if (form.controls.content.touched && form.controls.content.invalid) {
+            <small class="field-error">El contenido es obligatorio y admite un máximo de 65535 caracteres.</small>
+          }
         } @else {
           <div class="note-meta">
             <span><i class="pi pi-user"></i> {{ currentNote.createdBy.username }}</span>
@@ -86,7 +92,7 @@
 
         @if (editing()) {
           <div class="task-add">
-            <input type="text" [(ngModel)]="newTaskTitle" placeholder="Agregar una tarea" (keydown.enter)="addTask()" />
+            <input type="text" maxlength="200" [(ngModel)]="newTaskTitle" placeholder="Agregar una tarea" (keydown.enter)="$event.preventDefault(); addTask()" />
             <button type="button" class="icon-button icon-button--accent" aria-label="Agregar tarea" title="Agregar tarea" (click)="addTask()">
               <i class="pi pi-plus" aria-hidden="true"></i>
             </button>

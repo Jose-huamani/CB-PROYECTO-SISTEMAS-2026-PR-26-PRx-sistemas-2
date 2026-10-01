@@ -74,6 +74,13 @@
   font: inherit;
 }
 
+.field-error {
+  display: block;
+  margin: -0.65rem 0 1rem;
+  color: var(--p-red-500, #ef4444);
+  font-size: 0.82rem;
+}
+
 .note-meta {
   display: flex;
   flex-wrap: wrap;

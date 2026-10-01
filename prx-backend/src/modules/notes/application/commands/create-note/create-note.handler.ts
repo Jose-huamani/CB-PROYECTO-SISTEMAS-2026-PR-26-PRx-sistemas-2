@@ -56,7 +56,17 @@ export class CreateNoteHandler implements ICommandHandler<CreateNoteCommand> {
             }
         }
 
-        const { title, content } = command.dto;
+        const title = command.dto.title.trim();
+        const content = command.dto.content.trim();
+        const duplicate = await this.noteRepository.findActiveByRepositoryIdAndTitle(
+            command.repositoryId,
+            title,
+        );
+
+        if (duplicate) {
+            throw new BadRequestException(NOTE_MESSAGES.DUPLICATE_TITLE);
+        }
+
         const links = this.parseLinks(command.dto.links);
 
         const note = new NoteEntity(
@@ -122,11 +132,13 @@ export class CreateNoteHandler implements ICommandHandler<CreateNoteCommand> {
                 const value = link as Partial<NoteLink>;
                 if (!value.id || typeof value.url !== 'string') throw new Error();
                 const url = value.url.trim();
-                new URL(url);
+                if (!url || url.length > 2048) throw new Error();
+                const parsedUrl = new URL(url);
+                if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error();
 
                 return {
                     id: String(value.id),
-                    url: url.slice(0, 2048),
+                    url,
                 };
             });
         } catch {

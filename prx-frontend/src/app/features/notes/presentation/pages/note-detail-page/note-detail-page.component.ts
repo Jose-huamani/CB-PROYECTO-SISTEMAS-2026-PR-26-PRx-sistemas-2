@@ -15,6 +15,7 @@ import { NoteImageEditorComponent } from '@features/notes/presentation/component
 import { RepositoryFacade } from '@features/repositories/application/facades/repository.facade';
 import { RepositoryModel } from '@features/repositories/domain/models/repository.model';
 import { getApiErrorNotificationMessage } from '@shared/utils/api-notification.util';
+import { AppConfirmService } from '@core/services/confirm-dialog.service';
 
 interface ExistingFileView extends NoteFileModel {
   url?: string;
@@ -47,6 +48,7 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
   private readonly repositoryFacade = inject(RepositoryFacade);
   private readonly authFacade = inject(AuthFacade);
   private readonly notifications = inject(NotificationService);
+  private readonly confirmService = inject(AppConfirmService);
 
   protected readonly note = signal<NoteModel | null>(null);
   protected readonly repository = signal<RepositoryModel | null>(null);
@@ -67,7 +69,7 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
 
   protected readonly form = new FormGroup({
     title: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(150)] }),
-    content: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    content: new FormControl('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(65535)] }),
   });
 
   protected readonly canEdit = computed(() => {
@@ -131,29 +133,62 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
   }
 
   protected save(): void {
-    if (!this.canEdit() || this.form.invalid || this.saving()) {
+    const title = this.form.controls.title.value.trim();
+    const content = this.form.controls.content.value.trim();
+    if (!this.canEdit() || this.form.invalid || !title || !content || this.saving()) {
       this.form.markAllAsTouched();
+      if (!title || !content) this.notifications.warn('Notas', NOTES_MESSAGES.REQUIRED_FIELDS);
       return;
     }
-    this.persist(true);
+    this.confirmService.confirm({
+      header: 'Guardar cambios',
+      message: NOTES_MESSAGES.CONFIRM_SAVE_CHANGES,
+      icon: 'pi pi-save',
+      acceptLabel: 'Guardar',
+      rejectLabel: 'Cancelar',
+      accept: () => this.persist(true),
+    });
   }
 
   protected addTask(): void {
     const title = this.newTaskTitle.trim();
-    if (!title) return;
+    if (!title) {
+      this.notifications.warn('Notas', 'Escribe el título de la tarea.');
+      return;
+    }
+    if (title.length > 200) {
+      this.notifications.warn('Notas', 'El título de la tarea no puede superar los 200 caracteres.');
+      return;
+    }
     this.tasks.update((tasks) => [...tasks, { id: crypto.randomUUID(), title, completed: false }]);
     this.newTaskTitle = '';
   }
 
   protected removeTask(id: string): void {
-    this.tasks.update((tasks) => tasks.filter((task) => task.id !== id));
+    const task = this.tasks().find((item) => item.id === id);
+    if (!task) return;
+    this.confirmService.confirmDelete(
+      NOTES_MESSAGES.CONFIRM_REMOVE_TASK.replace('{title}', task.title),
+      () => this.tasks.update((tasks) => tasks.filter((item) => item.id !== id)),
+    );
   }
 
   protected addLink(): void {
     const url = this.normalizeUrl(this.newLinkUrl);
-    if (!url) return;
+    if (!url) {
+      this.notifications.warn('Notas', 'Ingresa una URL.');
+      return;
+    }
     if (!this.isValidUrl(url)) {
       this.notifications.warn('Notas', 'Ingresa una URL válida.');
+      return;
+    }
+    if (url.length > 2048) {
+      this.notifications.warn('Notas', 'La URL no puede superar los 2048 caracteres.');
+      return;
+    }
+    if (this.links().some((link) => link.url.toLowerCase() === url.toLowerCase())) {
+      this.notifications.warn('Notas', 'Este enlace ya fue agregado.');
       return;
     }
     this.links.update((links) => [...links, { id: crypto.randomUUID(), url }]);
@@ -161,7 +196,9 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
   }
 
   protected removeLink(id: string): void {
-    this.links.update((links) => links.filter((link) => link.id !== id));
+    this.confirmService.confirmDelete(NOTES_MESSAGES.CONFIRM_REMOVE_LINK, () => {
+      this.links.update((links) => links.filter((link) => link.id !== id));
+    });
   }
 
   protected toggleTask(task: NoteTaskModel): void {
@@ -183,17 +220,33 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
   }
 
   protected removeExistingFile(id: number): void {
-    this.existingFiles.update((files) => files.filter((file) => file.id !== id));
+    const file = this.existingFiles().find((item) => item.id === id);
+    if (!file) return;
+    this.confirmService.confirmDelete(
+      NOTES_MESSAGES.CONFIRM_REMOVE_FILE.replace('{name}', file.name),
+      () => this.existingFiles.update((files) => files.filter((item) => item.id !== id)),
+    );
   }
 
   protected removeAttachment(index: number): void {
-    this.newAttachments.update((files) => files.filter((_, current) => current !== index));
+    const file = this.newAttachments()[index];
+    if (!file) return;
+    this.confirmService.confirmDelete(
+      NOTES_MESSAGES.CONFIRM_REMOVE_FILE.replace('{name}', file.name),
+      () => this.newAttachments.update((files) => files.filter((_, current) => current !== index)),
+    );
   }
 
   protected removeImage(id: string): void {
     const image = this.newImages().find((item) => item.id === id);
-    if (image) URL.revokeObjectURL(image.previewUrl);
-    this.newImages.update((images) => images.filter((item) => item.id !== id));
+    if (!image) return;
+    this.confirmService.confirmDelete(
+      NOTES_MESSAGES.CONFIRM_REMOVE_IMAGE.replace('{name}', image.file.name),
+      () => {
+        URL.revokeObjectURL(image.previewUrl);
+        this.newImages.update((images) => images.filter((item) => item.id !== id));
+      },
+    );
   }
 
   protected editNewImage(image: ImageDraft): void {
@@ -224,7 +277,7 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
     if (!current.sourceFileId) URL.revokeObjectURL(current.previewUrl);
     const updated = { ...current, file, previewUrl: URL.createObjectURL(file), edited: true, sourceFileId: undefined };
     if (current.sourceFileId) {
-      this.removeExistingFile(current.sourceFileId);
+      this.existingFiles.update((files) => files.filter((item) => item.id !== current.sourceFileId));
       this.newImages.update((images) => [...images, updated]);
     } else {
       this.newImages.update((images) => images.map((image) => image.id === current.id ? updated : image));

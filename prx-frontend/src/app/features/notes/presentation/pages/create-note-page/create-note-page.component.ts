@@ -17,6 +17,7 @@ import { getApiErrorNotificationMessage } from '@shared/utils/api-notification.u
 import { UI_MESSAGES } from '@shared/constants/ui-messages.constants';
 import { NOTES_MESSAGES } from '@features/notes/constants/notes-messages.constants';
 import { NoteImageEditorComponent } from '@features/notes/presentation/components/note-image-editor/note-image-editor.component';
+import { AppConfirmService } from '@core/services/confirm-dialog.service';
 
 interface CreateNoteFormModel {
   title: string;
@@ -60,6 +61,7 @@ export class CreateNotePageComponent implements OnDestroy {
   private readonly notificationService = inject(NotificationService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly confirmService = inject(AppConfirmService);
 
   protected readonly form = new FormGroup({});
   protected readonly fields: FormlyFieldConfig[] = buildCreateNoteFormFields();
@@ -93,9 +95,19 @@ export class CreateNotePageComponent implements OnDestroy {
 
     const value = this.form.getRawValue() as CreateNoteFormModel;
 
+    const title = value.title?.trim();
+    const content = value.content?.trim();
+
+    if (!title || !content) {
+      this.submitting.set(false);
+      this.form.markAllAsTouched();
+      this.notificationService.warn('Notas', NOTES_MESSAGES.REQUIRED_FIELDS);
+      return;
+    }
+
     const request: CreateNoteRequest = {
-      title: value.title,
-      content: value.content,
+      title,
+      content,
       links: this.links(),
     };
 
@@ -182,15 +194,24 @@ export class CreateNotePageComponent implements OnDestroy {
   }
 
   protected removeAttachment(index: number): void {
-    this.attachmentFiles.update((files) => files.filter((_, fileIndex) => fileIndex !== index));
+    const file = this.attachmentFiles()[index];
+    if (!file) return;
+    this.confirmService.confirmDelete(
+      NOTES_MESSAGES.CONFIRM_REMOVE_FILE.replace('{name}', file.name),
+      () => this.attachmentFiles.update((files) => files.filter((_, fileIndex) => fileIndex !== index)),
+    );
   }
 
   protected removeImage(id: string): void {
     const image = this.images().find((item) => item.id === id);
-    if (image) {
-      URL.revokeObjectURL(image.previewUrl);
-    }
-    this.images.update((images) => images.filter((item) => item.id !== id));
+    if (!image) return;
+    this.confirmService.confirmDelete(
+      NOTES_MESSAGES.CONFIRM_REMOVE_IMAGE.replace('{name}', image.file.name),
+      () => {
+        URL.revokeObjectURL(image.previewUrl);
+        this.images.update((images) => images.filter((item) => item.id !== id));
+      },
+    );
   }
 
   protected editImage(image: NoteImageDraft): void {
@@ -240,12 +261,24 @@ export class CreateNotePageComponent implements OnDestroy {
       return;
     }
 
+    if (url.length > 2048) {
+      this.notificationService.warn('Notas', 'La URL no puede superar los 2048 caracteres.');
+      return;
+    }
+
+    if (this.links().some((link) => link.url.toLowerCase() === url.toLowerCase())) {
+      this.notificationService.warn('Notas', 'Este enlace ya fue agregado.');
+      return;
+    }
+
     this.links.update((links) => [...links, { id: crypto.randomUUID(), url }]);
     this.newLinkUrl = '';
   }
 
   protected removeLink(id: string): void {
-    this.links.update((links) => links.filter((link) => link.id !== id));
+    this.confirmService.confirmDelete(NOTES_MESSAGES.CONFIRM_REMOVE_LINK, () => {
+      this.links.update((links) => links.filter((link) => link.id !== id));
+    });
   }
 
   private createNote(

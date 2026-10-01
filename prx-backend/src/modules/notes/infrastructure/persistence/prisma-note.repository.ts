@@ -37,6 +37,27 @@ export class PrismaNoteRepository
         return NotePrismaMapper.toDomain(note);
     }
 
+    async findActiveByRepositoryIdAndTitle(
+        repositoryId: number,
+        title: string,
+        excludeId?: number,
+    ): Promise<NoteEntity | null> {
+        const note = await this.prisma.note.findFirst({
+            where: {
+                repositoryId,
+                title,
+                status: 1,
+                id: excludeId === undefined ? undefined : { not: excludeId },
+            },
+            include: {
+                noteFiles: { where: { status: 1 } },
+                createdByUser: true,
+            },
+        });
+
+        return note ? NotePrismaMapper.toDomain(note) : null;
+    }
+
     async findPaginatedByRepositoryId(
         repositoryId: number,
         page: number,

@@ -44,6 +44,16 @@ export class UpdateNoteHandler implements ICommandHandler<UpdateNoteCommand> {
 
         const tasks = this.parseTasks(command.dto.tasks);
         const links = this.parseLinks(command.dto.links);
+        const title = command.dto.title.trim();
+        const duplicate = await this.noteRepository.findActiveByRepositoryIdAndTitle(
+            note.repositoryId,
+            title,
+            command.id,
+        );
+
+        if (duplicate) {
+            throw new BadRequestException(NOTE_MESSAGES.DUPLICATE_TITLE);
+        }
         const retainedIds = new Set(
             (command.dto.retainedFileIds ?? '')
                 .split(',')
@@ -62,7 +72,7 @@ export class UpdateNoteHandler implements ICommandHandler<UpdateNoteCommand> {
         }
 
         await this.noteRepository.update(command.id, {
-            title: command.dto.title.trim(),
+            title,
             content: command.dto.content.trim(),
             tasks,
             links,
@@ -101,9 +111,11 @@ export class UpdateNoteHandler implements ICommandHandler<UpdateNoteCommand> {
             return tasks.map((task) => {
                 const value = task as Partial<NoteTask>;
                 if (!value.id || typeof value.title !== 'string' || !value.title.trim()) throw new Error();
+                const title = value.title.trim();
+                if (title.length > 200) throw new Error();
                 return {
                     id: String(value.id),
-                    title: value.title.trim().slice(0, 200),
+                    title,
                     completed: Boolean(value.completed),
                 };
             });
@@ -121,11 +133,13 @@ export class UpdateNoteHandler implements ICommandHandler<UpdateNoteCommand> {
                 const value = link as Partial<NoteLink>;
                 if (!value.id || typeof value.url !== 'string') throw new Error();
                 const url = value.url.trim();
-                new URL(url);
+                if (!url || url.length > 2048) throw new Error();
+                const parsedUrl = new URL(url);
+                if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error();
 
                 return {
                     id: String(value.id),
-                    url: url.slice(0, 2048),
+                    url,
                 };
             });
         } catch {
