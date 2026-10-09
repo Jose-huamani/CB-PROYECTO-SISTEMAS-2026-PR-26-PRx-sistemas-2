@@ -2,7 +2,7 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { getPresignedUrl, list, put, remove } from '@tigrisdata/storage';
 import { mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
-import { extname, resolve } from 'node:path';
+import { extname, isAbsolute, relative, resolve } from 'node:path';
 
 import { APP_MESSAGES } from '@shared/constants/app-messages.constants';
 import { STORAGE_CONSTANTS } from '@shared/constants/storage.constants';
@@ -118,7 +118,8 @@ export class TigrisStorageService {
     const normalized = storagePath.replace(/\\/g, '/').replace(/^\/+/, '');
     const localPath = resolve(this.localRoot, normalized);
 
-    if (localPath !== this.localRoot && !localPath.startsWith(`${this.localRoot}\\`)) {
+    const relativePath = relative(this.localRoot, localPath);
+    if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
       throw new InternalServerErrorException('Ruta de almacenamiento local no válida');
     }
 
