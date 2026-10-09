@@ -49,8 +49,8 @@ export class AuthController {
   @Public()
   @Post('register-request')
   @HttpCode(HttpStatus.CREATED)
-  registerRequest(@Body() dto: RegisterRequestDto) {
-    return this.commandBus.execute(new RegisterRequestCommand(dto));
+  registerRequest(@Body() dto: RegisterRequestDto, @Headers('user-agent') userAgent?: string, @Ip() ipAddress?: string) {
+    return this.commandBus.execute(new RegisterRequestCommand(dto, userAgent, ipAddress));
   }
 
   @Public()

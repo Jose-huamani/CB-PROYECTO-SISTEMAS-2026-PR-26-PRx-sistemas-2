@@ -47,8 +47,15 @@ export class AuthFacade {
     );
   }
 
-  registerRequest(data: RegisterRequestData): Observable<ApiResponseModel<void>> {
-    return this.executeWithLoading(this.authApi.registerRequest(data));
+  registerRequest(data: RegisterRequestData): Observable<ApiResponseModel<AuthModel>> {
+    return this.executeWithLoading(this.authApi.registerRequest(data).pipe(
+      tap((response) => {
+        const auth = response.data;
+        if (!auth) return;
+        this.tokenService.setTokens(auth.accessToken, auth.refreshToken);
+        this.authStore.setCurrentUser(this.mapCurrentUser(auth.user));
+      }),
+    ));
   }
 
   confirmRegister(data: ConfirmRegisterRequest): Observable<ApiResponseModel<void>> {

@@ -5,7 +5,7 @@ export const AUTH_MESSAGES = {
   },
 
   REGISTER_REQUEST: {
-    SUCCESS: 'Te enviamos un código para continuar con tu registro.',
+    SUCCESS: 'Cuenta creada. Bienvenido a PRX.',
     ERROR: 'No se pudo completar la solicitud de registro.',
   },
 

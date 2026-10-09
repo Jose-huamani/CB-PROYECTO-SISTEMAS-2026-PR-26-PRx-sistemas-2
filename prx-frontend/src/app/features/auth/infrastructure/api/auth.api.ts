@@ -30,8 +30,8 @@ export class AuthApi extends BaseFeatureApi implements AuthApiContract {
     return this.post<AuthModel>(this.buildUrl(AUTH_API_CONFIG.endpoints.login), data);
   }
 
-  registerRequest(data: RegisterRequestData): Observable<ApiResponseModel<void>> {
-    return this.post<void>(this.buildUrl(AUTH_API_CONFIG.endpoints.registerRequest), data);
+  registerRequest(data: RegisterRequestData): Observable<ApiResponseModel<AuthModel>> {
+    return this.post<AuthModel>(this.buildUrl(AUTH_API_CONFIG.endpoints.registerRequest), data);
   }
 
   confirmRegister(data: ConfirmRegisterRequest): Observable<ApiResponseModel<void>> {
