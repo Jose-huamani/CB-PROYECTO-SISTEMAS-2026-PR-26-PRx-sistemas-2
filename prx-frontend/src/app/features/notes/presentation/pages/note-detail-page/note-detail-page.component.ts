@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, forkJoin, map, of, switchMap } from 'rxjs';
+import { catchError, finalize, firstValueFrom, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { NotificationService } from '@core/services/notification.service';
 import { AuthFacade } from '@features/auth/application/facades/auth.facade';
@@ -42,6 +43,15 @@ const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
   styleUrl: './note-detail-page.component.scss',
 })
 export class NoteDetailPageComponent implements OnInit, OnDestroy {
+  @ViewChild('documentDialog', { static: true }) private documentDialog!: ElementRef<HTMLDialogElement>;
+  private readonly sanitizer = inject(DomSanitizer);
+  private readonly documentUrls = new Set<string>();
+  private documentRequest?: AbortController;
+  private pdfObjectUrl?: string;
+  protected readonly documentPreview = signal<SafeResourceUrl | null>(null);
+  protected readonly documentName = signal('');
+  protected readonly openingDocument = signal(false);
+  protected readonly documentError = signal('');
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly noteFacade = inject(NoteFacade);
@@ -107,6 +117,9 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.documentRequest?.abort();
+    this.documentDialog?.nativeElement.close();
+    this.documentUrls.forEach((url) => URL.revokeObjectURL(url));
     this.newImages().forEach((image) => URL.revokeObjectURL(image.previewUrl));
   }
 
@@ -257,6 +270,7 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
     if (!file.url) return;
     try {
       const response = await fetch(file.url);
+      if (!response.ok) throw new Error('IMAGE_DOWNLOAD_FAILED');
       const blob = await response.blob();
       const draft: ImageDraft = {
         id: crypto.randomUUID(),
@@ -274,6 +288,10 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
   protected saveEditedImage(file: File): void {
     const current = this.imageBeingEdited();
     if (!current) return;
+    if (file.size > MAX_FILE_SIZE) {
+      this.notifications.warn('Notas', 'La imagen editada supera el límite de 50 MB.');
+      return;
+    }
     if (!current.sourceFileId) URL.revokeObjectURL(current.previewUrl);
     const updated = { ...current, file, previewUrl: URL.createObjectURL(file), edited: true, sourceFileId: undefined };
     if (current.sourceFileId) {
@@ -289,9 +307,74 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
     this.imageBeingEdited.set(null);
   }
 
-  protected download(file: ExistingFileView): void {
-    if (file.url) window.open(file.url, '_blank', 'noopener');
+  protected async download(file: ExistingFileView): Promise<void> {
+    const isPdf = /\.pdf$/i.test(file.name);
+    const isPreviewable = isPdf || file.isImage;
+    if (isPreviewable) {
+      this.closeDocument();
+      this.documentName.set(file.name);
+      this.documentError.set('');
+      this.openingDocument.set(true);
+      this.documentDialog.nativeElement.showModal();
+    }
+    const request = new AbortController();
+    if (isPreviewable) this.documentRequest = request;
+    try {
+      const url = file.url || (await firstValueFrom(this.noteFacade.downloadFile(file.id))).data?.url;
+      if (!url) throw new Error('FILE_URL_MISSING');
+      const response = await fetch(url, { signal: request.signal });
+      if (!response.ok) throw new Error('FILE_DOWNLOAD_FAILED');
+      const blob = await response.blob();
+      if (request.signal.aborted) return;
+      const objectUrl = URL.createObjectURL(isPdf ? new Blob([blob], { type: 'application/pdf' }) : blob);
+      this.documentUrls.add(objectUrl);
+      if (isPreviewable) {
+        this.pdfObjectUrl = objectUrl;
+        this.documentPreview.set(this.sanitizer.bypassSecurityTrustResourceUrl(objectUrl));
+      } else {
+        this.downloadBlob(objectUrl, file.name);
+        setTimeout(() => { URL.revokeObjectURL(objectUrl); this.documentUrls.delete(objectUrl); }, 60000);
+      }
+    } catch {
+      if (request.signal.aborted) return;
+      if (isPreviewable) this.documentError.set('No se pudo cargar el archivo. Cierra esta ventana y pulsa Reintentar archivos.');
+      else this.notifications.error('Notas', 'No se pudo descargar el archivo. Pulsa Reintentar archivos y vuelve a intentarlo.');
+    } finally {
+      if (this.documentRequest === request) this.openingDocument.set(false);
+    }
   }
+
+  protected closeDocument(): void {
+    this.documentRequest?.abort();
+    this.documentRequest = undefined;
+    this.documentDialog?.nativeElement.close();
+    this.documentPreview.set(null);
+    this.openingDocument.set(false);
+    if (this.pdfObjectUrl) {
+      URL.revokeObjectURL(this.pdfObjectUrl);
+      this.documentUrls.delete(this.pdfObjectUrl);
+      this.pdfObjectUrl = undefined;
+    }
+  }
+
+  protected openDocumentInTab(): void {
+    if (this.pdfObjectUrl) window.open(this.pdfObjectUrl, '_blank', 'noopener,noreferrer');
+  }
+
+  protected downloadDocument(): void {
+    if (this.pdfObjectUrl) this.downloadBlob(this.pdfObjectUrl, this.documentName());
+  }
+
+  private downloadBlob(url: string, name: string): void {
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+  }
+
+  protected retryFileUrls(): void { this.loadFileUrls(); }
 
   protected back(): void {
     const repositoryId = this.route.snapshot.paramMap.get('repositoryId');
@@ -327,7 +410,7 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
       },
       error: (error: HttpErrorResponse) => {
         this.notifications.error('Notas', getApiErrorNotificationMessage(error, NOTES_MESSAGES.SAVE_ERROR));
-        this.setNote(note);
+        if (!closeEditor) this.tasks.set(note.tasks ?? []);
       },
     });
   }
@@ -346,12 +429,16 @@ export class NoteDetailPageComponent implements OnInit, OnDestroy {
     if (!files.length) return;
     forkJoin(files.map((file) => this.noteFacade.downloadFile(file.id).pipe(
       map((response) => ({ id: file.id, url: response.data?.url })),
+      catchError(() => of({ id: file.id, url: undefined })),
     ))).subscribe({
-      next: (urls) => this.existingFiles.update((items) => items.map((item) => ({
-        ...item,
-        url: urls.find((entry) => entry.id === item.id)?.url,
-      }))),
-      error: () => of(null),
+      next: (urls) => {
+        this.existingFiles.update((items) => items.map((item) => ({
+          ...item, url: urls.find((entry) => entry.id === item.id)?.url,
+        })));
+        if (urls.some((item) => !item.url)) {
+          this.notifications.warn('Notas', 'Algunos archivos no pudieron cargarse. Puedes reintentar sin perder los demás.');
+        }
+      },
     });
   }
 

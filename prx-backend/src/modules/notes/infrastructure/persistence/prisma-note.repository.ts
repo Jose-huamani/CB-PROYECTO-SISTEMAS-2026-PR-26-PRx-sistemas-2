@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@generated-prisma/client';
 
 import { NoteEntity } from '@modules/notes/domain/entities/note.entity';
-import { NoteRepository } from '@modules/notes/domain/repositories/note.repository';
+import { NoteAttachment, NoteRepository } from '@modules/notes/domain/repositories/note.repository';
 import { NotePrismaMapper } from '@modules/notes/infrastructure/mappers/note-prisma.mapper';
 import { PaginatedResponseDto } from '@shared/application/dto/paginated-response.dto';
 import { BasePrismaRepository } from '@shared/infrastructure/persistence/base-prisma.repository';
@@ -153,6 +153,59 @@ export class PrismaNoteRepository
                 status: 0,
                 updatedBy: updatedBy,
             },
+        });
+    }
+
+    async createWithFiles(entity: NoteEntity, files: NoteAttachment[]): Promise<NoteEntity> {
+        return this.prisma.$transaction(async (tx) => {
+            const note = await tx.note.create({
+                data: {
+                    repositoryId: entity.repositoryId,
+                    title: entity.title,
+                    content: entity.content,
+                    tasks: entity.tasks as unknown as Prisma.InputJsonValue,
+                    links: entity.links as unknown as Prisma.InputJsonValue,
+                    createdBy: entity.createdBy,
+                    noteFiles: { create: files },
+                },
+                include: { noteFiles: { where: { status: 1 } }, createdByUser: true },
+            });
+            await tx.repository.updateMany({
+                where: { id: entity.repositoryId, status: 1 },
+                data: { updatedAt: new Date() },
+            });
+            return NotePrismaMapper.toDomain(note);
+        });
+    }
+
+    async updateWithFiles(
+        id: number,
+        data: Partial<NoteEntity>,
+        retainedFileIds: number[],
+        files: NoteAttachment[],
+    ): Promise<NoteEntity> {
+        return this.prisma.$transaction(async (tx) => {
+            await tx.noteFile.updateMany({
+                where: { noteId: id, status: 1, id: { notIn: retainedFileIds } },
+                data: { status: 0, updatedBy: data.updatedBy },
+            });
+            const note = await tx.note.update({
+                where: { id, status: 1 },
+                data: {
+                    title: data.title,
+                    content: data.content,
+                    tasks: data.tasks as unknown as Prisma.InputJsonValue,
+                    links: data.links as unknown as Prisma.InputJsonValue,
+                    updatedBy: data.updatedBy,
+                    noteFiles: { create: files },
+                },
+                include: { noteFiles: { where: { status: 1 } }, createdByUser: true },
+            });
+            await tx.repository.updateMany({
+                where: { id: note.repositoryId, status: 1 },
+                data: { updatedAt: new Date() },
+            });
+            return NotePrismaMapper.toDomain(note);
         });
     }
 }

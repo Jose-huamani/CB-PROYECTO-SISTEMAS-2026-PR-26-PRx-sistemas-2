@@ -224,6 +224,8 @@ export class CreateNotePageComponent implements OnDestroy {
       return;
     }
 
+    if (!this.validateFileSize(file)) return;
+
     URL.revokeObjectURL(current.previewUrl);
     const updated: NoteImageDraft = {
       ...current,

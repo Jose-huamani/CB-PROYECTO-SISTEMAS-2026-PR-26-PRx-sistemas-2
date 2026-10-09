@@ -4,24 +4,21 @@ import { RepositoryVisibility } from '@generated-prisma/enums';
 
 import { UpdateNoteCommand } from './update-note.command';
 import { NoteRepository } from '@modules/notes/domain/repositories/note.repository';
-import { NoteFileRepository } from '@modules/notes/domain/repositories/note-file.repository';
-import { NoteFileEntity } from '@modules/notes/domain/entities/note-file.entity';
 import { NoteLink, NoteTask } from '@modules/notes/domain/entities/note.entity';
 import { NoteResponseMapper } from '@modules/notes/application/mappers/note-response.mapper';
 import { NOTE_MESSAGES } from '@modules/notes/application/constants/note-messages.constants';
 import { RepositoryRepository } from '@modules/repositories/domain/repositories/repository.repository';
 import { RepositoryUserRepository } from '@modules/repositories/domain/repositories/repository-user.repository';
 import { REPOSITORY_MESSAGES } from '@modules/repositories/application/constants/repository-messages.constants';
-import { TigrisStorageService } from '@shared/infrastructure/storage/tigris-storage.service';
+import { NoteMediaStorageService } from '@modules/notes/application/services/note-media-storage.service';
 
 @CommandHandler(UpdateNoteCommand)
 export class UpdateNoteHandler implements ICommandHandler<UpdateNoteCommand> {
     constructor(
         @Inject(NoteRepository) private readonly noteRepository: NoteRepository,
-        @Inject(NoteFileRepository) private readonly noteFileRepository: NoteFileRepository,
         @Inject(RepositoryRepository) private readonly repositoryRepository: RepositoryRepository,
         @Inject(RepositoryUserRepository) private readonly repositoryUserRepository: RepositoryUserRepository,
-        private readonly storage: TigrisStorageService,
+        private readonly mediaStorage: NoteMediaStorageService,
     ) {}
 
     async execute(command: UpdateNoteCommand) {
@@ -54,52 +51,35 @@ export class UpdateNoteHandler implements ICommandHandler<UpdateNoteCommand> {
         if (duplicate) {
             throw new BadRequestException(NOTE_MESSAGES.DUPLICATE_TITLE);
         }
-        const retainedIds = new Set(
-            (command.dto.retainedFileIds ?? '')
-                .split(',')
-                .map((value) => Number(value))
-                .filter(Number.isInteger),
-        );
-        const retainedFiles = note.files.filter((file) => retainedIds.has(file.id!));
-
-        if (retainedFiles.length + command.files.length > 5) {
+        const retainedIds = command.dto.retainedFileIds === undefined
+            ? note.files.map((file) => file.id!)
+            : command.dto.retainedFileIds.trim() === '' ? [] : command.dto.retainedFileIds.split(',').map(Number);
+        if (retainedIds.some((id) => !Number.isInteger(id) || !note.files.some((file) => file.id === id))) {
+            throw new BadRequestException('Los archivos que se conservan no pertenecen a esta nota');
+        }
+        const retained = new Set(retainedIds);
+        if (retained.size + command.files.length > 5) {
             throw new BadRequestException('La nota permite un máximo de 5 archivos');
         }
-
-        for (const file of note.files.filter((item) => !retainedIds.has(item.id!))) {
-            await this.noteFileRepository.softDelete(file.id!, command.userId);
-            await this.storage.deleteObject(file.storagePath, false);
+        const removed = note.files.filter((file) => !retained.has(file.id!));
+        const uploaded = await this.mediaStorage.upload(command.files, note.repositoryId, command.userId);
+        let updated;
+        try {
+            updated = await this.noteRepository.updateWithFiles(command.id, {
+                title,
+                content: command.dto.content.trim(),
+                tasks,
+                links,
+                updatedBy: command.userId,
+            }, [...retained], uploaded);
+        } catch (error) {
+            await this.mediaStorage.remove(uploaded.map((file) => file.storagePath));
+            throw error;
         }
-
-        await this.noteRepository.update(command.id, {
-            title,
-            content: command.dto.content.trim(),
-            tasks,
-            links,
-            updatedBy: command.userId,
-        });
-
-        for (const file of command.files) {
-            const safeName = `${Date.now()}-${file.originalname}`;
-            const path = `repositories/${note.repositoryId}/notes/${command.id}/${safeName}`;
-            await this.storage.uploadObject({
-                path,
-                body: file.buffer,
-                isPublic: false,
-                contentType: file.mimetype,
-                multipart: true,
-            });
-            await this.noteFileRepository.create(
-                new NoteFileEntity(null, command.id, file.originalname, path, command.userId),
-            );
-        }
-
-        await this.repositoryRepository.markAsUpdated(note.repositoryId);
-        const updated = await this.noteRepository.findById(command.id);
-
+        await this.mediaStorage.remove(removed.map((file) => file.storagePath));
         return {
             message: NOTE_MESSAGES.UPDATED,
-            data: NoteResponseMapper.toNoteResponse(updated!),
+            data: NoteResponseMapper.toNoteResponse(updated),
         };
     }
 

@@ -4,6 +4,7 @@
       <div>
         <span class="create-note-page__eyebrow">Notas del repositorio</span>
         <h1>Crear nueva nota</h1>
+        <p class="create-note-page__intro">Escribe tu idea, añade recursos y edita tus imágenes antes de guardar.</p>
       </div>
       <button type="button" class="back-button" [disabled]="submitting()" (click)="cancel()">
         <i class="pi pi-arrow-left" aria-hidden="true"></i>
@@ -13,11 +14,11 @@
 
     <form [formGroup]="form" (ngSubmit)="submit()" class="create-note-form">
       <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
-
+      <div class="resource-grid">
       <section class="upload-section" aria-labelledby="attachments-title">
         <div class="section-heading">
           <div>
-            <h2 id="attachments-title">Adjuntar archivos <span>(opcional)</span></h2>
+            <h2 id="attachments-title"><i class="pi pi-paperclip" aria-hidden="true"></i> Archivos <span>(opcional)</span></h2>
             <p>Documentos, hojas de cálculo, PDF u otros recursos.</p>
           </div>
           <span class="file-counter">{{ attachmentFiles().length + images().length }}/5</span>
@@ -57,8 +58,8 @@
       <section class="upload-section" aria-labelledby="images-title">
         <div class="section-heading">
           <div>
-            <h2 id="images-title">Adjuntar imágenes <span>(opcional)</span></h2>
-            <p>Cada imagen puede recortarse, rotarse y marcarse antes de guardar.</p>
+            <h2 id="images-title"><i class="pi pi-images" aria-hidden="true"></i> Imágenes <span>(opcional)</span></h2>
+            <p>Recorta, dibuja, aplica filtros y ajusta el tamaño.</p>
           </div>
         </div>
 
@@ -86,10 +87,13 @@
           <div class="image-grid">
             @for (image of images(); track image.id) {
               <article class="image-card">
-                <img [src]="image.previewUrl" [alt]="image.file.name" />
+                <button type="button" class="image-card__preview" [attr.aria-label]="'Editar ' + image.file.name" (click)="editImage(image)">
+                  <img [src]="image.previewUrl" [alt]="image.file.name" />
+                  <span><i class="pi pi-pencil" aria-hidden="true"></i> Abrir editor</span>
+                </button>
                 <div class="image-card__body">
                   <div>
-                    <strong>{{ image.file.name }}</strong>
+                    <strong [title]="image.file.name">{{ image.file.name }}</strong>
                     <span>{{ image.edited ? 'Imagen editada' : 'Sin editar' }}</span>
                   </div>
                   <div class="image-card__actions">
@@ -111,7 +115,7 @@
           </div>
         }
       </section>
-
+      </div>
       <section class="links-section" aria-labelledby="links-title">
         <div class="section-heading">
           <div>
@@ -128,6 +132,7 @@
           <input
             type="url"
             [(ngModel)]="newLinkUrl"
+            [ngModelOptions]="{ standalone: true }"
             name="noteLinkUrl"
             placeholder="https://ejemplo.com"
             (keydown.enter)="$event.preventDefault(); addLink()"

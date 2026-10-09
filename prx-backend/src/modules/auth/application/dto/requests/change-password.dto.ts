@@ -8,7 +8,7 @@ import {
 } from 'class-validator';
 
 export class ChangePasswordDto {
-  @ApiProperty({ example: '12345Rx*' })
+  @ApiProperty({ description: 'Contraseña configurada por el usuario', writeOnly: true })
   @IsNotEmpty({ message: 'La contraseña actual es obligatoria' })
   @IsString({ message: 'La contraseña actual debe ser un texto' })
   currentPassword!: string;

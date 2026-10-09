@@ -4,7 +4,7 @@
       <i class="pi pi-arrow-left" aria-hidden="true"></i>
     </button>
     <div class="note-detail__heading">
-      <span>Nota del repositorio</span>
+      <span class="note-eyebrow"><i class="pi pi-book" aria-hidden="true"></i> Nota del repositorio</span>
       <h1>{{ note()?.title || 'Cargando nota' }}</h1>
     </div>
     @if (!loading() && canEdit() && !editing()) {
@@ -17,8 +17,15 @@
   @if (loading()) {
     <div class="note-detail__loading"><i class="pi pi-spin pi-spinner"></i> Cargando nota...</div>
   } @else if (note(); as currentNote) {
+    <div class="note-overview" aria-label="Resumen de la nota">
+      <span><i class="pi pi-paperclip" aria-hidden="true"></i> {{ existingFiles().length + newImages().length + newAttachments().length }} archivos</span>
+      <span><i class="pi pi-link" aria-hidden="true"></i> {{ links().length }} enlaces</span>
+      <span><i class="pi pi-check-square" aria-hidden="true"></i> {{ completedTaskCount() }}/{{ tasks().length }} tareas completadas</span>
+      @if (editing()) { <strong class="editing-badge">Editando nota</strong> }
+    </div>
     <main class="note-detail__content">
       <section class="note-section note-section--content">
+        <div class="section-heading"><div><h2><i class="pi pi-align-left" aria-hidden="true"></i> Contenido de la nota</h2></div></div>
         @if (editing()) {
           <label for="note-title">Título</label>
           <input id="note-title" type="text" maxlength="150" [formControl]="form.controls.title" />
@@ -42,7 +49,7 @@
       <section class="note-section" aria-labelledby="links-title">
         <div class="section-heading">
           <div>
-            <h2 id="links-title">Enlaces web</h2>
+            <h2 id="links-title"><i class="pi pi-link" aria-hidden="true"></i> Enlaces web</h2>
             <p>{{ links().length }} enlace(s) agregado(s)</p>
           </div>
         </div>
@@ -51,6 +58,7 @@
           <div class="link-add">
             <input
               type="url"
+              aria-label="Nuevo enlace web"
               [(ngModel)]="newLinkUrl"
               placeholder="https://ejemplo.com"
               (keydown.enter)="$event.preventDefault(); addLink()"
@@ -85,14 +93,19 @@
       <section class="note-section" aria-labelledby="tasks-title">
         <div class="section-heading">
           <div>
-            <h2 id="tasks-title">Tareas</h2>
+            <h2 id="tasks-title"><i class="pi pi-check-square" aria-hidden="true"></i> Tareas</h2>
             <p>{{ tasks().length }} tarea(s), {{ completedTaskCount() }} completada(s)</p>
           </div>
         </div>
 
+        @if (tasks().length) {
+          <div class="task-progress" role="progressbar" aria-label="Progreso de tareas" aria-valuemin="0" [attr.aria-valuemax]="tasks().length" [attr.aria-valuenow]="completedTaskCount()">
+            <span [style.width.%]="completedTaskCount() * 100 / tasks().length"></span>
+          </div>
+        }
         @if (editing()) {
           <div class="task-add">
-            <input type="text" maxlength="200" [(ngModel)]="newTaskTitle" placeholder="Agregar una tarea" (keydown.enter)="$event.preventDefault(); addTask()" />
+            <input type="text" aria-label="Nueva tarea" maxlength="200" [(ngModel)]="newTaskTitle" placeholder="Agregar una tarea" (keydown.enter)="$event.preventDefault(); addTask()" />
             <button type="button" class="icon-button icon-button--accent" aria-label="Agregar tarea" title="Agregar tarea" (click)="addTask()">
               <i class="pi pi-plus" aria-hidden="true"></i>
             </button>
@@ -116,21 +129,22 @@
         </div>
       </section>
 
-      <section class="note-section" aria-labelledby="files-title">
+      <section class="note-section note-section--media" aria-labelledby="files-title">
         <div class="section-heading">
           <div>
-            <h2 id="files-title">Archivos e imágenes</h2>
+            <h2 id="files-title"><i class="pi pi-images" aria-hidden="true"></i> Archivos e imágenes</h2>
             <p>Abre un archivo o continúa editando las imágenes de la nota.</p>
           </div>
+          <button type="button" class="command-button" (click)="retryFileUrls()">Reintentar archivos</button>
         </div>
 
         <div class="media-grid">
           @for (file of existingFiles(); track file.id) {
             <article class="media-item">
               @if (file.isImage && file.url) {
-                <img [src]="file.url" [alt]="file.name" />
+                <button type="button" class="media-preview" [attr.aria-label]="'Abrir imagen: ' + file.name" (click)="download(file)"><img [src]="file.url" [alt]="file.name" loading="lazy" /></button>
               } @else {
-                <div class="file-icon"><i class="pi pi-file" aria-hidden="true"></i></div>
+                <button type="button" class="media-preview" [attr.aria-label]="'Abrir documento: ' + file.name" (click)="download(file)"><div class="file-icon"><i class="pi pi-file" aria-hidden="true"></i></div></button>
               }
               <div class="media-item__info">
                 <strong [title]="file.name">{{ file.name }}</strong>
@@ -166,6 +180,9 @@
             </article>
           }
         </div>
+        @if (!existingFiles().length && !newImages().length && !newAttachments().length) {
+          <p class="empty-copy"><i class="pi pi-paperclip" aria-hidden="true"></i> Esta nota todavía no tiene archivos. Puedes agregarlos al editarla.</p>
+        }
 
         @if (editing()) {
           <div class="upload-actions">
@@ -199,6 +216,18 @@
     }
   }
 </section>
+
+<dialog #documentDialog class="document-viewer" aria-labelledby="document-viewer-title" (cancel)="$event.preventDefault(); closeDocument()">
+  <header>
+    <div><span>Vista previa del archivo</span><h2 id="document-viewer-title">{{ documentName() }}</h2></div>
+    <button type="button" class="command-button" [disabled]="!documentPreview()" (click)="openDocumentInTab()"><i class="pi pi-external-link" aria-hidden="true"></i> Abrir en pestaña</button>
+    <button type="button" class="command-button" [disabled]="!documentPreview()" (click)="downloadDocument()"><i class="pi pi-download" aria-hidden="true"></i> Descargar</button>
+    <button type="button" class="icon-button" aria-label="Cerrar documento" (click)="closeDocument()"><i class="pi pi-times" aria-hidden="true"></i></button>
+  </header>
+  @if (openingDocument()) { <p class="document-viewer__status"><i class="pi pi-spin pi-spinner" aria-hidden="true"></i> Cargando archivo…</p> }
+  @if (documentError()) { <p class="document-viewer__status" role="alert">{{ documentError() }}</p> }
+  @if (documentPreview(); as preview) { <iframe [src]="preview" [title]="documentName()"></iframe> }
+</dialog>
 
 @if (imageBeingEdited(); as image) {
   <app-note-image-editor [file]="image.file" (saved)="saveEditedImage($event)" (cancelled)="closeImageEditor()" />
