@@ -2,14 +2,18 @@
 
 import * as bcrypt from 'bcrypt';
 
-import { PrismaClient, Role } from '../generated/prisma/client';
+import { PrismaClient, Role } from '../generated/prisma-auth/client';
 
 const prisma = new PrismaClient();
 
 const SYSTEM_USER_ID = 1;
 
 async function seedAdminUser(): Promise<void> {
-  const password = await bcrypt.hash('12345Rx*', 10);
+  const seedPassword = process.env.SEED_ADMIN_PASSWORD;
+  if (!seedPassword || seedPassword.length < 8) {
+    throw new Error('Configura SEED_ADMIN_PASSWORD con al menos 8 caracteres antes de ejecutar el seed.');
+  }
+  const password = await bcrypt.hash(seedPassword, 10);
 
   await prisma.user.upsert({
     where: {

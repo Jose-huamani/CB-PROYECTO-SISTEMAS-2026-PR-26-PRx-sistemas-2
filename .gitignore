@@ -1,0 +1,17 @@
+# Private configuration and runtime artifacts
+**/.env
+**/.env.*
+!**/.env.example
+**/node_modules/
+**/dist/
+**/dist-auth/
+**/coverage/
+**/uploads/
+**/generated/
+**/*-backup-*/
+**/*.before-auth-repair.*
+**/*.tsbuildinfo
+*.log
+# Original manual is retained locally; it contains passwords.
+/prx-documentation/PRX-26 Manual Tecnico.docx
+/Informe_Defensa_Sprint_1_PRX.docx

@@ -2,11 +2,25 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@config/*": ["./src/config/*"],
-      "@modules/*": ["./src/modules/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@generated-prisma/*": ["./generated/prisma/*"]
+      "@config/*": [
+        "./src/config/*"
+      ],
+      "@modules/*": [
+        "./src/modules/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@generated-prisma/*": [
+        "./generated/prisma-auth/*"
+      ]
     }
   },
-  "exclude": ["node_modules", "test", "dist", "**/*spec.ts", "prisma.config.ts"]
+  "exclude": [
+    "node_modules",
+    "test",
+    "dist",
+    "**/*spec.ts",
+    "prisma.config.ts"
+  ]
 }
