@@ -15,6 +15,7 @@ import { AUTH_MESSAGES } from '@features/auth/constants/auth-messages.constants'
 import { NotificationsFacade } from '@features/notifications/application/facades/notifications.facade';
 import { NotificationMessage } from '@shared/types/notification-message.type';
 import { getApiNotificationMessage } from '@shared/utils/api-notification.util';
+import { Role } from '@shared/enums/role.enum';
 
 @Component({
   selector: 'app-header',
@@ -60,38 +61,45 @@ export class AppHeaderComponent {
     });
   }
 
-  protected readonly menuItems = computed<MenuItem[]>(() => [
-    {
-      label: 'Explorar',
-      icon: 'pi pi-compass',
-      routerLink: '/repositories/explore',
-      command: () => this.closeMobileMenu(),
-    },
-    {
-      label: 'Mis repositorios',
-      icon: 'pi pi-folder',
-      items: [
-        {
-          label: 'Mis repositorios',
-          icon: 'pi pi-folder-open',
-          routerLink: '/repositories/me',
-          command: () => this.closeMobileMenu(),
-        },
-        {
-          label: 'Repositorio íntimo',
-          icon: 'pi pi-lock',
-          routerLink: '/repositories/me/intimate',
-          command: () => this.closeMobileMenu(),
-        },
-      ],
-    },
-    {
-      label: 'Bitácora',
-      icon: 'pi pi-book',
-      routerLink: '/binnacles/me',
-      command: () => this.closeMobileMenu(),
-    },
-  ]);
+  protected readonly menuItems = computed<MenuItem[]>(() => {
+    const items: MenuItem[] = [
+      {
+        label: 'Explorar',
+        icon: 'pi pi-compass',
+        routerLink: '/repositories/explore',
+        command: () => this.closeMobileMenu(),
+      },
+      {
+        label: 'Mis repositorios',
+        icon: 'pi pi-folder',
+        items: [
+          {
+            label: 'Mis repositorios',
+            icon: 'pi pi-folder-open',
+            routerLink: '/repositories/me',
+            command: () => this.closeMobileMenu(),
+          },
+          {
+            label: 'Repositorio íntimo',
+            icon: 'pi pi-lock',
+            routerLink: '/repositories/me/intimate',
+            command: () => this.closeMobileMenu(),
+          },
+        ],
+      },
+    ];
+
+    if (this.currentUser()?.role === Role.estandar) {
+      items.push({
+        label: 'Bitácora',
+        icon: 'pi pi-book',
+        routerLink: '/binnacles/me',
+        command: () => this.closeMobileMenu(),
+      });
+    }
+
+    return items;
+  });
 
   protected readonly userMenuItems = computed<MenuItem[]>(() => [
     {

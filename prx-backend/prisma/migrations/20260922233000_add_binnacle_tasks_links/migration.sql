@@ -1,0 +1,3 @@
+ALTER TABLE `Binnacle`
+  ADD COLUMN `tasks` JSON NULL,
+  ADD COLUMN `links` JSON NULL;

@@ -1,4 +1,13 @@
 {
+  "watchOptions": {
+    "excludeDirectories": [
+      "**/node_modules",
+      "**/dist",
+      "**/dist-auth",
+      "**/generated/prisma",
+      "**/auth-change-backup-*"
+    ]
+  },
   "compilerOptions": {
     "module": "nodenext",
     "moduleResolution": "nodenext",
@@ -13,22 +22,38 @@
     "target": "ES2023",
     "sourceMap": true,
     "rootDir": ".",
-    "outDir": "./dist",
+    "outDir": "./dist-auth",
     "paths": {
-      "@config/*": ["./src/config/*"],
-      "@modules/*": ["./src/modules/*"],
-      "@shared/*": ["./src/shared/*"],
-      "@generated-prisma/*": ["./generated/prisma/*"]
+      "@config/*": [
+        "./src/config/*"
+      ],
+      "@modules/*": [
+        "./src/modules/*"
+      ],
+      "@shared/*": [
+        "./src/shared/*"
+      ],
+      "@generated-prisma/*": [
+        "./generated/prisma-auth/*"
+      ]
     },
-    "incremental": true,
+    "incremental": false,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "tsBuildInfoFile": "./dist/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist-auth/.tsbuildinfo"
   },
-  "include": ["src/**/*.ts", "test/**/*.ts", "generated/**/*.ts"],
-  "exclude": ["node_modules", "dist", "prisma.config.ts"]
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "generated/prisma-auth/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "prisma.config.ts"
+  ]
 }

@@ -2,6 +2,7 @@ import { BinnacleEntity } from '@modules/binnacles/domain/entities/binnacle.enti
 import { BinnacleRepository } from '@modules/binnacles/domain/repositories/binnacle.repository';
 import { BinnaclePrismaMapper } from '@modules/binnacles/infrastructure/mappers/binnacle-prisma.mapper';
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '@generated-prisma/client';
 import { PaginatedResponseDto } from '@shared/application/dto/paginated-response.dto';
 import { PrismaService } from '@shared/infrastructure/prisma/prisma.service';
 
@@ -38,6 +39,8 @@ export class PrismaBinnacleRepository implements BinnacleRepository {
         userId: entity.userId,
         name: entity.name,
         content: entity.content,
+        tasks: entity.tasks as unknown as Prisma.InputJsonValue,
+        links: entity.links as unknown as Prisma.InputJsonValue,
         createdBy: entity.createdBy,
       },
     });
@@ -49,6 +52,30 @@ export class PrismaBinnacleRepository implements BinnacleRepository {
       where: { id, status: 1 },
     });
     return binnacle ? BinnaclePrismaMapper.toDomain(binnacle) : null;
+  }
+
+  async update(
+    id: number,
+    data: {
+      name: string;
+      content: string;
+      tasks: BinnacleEntity['tasks'];
+      links: BinnacleEntity['links'];
+      updatedBy: number;
+    },
+  ): Promise<BinnacleEntity> {
+    const updated = await this.prisma.binnacle.update({
+      where: { id, status: 1 },
+      data: {
+        name: data.name,
+        content: data.content,
+        tasks: data.tasks as unknown as Prisma.InputJsonValue,
+        links: data.links as unknown as Prisma.InputJsonValue,
+        updatedBy: data.updatedBy,
+      },
+    });
+
+    return BinnaclePrismaMapper.toDomain(updated);
   }
 
   async softDelete(id: number, updatedBy: number): Promise<void> {

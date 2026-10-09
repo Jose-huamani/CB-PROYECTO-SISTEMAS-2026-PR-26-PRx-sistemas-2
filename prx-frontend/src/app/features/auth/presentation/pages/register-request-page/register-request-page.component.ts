@@ -74,7 +74,6 @@ export class RegisterRequestPageComponent {
       .subscribe({
         next: (response) => {
           this.handleRegisterRequestSuccess(
-            request.email,
             getApiNotificationMessage(response, AUTH_MESSAGES.REGISTER_REQUEST.SUCCESS),
           );
         },
@@ -95,14 +94,10 @@ export class RegisterRequestPageComponent {
     this.notificationService.warn('Formulario', UI_MESSAGES.FORM.INVALID_GENERIC);
   }
 
-  private handleRegisterRequestSuccess(email: string, message: NotificationMessage): void {
+  private handleRegisterRequestSuccess(message: NotificationMessage): void {
     this.notificationService.success('Registro', message);
 
-    void this.router.navigate(['/auth/confirm-register'], {
-      queryParams: {
-        email,
-      },
-    });
+    void this.router.navigateByUrl('/');
   }
 
   private handleRegisterRequestError(message: NotificationMessage): void {

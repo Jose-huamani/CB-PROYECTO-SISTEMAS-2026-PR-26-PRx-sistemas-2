@@ -1,0 +1,208 @@
+<section class="binnacle-detail">
+  @if (loading()) {
+    <div class="binnacle-detail__loading">
+      <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+      Cargando bitácora...
+    </div>
+  } @else if (binnacle(); as currentBinnacle) {
+    <header class="binnacle-detail__header">
+      <button
+        type="button"
+        class="icon-command"
+        aria-label="Volver"
+        title="Volver"
+        (click)="back()"
+      >
+        <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      </button>
+      <div class="binnacle-detail__heading">
+        <span>Bitácora personal</span>
+        <h1>{{ currentBinnacle.name }}</h1>
+      </div>
+      @if (!editing()) {
+        <button
+          type="button"
+          class="command-button command-button--primary"
+          (click)="startEditing()"
+        >
+          <i class="pi pi-pencil" aria-hidden="true"></i>
+          Editar
+        </button>
+      }
+    </header>
+
+    <main class="binnacle-detail__content">
+      <section class="detail-section">
+        @if (editing()) {
+          <label for="binnacle-name">Título</label>
+          <input id="binnacle-name" type="text" maxlength="15" [formControl]="form.controls.name" />
+          <label for="binnacle-content">¿Qué hiciste hoy?</label>
+          <textarea
+            id="binnacle-content"
+            rows="7"
+            maxlength="2000"
+            [formControl]="form.controls.content"
+          ></textarea>
+        } @else {
+          <div class="binnacle-meta">
+            <span
+              ><i class="pi pi-calendar" aria-hidden="true"></i> Creada
+              {{ currentBinnacle.createdAt | date: 'medium' }}</span
+            >
+            <span
+              ><i class="pi pi-clock" aria-hidden="true"></i> Actualizada
+              {{ currentBinnacle.updatedAt | date: 'medium' }}</span
+            >
+          </div>
+          <p class="binnacle-body">{{ currentBinnacle.content }}</p>
+        }
+      </section>
+
+      <section class="detail-section" aria-labelledby="detail-links-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="detail-links-title">Enlaces web</h2>
+            <p>{{ links().length }} enlace(s)</p>
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="add-row">
+            <input
+              type="url"
+              [(ngModel)]="newLinkUrl"
+              placeholder="https://ejemplo.com"
+              (keydown.enter)="$event.preventDefault(); addLink()"
+            />
+            <button
+              type="button"
+              class="icon-command icon-command--accent"
+              aria-label="Agregar enlace"
+              title="Agregar enlace"
+              (click)="addLink()"
+            >
+              <i class="pi pi-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+
+        <div class="link-list">
+          @for (link of links(); track link.id) {
+            <div class="link-item">
+              <i class="pi pi-link" aria-hidden="true"></i>
+              <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.url }}</a>
+              @if (editing()) {
+                <button
+                  type="button"
+                  class="icon-command icon-command--danger"
+                  aria-label="Eliminar enlace"
+                  title="Eliminar enlace"
+                  (click)="removeLink(link.id)"
+                >
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                </button>
+              } @else {
+                <a
+                  class="icon-command"
+                  [href]="link.url"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Abrir enlace"
+                  title="Abrir enlace"
+                >
+                  <i class="pi pi-external-link" aria-hidden="true"></i>
+                </a>
+              }
+            </div>
+          } @empty {
+            <p class="empty-copy">Esta bitácora todavía no tiene enlaces.</p>
+          }
+        </div>
+      </section>
+
+      <section class="detail-section" aria-labelledby="detail-tasks-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="detail-tasks-title">Tareas</h2>
+            <p>{{ tasks().length }} tarea(s), {{ completedTaskCount() }} completada(s)</p>
+          </div>
+        </div>
+
+        @if (editing()) {
+          <div class="add-row">
+            <input
+              type="text"
+              [(ngModel)]="newTaskTitle"
+              maxlength="250"
+              placeholder="Agregar una tarea"
+              (keydown.enter)="$event.preventDefault(); addTask()"
+            />
+            <button
+              type="button"
+              class="icon-command icon-command--accent"
+              aria-label="Agregar tarea"
+              title="Agregar tarea"
+              (click)="addTask()"
+            >
+              <i class="pi pi-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+        }
+
+        <div class="task-list">
+          @for (task of tasks(); track task.id) {
+            <div class="task-item" [class.is-complete]="task.completed">
+              <input
+                type="checkbox"
+                [id]="'binnacle-task-' + task.id"
+                [checked]="task.completed"
+                [disabled]="saving()"
+                (change)="toggleTask(task.id)"
+              />
+              <label [for]="'binnacle-task-' + task.id">{{ task.title }}</label>
+              @if (editing()) {
+                <button
+                  type="button"
+                  class="icon-command icon-command--danger"
+                  aria-label="Eliminar tarea"
+                  title="Eliminar tarea"
+                  (click)="removeTask(task.id)"
+                >
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                </button>
+              }
+            </div>
+          } @empty {
+            <p class="empty-copy">Esta bitácora todavía no tiene tareas.</p>
+          }
+        </div>
+      </section>
+    </main>
+
+    @if (editing()) {
+      <footer class="binnacle-detail__footer">
+        <button
+          type="button"
+          class="command-button"
+          [disabled]="saving()"
+          (click)="cancelEditing()"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="command-button command-button--primary"
+          [disabled]="saving() || form.invalid"
+          (click)="save()"
+        >
+          @if (saving()) {
+            <i class="pi pi-spin pi-spinner" aria-hidden="true"></i>
+          } @else {
+            <i class="pi pi-check" aria-hidden="true"></i>
+          }
+          Guardar cambios
+        </button>
+      </footer>
+    }
+  }
+</section>

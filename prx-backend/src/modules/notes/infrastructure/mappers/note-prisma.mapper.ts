@@ -1,5 +1,5 @@
 import { Role } from '@generated-prisma/enums';
-import { NoteEntity } from '@modules/notes/domain/entities/note.entity';
+import { NoteEntity, NoteLink, NoteTask } from '@modules/notes/domain/entities/note.entity';
 import { NoteFilePrismaMapper } from '@modules/notes/infrastructure/mappers/note-file-prisma.mapper';
 import { UserPrismaMapper } from '@modules/users/infrastructure/mappers/user-prisma.mapper';
 
@@ -20,6 +20,8 @@ type NotePrismaModel = {
     repositoryId: number;
     title: string;
     content: string;
+    tasks?: unknown;
+    links?: unknown;
     status: number;
     createdAt: Date;
     updatedAt: Date;
@@ -58,6 +60,8 @@ export class NotePrismaMapper {
             note.updatedAt,
             note.updatedBy ?? undefined,
             createdByUser,
+            Array.isArray(note.tasks) ? note.tasks as unknown as NoteTask[] : [],
+            Array.isArray(note.links) ? note.links as unknown as NoteLink[] : [],
         );
     }
 

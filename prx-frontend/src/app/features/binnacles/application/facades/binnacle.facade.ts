@@ -6,6 +6,7 @@ import { BinnacleModel } from '@features/binnacles/domain/models/binnacle.model'
 import { ApiResponseModel } from '@shared/models/api-response.model';
 import { CreateBinnacleRequest } from '@features/binnacles/domain/requests/create-binnacle.request';
 import { GetMeBinnaclesRequest } from '@features/binnacles/domain/requests/get-me-binnacles.request';
+import { UpdateBinnacleRequest } from '@features/binnacles/domain/requests/update-binnacle.request';
 
 @Injectable({
   providedIn: 'root',
@@ -43,6 +44,14 @@ export class BinnacleFacade {
   create(data: CreateBinnacleRequest): Observable<ApiResponseModel<BinnacleModel>> {
     this.binnacleStore.setLoading(true);
     return this.binnacleApi.create(data).pipe(finalize(() => this.binnacleStore.setLoading(false)));
+  }
+
+  findById(id: number): Observable<ApiResponseModel<BinnacleModel>> {
+    return this.binnacleApi.findById(id);
+  }
+
+  update(id: number, data: UpdateBinnacleRequest): Observable<ApiResponseModel<BinnacleModel>> {
+    return this.binnacleApi.update(id, data);
   }
 
   delete(id: number): Observable<ApiResponseModel<void>> {

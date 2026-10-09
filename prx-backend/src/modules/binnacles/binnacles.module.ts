@@ -1,6 +1,8 @@
 import { CreateBinnacleHandler } from '@modules/binnacles/application/commands/create-binnacle/create-binnacle.handler';
 import { DeleteBinnacleHandler } from '@modules/binnacles/application/commands/delete-binacle/delete-binnacle.handler';
 import { GetMeBinnaclesHandler } from '@modules/binnacles/application/queries/get-me-binnacles/get-me-binnacles.handler';
+import { GetBinnacleByIdHandler } from '@modules/binnacles/application/queries/get-binnacle-by-id/get-binnacle-by-id.handler';
+import { UpdateBinnacleHandler } from '@modules/binnacles/application/commands/update-binnacle/update-binnacle.handler';
 import { BinnacleRepository } from '@modules/binnacles/domain/repositories/binnacle.repository';
 import { PrismaBinnacleRepository } from '@modules/binnacles/infrastructure/persistence/prisma-binnacle.repository';
 import { BinnaclesController } from '@modules/binnacles/presentation/controllers/binnacles.controllers';
@@ -14,6 +16,8 @@ import { CqrsModule } from '@nestjs/cqrs';
     CreateBinnacleHandler,
     DeleteBinnacleHandler,
     GetMeBinnaclesHandler,
+    GetBinnacleByIdHandler,
+    UpdateBinnacleHandler,
     {
       provide: BinnacleRepository,
       useClass: PrismaBinnacleRepository,

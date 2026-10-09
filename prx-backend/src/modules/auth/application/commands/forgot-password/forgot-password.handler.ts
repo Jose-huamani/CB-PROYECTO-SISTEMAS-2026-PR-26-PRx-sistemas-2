@@ -44,6 +44,8 @@ export class ForgotPasswordHandler implements ICommandHandler<ForgotPasswordComm
       new PasswordResetEntity(null, email, code, expiresAt),
     );
 
+    this.mailService.logCodeWhenDisabled('Codigo de recuperacion', email, code);
+
     await this.mailService.sendMail(
       email,
       'Código de recuperación',

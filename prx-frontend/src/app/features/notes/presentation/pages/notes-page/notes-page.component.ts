@@ -1,8 +1,9 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, OnDestroy, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { finalize } from 'rxjs';
+import { catchError, finalize, from, map, mergeMap, of, Subscription } from 'rxjs';
+import { NoteApi } from '@features/notes/infrastructure/api/note.api';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -28,7 +29,42 @@ import { NOTES_MESSAGES } from '@features/notes/constants/notes-messages.constan
   templateUrl: './notes-page.component.html',
   styleUrls: ['./notes-page.component.scss'],
 })
-export class NotesPageComponent implements OnInit {
+export class NotesPageComponent implements OnInit, OnDestroy {
+  private readonly noteApi = inject(NoteApi);
+  private previewSubscription?: Subscription;
+  protected readonly previews = signal<Record<number, string>>({});
+  protected readonly failedPreviews = signal<Record<number, boolean>>({});
+
+  ngOnDestroy(): void {
+    this.previewSubscription?.unsubscribe();
+  }
+
+  protected imageFile(note: NoteModel): NoteFileModel | undefined {
+    return note.files.find((file) => /\.(png|jpe?g|webp|gif)$/i.test(file.name));
+  }
+
+  protected onPreviewError(noteId: number): void {
+    this.failedPreviews.update((failed) => ({ ...failed, [noteId]: true }));
+  }
+
+  private loadPreviews(): void {
+    this.previewSubscription?.unsubscribe();
+    this.previews.set({});
+    this.failedPreviews.set({});
+    const images = (this.notes()?.items ?? []).flatMap((note) => {
+      const file = this.imageFile(note);
+      return file ? [{ noteId: note.id, fileId: file.id }] : [];
+    });
+    this.previewSubscription = from(images).pipe(
+      mergeMap((image) => this.noteApi.downloadFile(image.fileId).pipe(
+        map((response) => ({ noteId: image.noteId, url: response.data?.url ?? '' })),
+        catchError(() => of({ noteId: image.noteId, url: '' })),
+      ), 4),
+    ).subscribe(({ noteId, url }) => {
+      if (url) this.previews.update((previews) => ({ ...previews, [noteId]: url }));
+      else this.onPreviewError(noteId);
+    });
+  }
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly noteFacade = inject(NoteFacade);
@@ -70,6 +106,15 @@ export class NotesPageComponent implements OnInit {
 
   protected trackByNoteId(_: number, note: NoteModel): number {
     return note.id;
+  }
+
+  protected openNote(note: NoteModel): void {
+    const repositoryId = this.getRepositoryId();
+    if (repositoryId) {
+      void this.router.navigate(['/notes/repositories', repositoryId, note.id]);
+      return;
+    }
+    void this.router.navigate(['/notes/repositories/me/intimate', note.id]);
   }
 
   protected getNotePreview(note: NoteModel): string {
@@ -237,6 +282,7 @@ export class NotesPageComponent implements OnInit {
 
   private findNotes(repositoryId: number): void {
     this.noteFacade.findByRepository(repositoryId, this.page(), this.limit()).subscribe({
+      next: () => this.loadPreviews(),
       error: (error: HttpErrorResponse) => {
         this.handleLoadError(error);
       },

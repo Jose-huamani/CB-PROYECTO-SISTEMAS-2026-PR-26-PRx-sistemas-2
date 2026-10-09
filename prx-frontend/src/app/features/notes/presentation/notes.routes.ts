@@ -28,6 +28,14 @@ export const NOTES_ROUTES: Routes = [
                 (module) => module.CreateNotePageComponent,
               ),
           },
+          {
+            path: ':noteId',
+            title: 'Detalle de Nota',
+            loadComponent: () =>
+              import('./pages/note-detail-page/note-detail-page.component').then(
+                (module) => module.NoteDetailPageComponent,
+              ),
+          },
         ],
       },
       {
@@ -47,6 +55,14 @@ export const NOTES_ROUTES: Routes = [
             loadComponent: () =>
               import('./pages/create-note-page/create-note-page.component').then(
                 (module) => module.CreateNotePageComponent,
+              ),
+          },
+          {
+            path: ':noteId',
+            title: 'Detalle de Nota',
+            loadComponent: () =>
+              import('./pages/note-detail-page/note-detail-page.component').then(
+                (module) => module.NoteDetailPageComponent,
               ),
           },
         ],

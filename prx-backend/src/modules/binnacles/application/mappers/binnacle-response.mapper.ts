@@ -9,6 +9,8 @@ export class BinnacleResponseMapper {
       userId: binnacle.userId,
       content: binnacle.content,
       name: binnacle.name,
+      tasks: binnacle.tasks,
+      links: binnacle.links,
       createdAt: binnacle.createdAt as Date,
       updatedAt: binnacle.updatedAt as Date,
     };

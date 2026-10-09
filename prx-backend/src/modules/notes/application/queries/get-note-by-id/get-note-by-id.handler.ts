@@ -52,7 +52,7 @@ export class GetNoteByIdHandler implements IQueryHandler<GetNoteByIdQuery> {
                 repository.id!,
                 query.userId,
             );
-            canRead = !!repoUser;
+            canRead = isOwner || !!repoUser;
         }
 
         if (isIntimate) {

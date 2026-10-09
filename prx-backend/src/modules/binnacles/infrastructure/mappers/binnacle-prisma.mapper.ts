@@ -1,4 +1,8 @@
-import { BinnacleEntity } from '@modules/binnacles/domain/entities/binnacle.entity';
+import {
+  BinnacleEntity,
+  BinnacleLink,
+  BinnacleTask,
+} from '@modules/binnacles/domain/entities/binnacle.entity';
 
 export class BinnaclePrismaMapper {
   static toDomain(binnacle: {
@@ -11,6 +15,8 @@ export class BinnaclePrismaMapper {
     updatedAt: Date;
     createdBy: number;
     updatedBy?: number | null;
+    tasks?: unknown;
+    links?: unknown;
   }): BinnacleEntity {
     return new BinnacleEntity(
       binnacle.id,
@@ -22,6 +28,8 @@ export class BinnaclePrismaMapper {
       binnacle.createdAt,
       binnacle.updatedAt,
       binnacle.updatedBy ?? undefined,
+      Array.isArray(binnacle.tasks) ? (binnacle.tasks as BinnacleTask[]) : [],
+      Array.isArray(binnacle.links) ? (binnacle.links as BinnacleLink[]) : [],
     );
   }
 }

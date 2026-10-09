@@ -6,6 +6,86 @@
       <form [formGroup]="form" (ngSubmit)="submit()">
         <formly-form [form]="form" [fields]="fields" [model]="model"></formly-form>
 
+        <section class="binnacle-extra-section" aria-labelledby="binnacle-links-title">
+          <div class="binnacle-section-heading">
+            <div>
+              <h2 id="binnacle-links-title">Enlaces web <span>(opcional)</span></h2>
+              <p>Agrega recursos relacionados con tu actividad.</p>
+            </div>
+            <button type="button" class="add-item-button" (click)="addLink()">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+              Agregar URL
+            </button>
+          </div>
+
+          <div class="binnacle-add-row">
+            <input
+              type="url"
+              [(ngModel)]="newLinkUrl"
+              name="binnacleLinkUrl"
+              placeholder="https://ejemplo.com"
+              (keydown.enter)="$event.preventDefault(); addLink()"
+            />
+          </div>
+
+          <div class="binnacle-link-list">
+            @for (link of links(); track link.id) {
+              <div class="binnacle-link-item">
+                <i class="pi pi-link" aria-hidden="true"></i>
+                <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{ link.url }}</a>
+                <button type="button" aria-label="Quitar enlace" (click)="removeLink(link.id)">
+                  <i class="pi pi-times" aria-hidden="true"></i>
+                </button>
+              </div>
+            } @empty {
+              <p class="binnacle-empty-copy">Sin enlaces agregados.</p>
+            }
+          </div>
+        </section>
+
+        <section class="binnacle-extra-section" aria-labelledby="binnacle-tasks-title">
+          <div class="binnacle-section-heading">
+            <div>
+              <h2 id="binnacle-tasks-title">Lista de tareas</h2>
+              <p>Registra los pendientes de esta bitácora.</p>
+            </div>
+            <button type="button" class="add-item-button" (click)="addTask()">
+              <i class="pi pi-plus" aria-hidden="true"></i>
+              Agregar tarea
+            </button>
+          </div>
+
+          <div class="binnacle-add-row">
+            <input
+              type="text"
+              [(ngModel)]="newTaskTitle"
+              name="binnacleTaskTitle"
+              maxlength="250"
+              placeholder="Agregar nueva tarea..."
+              (keydown.enter)="$event.preventDefault(); addTask()"
+            />
+          </div>
+
+          <div class="binnacle-task-list">
+            @for (task of tasks(); track task.id) {
+              <div class="binnacle-task-item" [class.is-complete]="task.completed">
+                <input
+                  type="checkbox"
+                  [id]="'new-binnacle-task-' + task.id"
+                  [checked]="task.completed"
+                  (change)="toggleTask(task.id)"
+                />
+                <label [for]="'new-binnacle-task-' + task.id">{{ task.title }}</label>
+                <button type="button" aria-label="Quitar tarea" (click)="removeTask(task.id)">
+                  <i class="pi pi-trash" aria-hidden="true"></i>
+                </button>
+              </div>
+            } @empty {
+              <p class="binnacle-empty-copy">Sin tareas agregadas.</p>
+            }
+          </div>
+        </section>
+
         <p-button
           type="submit"
           label="Crear"
@@ -73,7 +153,54 @@
               </p>
             </div>
 
-            <div class="flex justify-content-end mt-2">
+            @if (binnacle.links.length > 0) {
+              <div class="saved-section">
+                <strong>Enlaces</strong>
+                <div class="binnacle-link-list">
+                  @for (link of binnacle.links; track link.id) {
+                    <div class="binnacle-link-item">
+                      <i class="pi pi-link" aria-hidden="true"></i>
+                      <a [href]="link.url" target="_blank" rel="noopener noreferrer">{{
+                        link.url
+                      }}</a>
+                      <a
+                        class="open-link-button"
+                        [href]="link.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Abrir enlace"
+                      >
+                        <i class="pi pi-external-link" aria-hidden="true"></i>
+                      </a>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (binnacle.tasks.length > 0) {
+              <div class="saved-section">
+                <strong>Tareas</strong>
+                <div class="binnacle-task-list">
+                  @for (task of binnacle.tasks; track task.id) {
+                    <div class="binnacle-task-item" [class.is-complete]="task.completed">
+                      <input type="checkbox" [checked]="task.completed" disabled />
+                      <span>{{ task.title }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="flex justify-content-end gap-2 mt-2">
+              <p-button
+                label="Ver"
+                icon="pi pi-eye"
+                severity="secondary"
+                size="small"
+                (onClick)="openBinnacle(binnacle.id)"
+              >
+              </p-button>
               <p-button
                 label="Eliminar"
                 icon="pi pi-trash"

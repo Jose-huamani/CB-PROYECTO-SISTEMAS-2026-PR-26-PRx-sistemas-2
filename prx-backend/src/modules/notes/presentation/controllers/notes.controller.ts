@@ -8,6 +8,7 @@ import {
     Param,
     ParseIntPipe,
     Post,
+    Put,
     Query,
     UploadedFiles,
     UseInterceptors,
@@ -19,6 +20,8 @@ import { FilesInterceptor } from '@nestjs/platform-express';
 import { CreateNoteCommand } from '@modules/notes/application/commands/create-note/create-note.command';
 import { DeleteNoteCommand } from '@modules/notes/application/commands/delete-note/delete-note.command';
 import { CreateNoteRequestDto } from '@modules/notes/application/dto/requests/create-note-request.dto';
+import { UpdateNoteRequestDto } from '@modules/notes/application/dto/requests/update-note-request.dto';
+import { UpdateNoteCommand } from '@modules/notes/application/commands/update-note/update-note.command';
 import { GetNotesRequestDto } from '@modules/notes/application/dto/requests/get-notes-request.dto';
 import { GetNotesQuery } from '@modules/notes/application/queries/get-notes/get-notes.query';
 import { GetNoteByIdQuery } from '@modules/notes/application/queries/get-note-by-id/get-note-by-id.query';
@@ -79,6 +82,20 @@ export class NotesController {
         return this.commandBus.execute(
             new CreateNoteCommand(repositoryId, createNoteRequestDto, userId, files),
         );
+    }
+
+    @Put(':id')
+    @ApiConsumes('multipart/form-data')
+    @ApiBody({ type: UpdateNoteRequestDto })
+    @UseInterceptors(FilesInterceptor('files', 5))
+    @HttpCode(HttpStatus.OK)
+    updateNote(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: UpdateNoteRequestDto,
+        @UploadedFiles(NoteFilesUploadPipe) files: Express.Multer.File[],
+        @CurrentUser('sub') userId: number,
+    ) {
+        return this.commandBus.execute(new UpdateNoteCommand(id, dto, userId, files));
     }
 
     @Delete(':id')

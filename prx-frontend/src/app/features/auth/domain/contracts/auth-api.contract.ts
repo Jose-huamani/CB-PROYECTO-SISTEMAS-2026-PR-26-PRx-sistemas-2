@@ -15,7 +15,7 @@ import { ApiResponseModel } from '@shared/models/api-response.model';
 
 export abstract class AuthApiContract {
   abstract login(data: LoginRequest): Observable<ApiResponseModel<AuthModel>>;
-  abstract registerRequest(data: RegisterRequestData): Observable<ApiResponseModel<void>>;
+  abstract registerRequest(data: RegisterRequestData): Observable<ApiResponseModel<AuthModel>>;
   abstract confirmRegister(data: ConfirmRegisterRequest): Observable<ApiResponseModel<void>>;
   abstract resendVerificationCode(data: ResendCodeRequest): Observable<ApiResponseModel<void>>;
   abstract forgotPassword(data: ForgotPasswordRequest): Observable<ApiResponseModel<void>>;

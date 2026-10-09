@@ -155,18 +155,20 @@
               </div>
             }
 
-            <button
-              pButton
-              type="button"
-              text
-              class="app-header__mobile-item"
-              (click)="navigateAndClose('/binnacles/me')"
-            >
-              <span class="flex align-items-center gap-3">
-                <i class="pi pi-book"></i>
-                <span>Bitácora</span>
-              </span>
-            </button>
+            @if (currentUser()?.role === 'estandar') {
+              <button
+                pButton
+                type="button"
+                text
+                class="app-header__mobile-item"
+                (click)="navigateAndClose('/binnacles/me')"
+              >
+                <span class="flex align-items-center gap-3">
+                  <i class="pi pi-book"></i>
+                  <span>Bitácora</span>
+                </span>
+              </button>
+            }
           </div>
 
           <div class="border-top-1 surface-border pt-3 flex flex-column">

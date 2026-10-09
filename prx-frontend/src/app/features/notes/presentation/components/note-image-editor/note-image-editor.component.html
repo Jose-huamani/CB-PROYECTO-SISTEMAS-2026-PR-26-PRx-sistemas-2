@@ -1,0 +1,156 @@
+<dialog #editorDialog class="image-editor" aria-labelledby="image-editor-title" (cancel)="$event.preventDefault(); cancelled.emit()">
+  <header class="image-editor__header">
+    <button type="button" class="tool-button tool-button--text" (click)="cancelled.emit()">
+      <i class="pi pi-arrow-left" aria-hidden="true"></i>
+      <span>Volver</span>
+    </button>
+    <div>
+      <span class="image-editor__eyebrow">Editar imagen</span>
+      <h2 id="image-editor-title">{{ file.name }}</h2>
+    </div>
+    <div class="image-editor__history">
+      <button type="button" class="tool-button tool-button--icon" aria-label="Deshacer" [disabled]="!canUndo() || working() || saving()" (click)="undo()">
+        <i class="pi pi-undo" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="tool-button tool-button--icon" aria-label="Rehacer" [disabled]="!canRedo() || working() || saving()" (click)="redo()">
+        <i class="pi pi-refresh" aria-hidden="true"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="image-editor__body">
+    <div #stageElement class="image-editor__stage" [class.is-loading]="loading()">
+      @if (loading()) {
+        <div class="image-editor__loading"><i class="pi pi-spin pi-spinner"></i> Preparando imagen...</div>
+      }
+      <div class="image-editor__workspace"><canvas #canvasElement></canvas></div>
+    </div>
+
+    <aside class="image-editor__tools" aria-label="Herramientas de edición">
+      <fieldset [disabled]="loading() || working() || saving() || loadFailed()">
+      <h3>Herramientas</h3>
+      <p class="tool-help">{{ toolHelp[mode] }}</p>
+
+      <div class="tool-grid">
+        <button type="button" class="tool-button" [class.is-active]="mode === 'select'" (click)="setMode('select')">
+          <i class="pi pi-arrows-alt" aria-hidden="true"></i><span>Seleccionar</span>
+        </button>
+        <button type="button" class="tool-button" [class.is-active]="mode === 'pencil'" (click)="setMode('pencil')">
+          <i class="pi pi-pencil" aria-hidden="true"></i><span>Pincel</span>
+        </button>
+        <button type="button" class="tool-button" [class.is-active]="mode === 'marker'" (click)="setMode('marker')">
+          <i class="pi pi-highlighter" aria-hidden="true"></i><span>Marcar</span>
+        </button>
+        <button type="button" class="tool-button" [class.is-active]="mode === 'crop'" (click)="setMode('crop')">
+          <i class="pi pi-stop" aria-hidden="true"></i><span>Recortar</span>
+        </button>
+        <button type="button" class="tool-button" (click)="addText()">
+          <i class="pi pi-align-left" aria-hidden="true"></i><span>Texto</span>
+        </button>
+        <button type="button" class="tool-button" (click)="rotate()">
+          <i class="pi pi-replay" aria-hidden="true"></i><span>Rotar 90°</span>
+        </button>
+      </div>
+
+      @if (hasText()) {
+        <div class="tool-section text-panel">
+          <label for="annotation-text">Texto de la anotación</label>
+          <textarea id="annotation-text" rows="3" [(ngModel)]="textValue" (ngModelChange)="updateText()" (blur)="commitText()" placeholder="Escribe tu texto aquí"></textarea>
+          <small>Puedes escribir aquí o hacer doble clic sobre el texto de la imagen. Arrástralo con Seleccionar para moverlo.</small>
+          <div class="text-settings">
+            <div><label for="annotation-font">Fuente</label><select id="annotation-font" [(ngModel)]="textFont" (ngModelChange)="commitText()"><option value="Arial">Arial</option><option value="Georgia">Georgia</option><option value="Courier New">Courier</option></select></div>
+            <div><label for="annotation-size">Tamaño (px)</label><input id="annotation-size" type="number" min="8" max="200" [(ngModel)]="textSize" (change)="commitText()" /></div>
+          </div>
+          <div class="shape-actions">
+            <button type="button" class="tool-button" [class.is-active]="textBold" [attr.aria-pressed]="textBold" (click)="toggleTextStyle('bold')">Negrita</button>
+            <button type="button" class="tool-button" [class.is-active]="textItalic" [attr.aria-pressed]="textItalic" (click)="toggleTextStyle('italic')">Cursiva</button>
+          </div>
+          <label for="annotation-align">Alineación</label>
+          <select id="annotation-align" [(ngModel)]="textAlignment" (ngModelChange)="commitText()"><option value="left">Izquierda</option><option value="center">Centro</option><option value="right">Derecha</option></select>
+        </div>
+      }
+
+      <div class="tool-section">
+        <label for="editor-color">Color</label>
+        <input id="editor-color" type="color" [(ngModel)]="color" (ngModelChange)="updateBrush()" />
+      </div>
+
+      <div class="tool-section">
+        <label for="brush-width">Grosor: {{ brushWidth }} px</label>
+        <input id="brush-width" type="range" min="2" max="30" [(ngModel)]="brushWidth" (ngModelChange)="updateBrush()" />
+      </div>
+
+      <div class="tool-section">
+        <span class="tool-section__label">Formas</span>
+        <div class="shape-actions">
+          <button type="button" class="tool-button tool-button--icon" aria-label="Agregar rectángulo" (click)="addRectangle()">
+            <i class="pi pi-stop" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="tool-button tool-button--icon" aria-label="Agregar círculo" (click)="addCircle()">
+            <i class="pi pi-circle" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="tool-button tool-button--icon" aria-label="Agregar flecha" (click)="addArrow()">
+            <i class="pi pi-arrow-right" aria-hidden="true"></i>
+          </button>
+          <button type="button" class="tool-button tool-button--icon tool-button--danger" aria-label="Eliminar elemento seleccionado" (click)="deleteSelection()">
+            <i class="pi pi-trash" aria-hidden="true"></i>
+          </button>
+        </div>
+      </div>
+
+      @if (mode === 'crop') {
+        <button type="button" class="editor-action editor-action--crop" (click)="applyCrop()">
+          <i class="pi pi-check" aria-hidden="true"></i> Aplicar recorte
+        </button>
+      }
+      <div class="tool-section">
+        <span class="tool-section__label">Voltear imagen</span>
+        <div class="tool-grid">
+          <button type="button" class="tool-button" (click)="flip('horizontal')">Horizontal</button>
+          <button type="button" class="tool-button" (click)="flip('vertical')">Vertical</button>
+        </div>
+      </div>
+      <div class="tool-section">
+        <label for="image-filter">Filtro de imagen</label>
+        <select id="image-filter" [(ngModel)]="filter">
+          <option value="grayscale">Escala de grises</option>
+          <option value="sepia">Sepia</option>
+          <option value="invert">Invertir colores</option>
+          <option value="brightness">Más brillo</option>
+          <option value="contrast">Más contraste</option>
+        </select>
+        <button type="button" class="tool-button" (click)="applyFilter()">Aplicar filtro</button>
+      </div>
+      <div class="tool-section">
+        <span class="tool-section__label">Dimensiones en píxeles</span>
+        <label for="image-width">Ancho</label>
+        <input id="image-width" type="number" min="1" max="4096" step="1" [(ngModel)]="imageWidth" (ngModelChange)="updateDimensions('width')" />
+        <label for="image-height">Alto</label>
+        <input id="image-height" type="number" min="1" max="4096" step="1" [(ngModel)]="imageHeight" (ngModelChange)="updateDimensions('height')" />
+        <label><input type="checkbox" [(ngModel)]="keepAspectRatio" /> Conservar proporción</label>
+        <button type="button" class="tool-button" (click)="resizeImage()">Aplicar dimensiones</button>
+        <small>Máximo 4096 px por lado. Puedes deshacer los filtros y el cambio de tamaño.</small>
+      </div>
+      </fieldset>
+      @if (notice()) { <p>{{ notice() }}</p> }
+      @if (error()) { <p class="editor-error" role="alert">{{ error() }}</p> }
+    </aside>
+  </div>
+
+  <footer class="image-editor__footer">
+    <div class="zoom-controls" aria-label="Vista de la imagen">
+      <button type="button" class="tool-button tool-button--icon" aria-label="Alejar imagen" [disabled]="loading()" (click)="zoomBy(0.8)"><i class="pi pi-minus" aria-hidden="true"></i></button>
+      <output aria-live="polite">{{ zoomPercent() }}%</output>
+      <button type="button" class="tool-button tool-button--icon" aria-label="Acercar imagen" [disabled]="loading()" (click)="zoomBy(1.25)"><i class="pi pi-plus" aria-hidden="true"></i></button>
+      <button type="button" class="tool-button" [disabled]="loading()" (click)="fitImage()">Ajustar a pantalla</button>
+      <button type="button" class="tool-button" [disabled]="loading()" (click)="actualSize()">100%</button>
+    </div>
+    <div class="save-controls">
+    <button type="button" class="editor-action editor-action--secondary" [disabled]="saving()" (click)="cancelled.emit()">Cancelar</button>
+    <button type="button" class="editor-action editor-action--primary" [disabled]="loading() || saving() || working() || loadFailed()" (click)="save()">
+      @if (saving()) { <i class="pi pi-spin pi-spinner" aria-hidden="true"></i> }
+      Guardar cambios
+    </button>
+    </div>
+  </footer>
+</dialog>

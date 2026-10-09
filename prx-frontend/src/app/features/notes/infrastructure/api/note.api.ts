@@ -10,6 +10,7 @@ import { PaginatedResponseModel } from '@shared/models/paginated-response.model'
 import { CreateNoteRequest } from '@features/notes/domain/requests/create-note.request';
 import { NoteModel } from '@features/notes/domain/models/note.model';
 import { FileDownloadModel } from '@features/files/domain/models/file-download.model';
+import { UpdateNoteRequest } from '@features/notes/domain/requests/update-note.request';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +42,7 @@ export class NoteApi extends BaseFeatureApi implements NoteApiContract {
 
     formData.append('title', data.title);
     formData.append('content', data.content);
+    formData.append('links', JSON.stringify(data.links));
 
     files.forEach((file) => {
       formData.append('files', file, file.name);
@@ -50,6 +52,31 @@ export class NoteApi extends BaseFeatureApi implements NoteApiContract {
       this.buildUrl(
         NOTE_API_CONFIG.endpoints.create.replace(':repositoryId', repositoryId.toString()),
       ),
+      formData,
+    );
+  }
+
+  findById(id: number): Observable<ApiResponseModel<NoteModel>> {
+    return this.get<NoteModel>(
+      this.buildUrl(NOTE_API_CONFIG.endpoints.findById.replace(':id', id.toString())),
+    );
+  }
+
+  update(
+    id: number,
+    data: UpdateNoteRequest,
+    files: File[],
+  ): Observable<ApiResponseModel<NoteModel>> {
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('content', data.content);
+    formData.append('tasks', JSON.stringify(data.tasks));
+    formData.append('links', JSON.stringify(data.links));
+    formData.append('retainedFileIds', data.retainedFileIds.join(','));
+    files.forEach((file) => formData.append('files', file, file.name));
+
+    return this.put<NoteModel>(
+      this.buildUrl(NOTE_API_CONFIG.endpoints.update.replace(':id', id.toString())),
       formData,
     );
   }

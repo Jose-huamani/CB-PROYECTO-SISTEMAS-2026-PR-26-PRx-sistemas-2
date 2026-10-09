@@ -1,0 +1,253 @@
+:host {
+  display: block;
+  min-height: 100%;
+  background: var(--color-background);
+}
+
+.binnacle-detail {
+  width: min(64rem, calc(100% - 2rem));
+  margin: 1.5rem auto 3rem;
+}
+
+.binnacle-detail__header,
+.binnacle-detail__footer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}
+
+.binnacle-detail__header {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.binnacle-detail__heading {
+  min-width: 0;
+  flex: 1;
+}
+
+.binnacle-detail__heading span,
+.section-heading p,
+.empty-copy,
+.binnacle-meta {
+  color: var(--color-text-secondary);
+}
+
+.binnacle-detail__heading h1 {
+  overflow: hidden;
+  margin: 0.2rem 0 0;
+  font-size: 1.6rem;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.detail-section {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.detail-section > label {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-weight: 600;
+}
+
+.detail-section input[type='text'],
+.detail-section input[type='url'],
+.detail-section textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.75rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.detail-section textarea,
+.detail-section > input {
+  margin-bottom: 1rem;
+}
+
+.binnacle-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.88rem;
+}
+
+.binnacle-body {
+  margin: 1rem 0 0;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.section-heading h2,
+.section-heading p {
+  margin: 0;
+}
+
+.section-heading h2 {
+  font-size: 1.1rem;
+  letter-spacing: 0;
+}
+
+.section-heading p {
+  margin-top: 0.25rem;
+  font-size: 0.88rem;
+}
+
+.add-row,
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-row input {
+  min-width: 0;
+  flex: 1;
+}
+
+.link-list,
+.task-list {
+  display: grid;
+  gap: 0.55rem;
+  margin-top: 0.75rem;
+}
+
+.link-item {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  background: var(--color-surface-muted);
+  border-radius: 6px;
+}
+
+.link-item a:not(.icon-command) {
+  overflow: hidden;
+  color: var(--color-primary);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-item {
+  min-height: 3rem;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.task-item label {
+  min-width: 0;
+  flex: 1;
+  overflow-wrap: anywhere;
+}
+
+.task-item.is-complete label {
+  color: var(--color-text-secondary);
+  text-decoration: line-through;
+}
+
+.task-item input {
+  width: 1.1rem;
+  height: 1.1rem;
+  accent-color: var(--color-primary);
+}
+
+.icon-command,
+.command-button {
+  display: inline-flex;
+  min-height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.6rem 0.85rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.icon-command {
+  width: 2.5rem;
+  flex: 0 0 2.5rem;
+  padding: 0;
+}
+
+.icon-command--accent {
+  color: var(--color-primary);
+}
+
+.icon-command--danger {
+  color: var(--red-500);
+}
+
+.command-button--primary {
+  color: #fff;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.command-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.empty-copy {
+  margin: 0;
+  padding: 0.75rem 0;
+}
+
+.binnacle-detail__footer {
+  justify-content: flex-end;
+}
+
+.binnacle-detail__loading {
+  display: grid;
+  min-height: 20rem;
+  place-items: center;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .binnacle-detail {
+    width: calc(100% - 1.5rem);
+    margin-top: 0.5rem;
+  }
+
+  .binnacle-detail__header {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .binnacle-detail__header .command-button {
+    width: 100%;
+  }
+
+  .binnacle-detail__heading h1 {
+    font-size: 1.25rem;
+  }
+
+  .binnacle-detail__footer {
+    position: sticky;
+    bottom: 0;
+    background: var(--color-background);
+  }
+
+  .binnacle-detail__footer .command-button {
+    flex: 1;
+  }
+}

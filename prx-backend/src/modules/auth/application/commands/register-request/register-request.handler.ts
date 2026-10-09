@@ -1,71 +1,50 @@
 import { ConflictException, Inject } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-
+import { Role } from '@generated-prisma/enums';
 import { RegisterRequestCommand } from '@modules/auth/application/commands/register-request/register-request.command';
-import { VerificationCodeEntity } from '@modules/auth/domain/entities/verification-code.entity';
-import { VerificationCodeRepository } from '@modules/auth/domain/repositories/verification-code.repository';
+import { LoginCommand } from '@modules/auth/application/commands/login/login.command';
+import { LoginHandler } from '@modules/auth/application/commands/login/login.handler';
 import { BcryptService } from '@modules/auth/infrastructure/adapters/bcrypt.service';
-import { VerificationCodeService } from '@modules/auth/infrastructure/adapters/verification-code.service';
 import { UserRepository } from '@modules/users/domain/repositories/user.repository';
-
-import { AUTH_CONSTANTS } from '@shared/constants/auth.constants';
+import { UserEntity } from '@modules/users/domain/entities/user.entity';
+import { AvatarService } from '@shared/infrastructure/avatar/avatar.service';
 import { AUTH_MESSAGES } from '@modules/auth/application/constants/auth-messages.constants';
 import { USER_MESSAGES } from '@modules/users/application/constants/user-messages.constants';
-import { MailService } from '@shared/infrastructure/mail/mail.service';
-import { registerRequestTemplate } from '@shared/infrastructure/mail/templates/auth/register-request.template';
 
 @CommandHandler(RegisterRequestCommand)
 export class RegisterRequestHandler implements ICommandHandler<RegisterRequestCommand> {
   constructor(
-    @Inject(UserRepository)
-    private readonly userRepository: UserRepository,
-    @Inject(VerificationCodeRepository)
-    private readonly verificationCodeRepository: VerificationCodeRepository,
+    @Inject(UserRepository) private readonly userRepository: UserRepository,
     private readonly bcryptService: BcryptService,
-    private readonly verificationCodeService: VerificationCodeService,
-    private readonly mailService: MailService,
+    private readonly avatarService: AvatarService,
+    private readonly loginHandler: LoginHandler,
   ) {}
 
   async execute(command: RegisterRequestCommand) {
     const { email, username, password } = command.dto;
-
-    const emailExists = await this.userRepository.existsByEmail(email);
-    if (emailExists) {
+    if (await this.userRepository.existsByEmail(email)) {
       throw new ConflictException(USER_MESSAGES.EMAIL_ALREADY_EXISTS);
     }
-
-    const usernameExists = await this.userRepository.existsByUsername(username);
-    if (usernameExists) {
+    if (await this.userRepository.existsByUsername(username)) {
       throw new ConflictException(USER_MESSAGES.USERNAME_ALREADY_EXISTS);
     }
-
     const passwordHash = await this.bcryptService.hash(password);
-    const code = this.verificationCodeService.generateCode();
-    const expiresAt = this.verificationCodeService.generateExpirationDate(
-      AUTH_CONSTANTS.VERIFICATION.EXPIRES_MINUTES,
+    try {
+      await this.userRepository.createSelfRegistered(
+        new UserEntity(null, username, email, passwordHash, Role.estandar,
+          this.avatarService.getRandomAvatar(), 0),
+      );
+    } catch (error) {
+      if ((error as { code?: string }).code === 'P2002') {
+        const emailExists = await this.userRepository.existsByEmail(email);
+        throw new ConflictException(emailExists
+          ? USER_MESSAGES.EMAIL_ALREADY_EXISTS : USER_MESSAGES.USERNAME_ALREADY_EXISTS);
+      }
+      throw error;
+    }
+    const session = await this.loginHandler.execute(
+      new LoginCommand({ identifier: email, password }, command.userAgent, command.ipAddress),
     );
-
-    await this.verificationCodeRepository.invalidateByEmail(email);
-
-    await this.verificationCodeRepository.create(
-      new VerificationCodeEntity(
-        null,
-        email,
-        username,
-        passwordHash,
-        code,
-        expiresAt,
-      ),
-    );
-
-    await this.mailService.sendMail(
-      email,
-      'Código de verificación',
-      registerRequestTemplate(code),
-    );
-
-    return {
-      message: AUTH_MESSAGES.REGISTER_REQUEST_SENT,
-    };
+    return { message: AUTH_MESSAGES.REGISTER_CONFIRMED, data: session.data };
   }
 }

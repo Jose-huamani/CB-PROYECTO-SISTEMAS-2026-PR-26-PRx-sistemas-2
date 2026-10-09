@@ -1,6 +1,13 @@
 export const NOTES_MESSAGES = {
   CONFIRM_DELETE: '¿Estás seguro que deseas eliminar la nota "{title}"?',
+  CONFIRM_REMOVE_FILE: '¿Estás seguro de que deseas quitar el archivo "{name}"?',
+  CONFIRM_REMOVE_IMAGE: '¿Estás seguro de que deseas quitar la imagen "{name}"?',
+  CONFIRM_REMOVE_LINK: '¿Estás seguro de que deseas quitar este enlace?',
+  CONFIRM_REMOVE_TASK: '¿Estás seguro de que deseas eliminar la tarea "{title}"?',
+  CONFIRM_SAVE_CHANGES: '¿Deseas guardar los cambios realizados en esta nota?',
+  REQUIRED_FIELDS: 'El título y el contenido son obligatorios y no pueden contener solo espacios.',
   CREATE_SUCCESS: 'Nota creada correctamente.',
+  UPDATE_SUCCESS: 'Nota actualizada correctamente.',
   DELETE_SUCCESS: 'Nota eliminada correctamente.',
   REPOSITORY_NOT_FOUND: 'Repositorio no encontrado.',
   DOWNLOAD_LINK_ERROR: 'No se pudo obtener el enlace de descarga.',
