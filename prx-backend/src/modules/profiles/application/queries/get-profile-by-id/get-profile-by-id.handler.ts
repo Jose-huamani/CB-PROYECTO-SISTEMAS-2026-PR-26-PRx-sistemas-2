@@ -11,7 +11,7 @@ export class GetProfileByIdHandler implements IQueryHandler<GetProfileByIdQuery>
   constructor(
     @Inject(ProfileRepository)
     private readonly profileRepository: ProfileRepository,
-  ) { }
+  ) {}
 
   async execute(query: GetProfileByIdQuery) {
     const profile = await this.profileRepository.findById(query.id);

@@ -5,5 +5,5 @@ export class UpdateProfileCommand {
     public readonly id: number,
     public readonly data: UpdateProfileRequestDto,
     public readonly updatedBy: number,
-  ) { }
+  ) {}
 }

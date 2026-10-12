@@ -8,5 +8,5 @@ export class UpdateAvatarCommand {
   constructor(
     public readonly userId: number,
     public readonly file: AvatarUploadFile,
-  ) { }
+  ) {}
 }

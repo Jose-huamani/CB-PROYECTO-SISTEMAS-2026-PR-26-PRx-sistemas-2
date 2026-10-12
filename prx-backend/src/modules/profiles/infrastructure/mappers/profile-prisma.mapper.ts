@@ -72,7 +72,9 @@ export class ProfilePrismaMapper {
       profile.townId,
       profile.phoneCodeId,
       profile.isEmailVisible,
-      ProfileSocialNetworkPrismaMapper.toDomainList(profile.profileSocialNetworks ?? []),
+      ProfileSocialNetworkPrismaMapper.toDomainList(
+        profile.profileSocialNetworks ?? [],
+      ),
       TagProfilePrismaMapper.toDomainList(profile.tagProfiles ?? []),
       profile.createdBy,
       profile.country?.name ?? null,

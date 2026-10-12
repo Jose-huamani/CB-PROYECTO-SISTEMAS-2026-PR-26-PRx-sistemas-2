@@ -5,5 +5,5 @@ export class CreateProfileCommand {
     public readonly data: CreateProfileRequestDto,
     public readonly createdBy: number,
     public readonly email: string,
-  ) { }
+  ) {}
 }

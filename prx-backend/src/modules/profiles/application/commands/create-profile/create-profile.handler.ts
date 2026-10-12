@@ -20,7 +20,7 @@ export class CreateProfileHandler implements ICommandHandler<CreateProfileComman
     @Inject(TownRepository)
     private readonly townRepository: TownRepository,
     private readonly commandBus: CommandBus,
-  ) { }
+  ) {}
 
   async execute(command: CreateProfileCommand) {
     const existing = await this.profileRepository.findByUserId(
@@ -87,7 +87,9 @@ export class CreateProfileHandler implements ICommandHandler<CreateProfileComman
 
     return {
       message: PROFILE_MESSAGES.CREATED,
-      data: ProfileResponseMapper.toProfileResponse(refreshedProfile ?? created),
+      data: ProfileResponseMapper.toProfileResponse(
+        refreshedProfile ?? created,
+      ),
     };
   }
 }

@@ -9,18 +9,19 @@ import { SocialNetworkPrismaMapper } from '@modules/social-networks/infrastructu
 
 @Injectable()
 export class PrismaSocialNetworkRepository
-    extends BasePrismaRepository
-    implements SocialNetworkRepository {
-    constructor(prisma: PrismaService) {
-        super(prisma);
-    }
+  extends BasePrismaRepository
+  implements SocialNetworkRepository
+{
+  constructor(prisma: PrismaService) {
+    super(prisma);
+  }
 
-    async findAll(): Promise<SocialNetworkEntity[]> {
-        const socialNetworks = await this.prisma.socialNetwork.findMany({
-            where: { status: 1 },
-            orderBy: { name: 'asc' },
-        });
+  async findAll(): Promise<SocialNetworkEntity[]> {
+    const socialNetworks = await this.prisma.socialNetwork.findMany({
+      where: { status: 1 },
+      orderBy: { name: 'asc' },
+    });
 
-        return SocialNetworkPrismaMapper.toDomainList(socialNetworks as any);
-    }
+    return SocialNetworkPrismaMapper.toDomainList(socialNetworks as any);
+  }
 }

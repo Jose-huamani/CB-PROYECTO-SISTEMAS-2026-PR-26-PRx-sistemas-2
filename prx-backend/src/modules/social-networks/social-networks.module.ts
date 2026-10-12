@@ -7,14 +7,14 @@ import { SocialNetworkRepository } from '@modules/social-networks/domain/reposit
 import { PrismaSocialNetworkRepository } from '@modules/social-networks/infrastructure/persistence/prisma-social-network.repository';
 
 @Module({
-    imports: [CqrsModule],
-    controllers: [SocialNetworksController],
-    providers: [
-        GetSocialNetworksHandler,
-        {
-            provide: SocialNetworkRepository,
-            useClass: PrismaSocialNetworkRepository,
-        },
-    ],
+  imports: [CqrsModule],
+  controllers: [SocialNetworksController],
+  providers: [
+    GetSocialNetworksHandler,
+    {
+      provide: SocialNetworkRepository,
+      useClass: PrismaSocialNetworkRepository,
+    },
+  ],
 })
-export class SocialNetworksModule { }
+export class SocialNetworksModule {}

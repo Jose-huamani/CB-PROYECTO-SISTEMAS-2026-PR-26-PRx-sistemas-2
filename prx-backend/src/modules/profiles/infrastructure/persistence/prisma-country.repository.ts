@@ -8,7 +8,8 @@ import { CountryModel } from '@generated-prisma/models/Country';
 @Injectable()
 export class PrismaCountryRepository
   extends BasePrismaRepository
-  implements CountryRepository {
+  implements CountryRepository
+{
   constructor(prisma: PrismaService) {
     super(prisma);
   }

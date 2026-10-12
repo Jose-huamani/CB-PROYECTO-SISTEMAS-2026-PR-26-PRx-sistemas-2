@@ -37,7 +37,10 @@ export class RegisterRequestDto {
   @Slugify()
   username!: string;
 
-  @ApiProperty({ description: 'Contraseña configurada por el usuario', writeOnly: true })
+  @ApiProperty({
+    description: 'Contraseña configurada por el usuario',
+    writeOnly: true,
+  })
   @IsNotEmpty({ message: 'La contraseña es obligatoria' })
   @IsString({ message: 'La contraseña debe ser un texto' })
   @MinLength(8, {

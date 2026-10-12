@@ -13,57 +13,59 @@ const CO_OWNER_ROLE_NAME = 'copropietario';
 
 @CommandHandler(DeleteNoteCommand)
 export class DeleteNoteHandler implements ICommandHandler<DeleteNoteCommand> {
-    constructor(
-        @Inject(NoteRepository)
-        private readonly noteRepository: NoteRepository,
-        @Inject(RepositoryRepository)
-        private readonly repositoryRepository: RepositoryRepository,
-        @Inject(RepositoryUserRepository)
-        private readonly repositoryUserRepository: RepositoryUserRepository,
-    ) { }
+  constructor(
+    @Inject(NoteRepository)
+    private readonly noteRepository: NoteRepository,
+    @Inject(RepositoryRepository)
+    private readonly repositoryRepository: RepositoryRepository,
+    @Inject(RepositoryUserRepository)
+    private readonly repositoryUserRepository: RepositoryUserRepository,
+  ) {}
 
-    async execute(command: DeleteNoteCommand) {
-        const note = await this.noteRepository.findById(command.id);
+  async execute(command: DeleteNoteCommand) {
+    const note = await this.noteRepository.findById(command.id);
 
-        if (!note) {
-            throw new NotFoundException(NOTE_MESSAGES.NOT_FOUND);
-        }
+    if (!note) {
+      throw new NotFoundException(NOTE_MESSAGES.NOT_FOUND);
+    }
 
-        const repository = await this.repositoryRepository.findById(
-            note.repositoryId,
+    const repository = await this.repositoryRepository.findById(
+      note.repositoryId,
+    );
+
+    if (!repository) {
+      throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
+    }
+
+    const isOwner = repository.ownerUserId === command.userId;
+    const isIntimate = repository.visibility === RepositoryVisibility.intimo;
+
+    if (isIntimate && !isOwner) {
+      throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
+    }
+
+    const isCreator = note.createdBy === command.userId;
+
+    if (!isOwner && !isCreator) {
+      const repositoryUser =
+        await this.repositoryUserRepository.findByRepositoryIdAndUserId(
+          repository.id!,
+          command.userId,
         );
 
-        if (!repository) {
-            throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
-        }
+      const isCoOwner =
+        repositoryUser?.repositoryRole?.name === CO_OWNER_ROLE_NAME;
 
-        const isOwner = repository.ownerUserId === command.userId;
-        const isIntimate = repository.visibility === RepositoryVisibility.intimo;
-
-        if (isIntimate && !isOwner) {
-            throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
-        }
-
-        const isCreator = note.createdBy === command.userId;
-
-        if (!isOwner && !isCreator) {
-            const repositoryUser = await this.repositoryUserRepository.findByRepositoryIdAndUserId(
-                repository.id!,
-                command.userId,
-            );
-
-            const isCoOwner = repositoryUser?.repositoryRole?.name === CO_OWNER_ROLE_NAME;
-
-            if (!isCoOwner) {
-                throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
-            }
-        }
-
-        await this.noteRepository.softDelete(command.id, command.userId);
-        await this.repositoryRepository.markAsUpdated(note.repositoryId);
-
-        return {
-            message: NOTE_MESSAGES.DELETED,
-        };
+      if (!isCoOwner) {
+        throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
+      }
     }
+
+    await this.noteRepository.softDelete(command.id, command.userId);
+    await this.repositoryRepository.markAsUpdated(note.repositoryId);
+
+    return {
+      message: NOTE_MESSAGES.DELETED,
+    };
+  }
 }

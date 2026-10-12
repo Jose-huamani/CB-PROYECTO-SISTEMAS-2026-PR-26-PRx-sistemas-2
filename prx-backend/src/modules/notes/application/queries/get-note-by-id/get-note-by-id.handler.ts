@@ -12,59 +12,60 @@ import { NoteResponseMapper } from '@modules/notes/application/mappers/note-resp
 
 @QueryHandler(GetNoteByIdQuery)
 export class GetNoteByIdHandler implements IQueryHandler<GetNoteByIdQuery> {
-    constructor(
-        @Inject(NoteRepository)
-        private readonly noteRepository: NoteRepository,
-        @Inject(RepositoryRepository)
-        private readonly repositoryRepository: RepositoryRepository,
-        @Inject(RepositoryUserRepository)
-        private readonly repositoryUserRepository: RepositoryUserRepository,
-    ) { }
+  constructor(
+    @Inject(NoteRepository)
+    private readonly noteRepository: NoteRepository,
+    @Inject(RepositoryRepository)
+    private readonly repositoryRepository: RepositoryRepository,
+    @Inject(RepositoryUserRepository)
+    private readonly repositoryUserRepository: RepositoryUserRepository,
+  ) {}
 
-    async execute(query: GetNoteByIdQuery) {
-        const note = await this.noteRepository.findById(query.id);
+  async execute(query: GetNoteByIdQuery) {
+    const note = await this.noteRepository.findById(query.id);
 
-        if (!note) {
-            throw new NotFoundException(NOTE_MESSAGES.NOT_FOUND);
-        }
-
-        const repository = await this.repositoryRepository.findById(
-            note.repositoryId,
-        );
-
-        if (!repository) {
-            throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
-        }
-
-        const isPublic = repository.visibility === RepositoryVisibility.publico;
-        const isPrivate = repository.visibility === RepositoryVisibility.privado;
-        const isIntimate = repository.visibility === RepositoryVisibility.intimo;
-        const isOwner = repository.ownerUserId === query.userId;
-
-        let canRead = false;
-
-        if (isPublic) {
-            canRead = true;
-        }
-
-        if (isPrivate) {
-            const repoUser = await this.repositoryUserRepository.findByRepositoryIdAndUserId(
-                repository.id!,
-                query.userId,
-            );
-            canRead = isOwner || !!repoUser;
-        }
-
-        if (isIntimate) {
-            canRead = isOwner;
-        }
-
-        if (!canRead) {
-            throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
-        }
-
-        return {
-            data: NoteResponseMapper.toNoteResponse(note),
-        };
+    if (!note) {
+      throw new NotFoundException(NOTE_MESSAGES.NOT_FOUND);
     }
+
+    const repository = await this.repositoryRepository.findById(
+      note.repositoryId,
+    );
+
+    if (!repository) {
+      throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
+    }
+
+    const isPublic = repository.visibility === RepositoryVisibility.publico;
+    const isPrivate = repository.visibility === RepositoryVisibility.privado;
+    const isIntimate = repository.visibility === RepositoryVisibility.intimo;
+    const isOwner = repository.ownerUserId === query.userId;
+
+    let canRead = false;
+
+    if (isPublic) {
+      canRead = true;
+    }
+
+    if (isPrivate) {
+      const repoUser =
+        await this.repositoryUserRepository.findByRepositoryIdAndUserId(
+          repository.id!,
+          query.userId,
+        );
+      canRead = isOwner || !!repoUser;
+    }
+
+    if (isIntimate) {
+      canRead = isOwner;
+    }
+
+    if (!canRead) {
+      throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
+    }
+
+    return {
+      data: NoteResponseMapper.toNoteResponse(note),
+    };
+  }
 }
