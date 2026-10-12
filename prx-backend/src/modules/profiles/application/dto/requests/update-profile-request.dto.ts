@@ -65,7 +65,9 @@ export class UpdateProfileRequestDto {
       `El teléfono no puede superar los ${constraints[0]} caracteres`,
   })
   @NormalizeSpaces()
-  @Matches(/^[0-9+\s]+$/, { message: 'El teléfono sólo puede contener números, espacios y +' })
+  @Matches(/^[0-9+\s]+$/, {
+    message: 'El teléfono sólo puede contener números, espacios y +',
+  })
   phoneNumber?: string | null;
 
   @ApiProperty({ example: 'https://example.com/avatar.jpg', required: false })
@@ -87,7 +89,9 @@ export class UpdateProfileRequestDto {
       `La región no puede superar los ${constraints[0]} caracteres`,
   })
   @NormalizeSpaces()
-  @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, { message: 'La región sólo puede contener letras y espacios' })
+  @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, {
+    message: 'La región sólo puede contener letras y espacios',
+  })
   regionName?: string | null;
 
   @ApiProperty({ example: 'Cercado', required: false })
@@ -98,7 +102,9 @@ export class UpdateProfileRequestDto {
       `La ciudad no puede superar los ${constraints[0]} caracteres`,
   })
   @NormalizeSpaces()
-  @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, { message: 'La ciudad sólo puede contener letras y espacios' })
+  @Matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ\s]+$/, {
+    message: 'La ciudad sólo puede contener letras y espacios',
+  })
   townName?: string | null;
 
   @ApiProperty({ example: 1, required: false })

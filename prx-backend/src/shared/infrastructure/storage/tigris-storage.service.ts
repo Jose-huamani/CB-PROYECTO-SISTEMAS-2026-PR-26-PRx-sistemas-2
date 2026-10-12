@@ -120,13 +120,18 @@ export class TigrisStorageService {
 
     const relativePath = relative(this.localRoot, localPath);
     if (relativePath.startsWith('..') || isAbsolute(relativePath)) {
-      throw new InternalServerErrorException('Ruta de almacenamiento local no válida');
+      throw new InternalServerErrorException(
+        'Ruta de almacenamiento local no válida',
+      );
     }
 
     return localPath;
   }
 
-  private async writeLocalObject(storagePath: string, body: Buffer): Promise<void> {
+  private async writeLocalObject(
+    storagePath: string,
+    body: Buffer,
+  ): Promise<void> {
     const localPath = this.getLocalPath(storagePath);
     await mkdir(resolve(localPath, '..'), { recursive: true });
     await writeFile(localPath, body);

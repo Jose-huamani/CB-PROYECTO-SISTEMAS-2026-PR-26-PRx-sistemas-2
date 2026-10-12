@@ -9,18 +9,21 @@ const DEFAULT_LIMIT = 10;
 
 @QueryHandler(GetTagsQuery)
 export class GetTagsHandler implements IQueryHandler<GetTagsQuery> {
-    constructor(
-        @Inject(TagProfileRepository)
-        private readonly tagProfileRepository: TagProfileRepository,
-    ) { }
+  constructor(
+    @Inject(TagProfileRepository)
+    private readonly tagProfileRepository: TagProfileRepository,
+  ) {}
 
-    async execute(query: GetTagsQuery) {
-        const { search, limit } = query.dto;
+  async execute(query: GetTagsQuery) {
+    const { search, limit } = query.dto;
 
-        const tags = await this.tagProfileRepository.search(search, limit ?? DEFAULT_LIMIT);
+    const tags = await this.tagProfileRepository.search(
+      search,
+      limit ?? DEFAULT_LIMIT,
+    );
 
-        return {
-            data: TagResponseMapper.toTagResponseList(tags),
-        };
-    }
+    return {
+      data: TagResponseMapper.toTagResponseList(tags),
+    };
+  }
 }

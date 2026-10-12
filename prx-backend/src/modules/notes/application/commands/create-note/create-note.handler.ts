@@ -1,10 +1,18 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { BadRequestException, ForbiddenException, Inject, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  NotFoundException,
+} from '@nestjs/common';
 import { RepositoryVisibility } from '@generated-prisma/enums';
 
 import { CreateNoteCommand } from '@modules/notes/application/commands/create-note/create-note.command';
 import { NoteRepository } from '@modules/notes/domain/repositories/note.repository';
-import { NoteEntity, NoteLink } from '@modules/notes/domain/entities/note.entity';
+import {
+  NoteEntity,
+  NoteLink,
+} from '@modules/notes/domain/entities/note.entity';
 import { NoteResponseMapper } from '@modules/notes/application/mappers/note-response.mapper';
 import { NOTE_MESSAGES } from '@modules/notes/application/constants/note-messages.constants';
 import { RepositoryRepository } from '@modules/repositories/domain/repositories/repository.repository';
@@ -14,111 +22,118 @@ import { NoteMediaStorageService } from '@modules/notes/application/services/not
 
 @CommandHandler(CreateNoteCommand)
 export class CreateNoteHandler implements ICommandHandler<CreateNoteCommand> {
-    constructor(
-        @Inject(NoteRepository)
-        private readonly noteRepository: NoteRepository,
-        @Inject(RepositoryRepository)
-        private readonly repositoryRepository: RepositoryRepository,
-        @Inject(RepositoryUserRepository)
-        private readonly repositoryUserRepository: RepositoryUserRepository,
-        private readonly mediaStorage: NoteMediaStorageService,
-    ) { }
+  constructor(
+    @Inject(NoteRepository)
+    private readonly noteRepository: NoteRepository,
+    @Inject(RepositoryRepository)
+    private readonly repositoryRepository: RepositoryRepository,
+    @Inject(RepositoryUserRepository)
+    private readonly repositoryUserRepository: RepositoryUserRepository,
+    private readonly mediaStorage: NoteMediaStorageService,
+  ) {}
 
-    async execute(command: CreateNoteCommand) {
-        const repository = await this.repositoryRepository.findById(
-            command.repositoryId,
+  async execute(command: CreateNoteCommand) {
+    const repository = await this.repositoryRepository.findById(
+      command.repositoryId,
+    );
+
+    if (!repository) {
+      throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
+    }
+
+    // For intimate repositories, only owner can create notes
+    const isIntimate = repository.visibility === RepositoryVisibility.intimo;
+
+    if (isIntimate) {
+      if (repository.ownerUserId !== command.createdBy) {
+        throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
+      }
+    } else {
+      // For non-intimate repos, user must be registered in repositoryUsers
+      const repoUser =
+        await this.repositoryUserRepository.findByRepositoryIdAndUserId(
+          command.repositoryId,
+          command.createdBy,
         );
 
-        if (!repository) {
-            throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
-        }
+      if (!repoUser && repository.ownerUserId !== command.createdBy) {
+        throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
+      }
+    }
 
-        // For intimate repositories, only owner can create notes
-        const isIntimate = repository.visibility === RepositoryVisibility.intimo;
+    const title = command.dto.title.trim();
+    const content = command.dto.content.trim();
+    const duplicate =
+      await this.noteRepository.findActiveByRepositoryIdAndTitle(
+        command.repositoryId,
+        title,
+      );
 
-        if (isIntimate) {
-            if (repository.ownerUserId !== command.createdBy) {
-                throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
-            }
-        } else {
-            // For non-intimate repos, user must be registered in repositoryUsers
-            const repoUser = await this.repositoryUserRepository.findByRepositoryIdAndUserId(
-                command.repositoryId,
-                command.createdBy,
-            );
+    if (duplicate) {
+      throw new BadRequestException(NOTE_MESSAGES.DUPLICATE_TITLE);
+    }
 
-            if (!repoUser && repository.ownerUserId !== command.createdBy) {
-                throw new ForbiddenException(NOTE_MESSAGES.FORBIDDEN);
-            }
-        }
+    const links = this.parseLinks(command.dto.links);
 
-        const title = command.dto.title.trim();
-        const content = command.dto.content.trim();
-        const duplicate = await this.noteRepository.findActiveByRepositoryIdAndTitle(
-            command.repositoryId,
-            title,
-        );
+    const note = new NoteEntity(
+      null,
+      command.repositoryId,
+      title,
+      content,
+      command.createdBy,
+      [],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      [],
+      links,
+    );
 
-        if (duplicate) {
-            throw new BadRequestException(NOTE_MESSAGES.DUPLICATE_TITLE);
-        }
+    const uploaded = await this.mediaStorage.upload(
+      command.files ?? [],
+      command.repositoryId,
+      command.createdBy,
+    );
+    let created: NoteEntity;
+    try {
+      created = await this.noteRepository.createWithFiles(note, uploaded);
+    } catch (error) {
+      await this.mediaStorage.remove(uploaded.map((file) => file.storagePath));
+      throw error;
+    }
+    return {
+      message: NOTE_MESSAGES.CREATED,
+      data: NoteResponseMapper.toNoteResponse(created),
+    };
+  }
 
-        const links = this.parseLinks(command.dto.links);
+  private parseLinks(raw?: string): NoteLink[] {
+    if (!raw) {
+      return [];
+    }
 
-        const note = new NoteEntity(
-            null,
-            command.repositoryId,
-            title,
-            content,
-            command.createdBy,
-            [],
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            [],
-            links,
-        );
+    try {
+      const links = JSON.parse(raw) as unknown;
+      if (!Array.isArray(links) || links.length > 50) throw new Error();
 
-        const uploaded = await this.mediaStorage.upload(command.files ?? [], command.repositoryId, command.createdBy);
-        let created: NoteEntity;
-        try {
-            created = await this.noteRepository.createWithFiles(note, uploaded);
-        } catch (error) {
-            await this.mediaStorage.remove(uploaded.map((file) => file.storagePath));
-            throw error;
-        }
+      return links.map((link) => {
+        const value = link as Partial<NoteLink>;
+        if (!value.id || typeof value.url !== 'string') throw new Error();
+        const url = value.url.trim();
+        if (!url || url.length > 2048) throw new Error();
+        const parsedUrl = new URL(url);
+        if (!['http:', 'https:'].includes(parsedUrl.protocol))
+          throw new Error();
+
         return {
-            message: NOTE_MESSAGES.CREATED,
-            data: NoteResponseMapper.toNoteResponse(created),
+          id: String(value.id),
+          url,
         };
+      });
+    } catch {
+      throw new BadRequestException('La lista de enlaces no es válida');
     }
-
-    private parseLinks(raw?: string): NoteLink[] {
-        if (!raw) {
-            return [];
-        }
-
-        try {
-            const links = JSON.parse(raw) as unknown;
-            if (!Array.isArray(links) || links.length > 50) throw new Error();
-
-            return links.map((link) => {
-                const value = link as Partial<NoteLink>;
-                if (!value.id || typeof value.url !== 'string') throw new Error();
-                const url = value.url.trim();
-                if (!url || url.length > 2048) throw new Error();
-                const parsedUrl = new URL(url);
-                if (!['http:', 'https:'].includes(parsedUrl.protocol)) throw new Error();
-
-                return {
-                    id: String(value.id),
-                    url,
-                };
-            });
-        } catch {
-            throw new BadRequestException('La lista de enlaces no es válida');
-        }
-    }
+  }
 }

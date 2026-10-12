@@ -13,7 +13,9 @@ type ProfileSocialNetworkModel = {
 };
 
 export class ProfileSocialNetworkPrismaMapper {
-  static toDomain(profileSocialNetwork: ProfileSocialNetworkModel): ProfileSocialNetworkEntity {
+  static toDomain(
+    profileSocialNetwork: ProfileSocialNetworkModel,
+  ): ProfileSocialNetworkEntity {
     return new ProfileSocialNetworkEntity(
       profileSocialNetwork.id,
       profileSocialNetwork.profileId,
@@ -26,6 +28,8 @@ export class ProfileSocialNetworkPrismaMapper {
   static toDomainList(
     profileSocialNetworks: ProfileSocialNetworkModel[],
   ): ProfileSocialNetworkEntity[] {
-    return profileSocialNetworks.map((profileSocialNetwork) => this.toDomain(profileSocialNetwork));
+    return profileSocialNetworks.map((profileSocialNetwork) =>
+      this.toDomain(profileSocialNetwork),
+    );
   }
 }

@@ -7,16 +7,18 @@ import { GetSocialNetworksQuery } from './get-social-networks.query';
 
 @QueryHandler(GetSocialNetworksQuery)
 export class GetSocialNetworksHandler implements IQueryHandler<GetSocialNetworksQuery> {
-    constructor(
-        @Inject(SocialNetworkRepository)
-        private readonly socialNetworkRepository: SocialNetworkRepository,
-    ) { }
+  constructor(
+    @Inject(SocialNetworkRepository)
+    private readonly socialNetworkRepository: SocialNetworkRepository,
+  ) {}
 
-    async execute() {
-        const socialNetworks = await this.socialNetworkRepository.findAll();
+  async execute() {
+    const socialNetworks = await this.socialNetworkRepository.findAll();
 
-        return {
-            data: SocialNetworkResponseMapper.toSocialNetworkResponseList(socialNetworks),
-        };
-    }
+    return {
+      data: SocialNetworkResponseMapper.toSocialNetworkResponseList(
+        socialNetworks,
+      ),
+    };
+  }
 }

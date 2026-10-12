@@ -20,7 +20,7 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
     @Inject(TownRepository)
     private readonly townRepository: TownRepository,
     private readonly commandBus: CommandBus,
-  ) { }
+  ) {}
 
   async execute(command: UpdateProfileCommand) {
     const profile = await this.profileRepository.findById(command.id);
@@ -57,7 +57,10 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
     delete updateData.regionName;
     delete updateData.townName;
 
-    const updatedProfile = await this.profileRepository.update(command.id, updateData);
+    const updatedProfile = await this.profileRepository.update(
+      command.id,
+      updateData,
+    );
 
     if (tags !== undefined) {
       await this.commandBus.execute(
@@ -69,7 +72,9 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
 
     return {
       message: PROFILE_MESSAGES.UPDATED,
-      data: ProfileResponseMapper.toProfileResponse(refreshedProfile ?? updatedProfile),
+      data: ProfileResponseMapper.toProfileResponse(
+        refreshedProfile ?? updatedProfile,
+      ),
     };
   }
 }

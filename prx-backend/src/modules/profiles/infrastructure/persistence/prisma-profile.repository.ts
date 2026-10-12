@@ -12,7 +12,8 @@ import { PrismaService } from '@shared/infrastructure/prisma/prisma.service';
 @Injectable()
 export class PrismaProfileRepository
   extends BasePrismaRepository
-  implements ProfileRepository {
+  implements ProfileRepository
+{
   constructor(prisma: PrismaService) {
     super(prisma);
   }
@@ -33,7 +34,9 @@ export class PrismaProfileRepository
         });
         const existingIds = new Set(existing.map((e) => e.id));
         const before = socialNetworks.length;
-        socialNetworks = socialNetworks.filter((s) => existingIds.has(s.socialNetworkId));
+        socialNetworks = socialNetworks.filter((s) =>
+          existingIds.has(s.socialNetworkId),
+        );
         const after = socialNetworks.length;
         if (after !== before) {
         }
@@ -55,8 +58,8 @@ export class PrismaProfileRepository
           createdBy: profile.createdBy,
           profileSocialNetworks: socialNetworks.length
             ? {
-              create: socialNetworks,
-            }
+                create: socialNetworks,
+              }
             : undefined,
         },
         include: {
@@ -202,7 +205,9 @@ export class PrismaProfileRepository
             select: { id: true },
           });
           const existingIds = new Set(existing.map((e) => e.id));
-          const filtered = data.socialNetworks.filter((s) => existingIds.has(s.socialNetworkId));
+          const filtered = data.socialNetworks.filter((s) =>
+            existingIds.has(s.socialNetworkId),
+          );
           if (filtered.length > 0) {
             await tx.profileSocialNetwork.createMany({
               data: filtered.map((socialNetwork) => ({
@@ -215,8 +220,6 @@ export class PrismaProfileRepository
           }
         }
       }
-
-
 
       const profile = await tx.profile.findFirst({
         where: {

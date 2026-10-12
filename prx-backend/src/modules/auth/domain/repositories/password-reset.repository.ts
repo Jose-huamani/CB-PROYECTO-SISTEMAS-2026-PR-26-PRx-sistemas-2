@@ -2,7 +2,7 @@ import { PasswordResetEntity } from '@modules/auth/domain/entities/password-rese
 
 export abstract class PasswordResetRepository {
   abstract create(entity: PasswordResetEntity): Promise<PasswordResetEntity>;
-  
+
   abstract findValidByEmailAndCode(
     email: string,
     code: string,

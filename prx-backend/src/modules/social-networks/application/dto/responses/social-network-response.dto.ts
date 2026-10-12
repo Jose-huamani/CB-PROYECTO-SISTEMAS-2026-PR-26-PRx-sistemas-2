@@ -1,6 +1,6 @@
 export class SocialNetworkResponseDto {
-    id!: number;
-    name!: string;
-    baseUrl!: string;
-    icon!: string;
+  id!: number;
+  name!: string;
+  baseUrl!: string;
+  icon!: string;
 }

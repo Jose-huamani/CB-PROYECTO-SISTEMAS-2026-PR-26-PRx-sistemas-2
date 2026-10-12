@@ -9,7 +9,8 @@ import { RegionEntity } from '@modules/profiles/domain/entities/region.entity';
 @Injectable()
 export class PrismaRegionRepository
   extends BasePrismaRepository
-  implements RegionRepository {
+  implements RegionRepository
+{
   constructor(prisma: PrismaService) {
     super(prisma);
   }
@@ -17,7 +18,9 @@ export class PrismaRegionRepository
   async findOrCreateByName(name: string): Promise<RegionEntity> {
     const upperName = name?.toUpperCase();
 
-    const existing = await this.prisma.region.findFirst({ where: { name: upperName } });
+    const existing = await this.prisma.region.findFirst({
+      where: { name: upperName },
+    });
 
     if (existing) {
       if (existing.status === 1) {
@@ -32,7 +35,9 @@ export class PrismaRegionRepository
       return RegionPrismaMapper.toDomain(updated);
     }
 
-    const created = await this.prisma.region.create({ data: { name: upperName, status: 1 } });
+    const created = await this.prisma.region.create({
+      data: { name: upperName, status: 1 },
+    });
 
     return RegionPrismaMapper.toDomain(created);
   }

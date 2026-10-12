@@ -23,9 +23,7 @@ export class GetMeNotificationsHandler implements IQueryHandler<GetMeNotificatio
     );
 
     return {
-      data: NotificationResponseMapper.toPaginatedResponse(
-        notifications,
-      ),
+      data: NotificationResponseMapper.toPaginatedResponse(notifications),
     };
   }
 }

@@ -31,19 +31,33 @@ export class RegisterRequestHandler implements ICommandHandler<RegisterRequestCo
     const passwordHash = await this.bcryptService.hash(password);
     try {
       await this.userRepository.createSelfRegistered(
-        new UserEntity(null, username, email, passwordHash, Role.estandar,
-          this.avatarService.getRandomAvatar(), 0),
+        new UserEntity(
+          null,
+          username,
+          email,
+          passwordHash,
+          Role.estandar,
+          this.avatarService.getRandomAvatar(),
+          0,
+        ),
       );
     } catch (error) {
       if ((error as { code?: string }).code === 'P2002') {
         const emailExists = await this.userRepository.existsByEmail(email);
-        throw new ConflictException(emailExists
-          ? USER_MESSAGES.EMAIL_ALREADY_EXISTS : USER_MESSAGES.USERNAME_ALREADY_EXISTS);
+        throw new ConflictException(
+          emailExists
+            ? USER_MESSAGES.EMAIL_ALREADY_EXISTS
+            : USER_MESSAGES.USERNAME_ALREADY_EXISTS,
+        );
       }
       throw error;
     }
     const session = await this.loginHandler.execute(
-      new LoginCommand({ identifier: email, password }, command.userAgent, command.ipAddress),
+      new LoginCommand(
+        { identifier: email, password },
+        command.userAgent,
+        command.ipAddress,
+      ),
     );
     return { message: AUTH_MESSAGES.REGISTER_CONFIRMED, data: session.data };
   }

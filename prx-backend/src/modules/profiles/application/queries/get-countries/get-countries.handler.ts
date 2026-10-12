@@ -10,7 +10,7 @@ export class GetCountriesHandler implements IQueryHandler<GetCountriesQuery> {
   constructor(
     @Inject(CountryRepository)
     private readonly countryRepository: CountryRepository,
-  ) { }
+  ) {}
 
   async execute() {
     const countries = await this.countryRepository.findAll();
