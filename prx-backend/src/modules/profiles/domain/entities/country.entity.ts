@@ -4,5 +4,5 @@ export class CountryEntity {
     public readonly name: string,
     public readonly status: number,
     public readonly phoneCode?: string | null,
-  ) { }
+  ) {}
 }

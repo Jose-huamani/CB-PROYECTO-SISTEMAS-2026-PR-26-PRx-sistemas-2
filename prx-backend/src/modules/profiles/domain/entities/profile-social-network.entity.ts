@@ -5,5 +5,5 @@ export class ProfileSocialNetworkEntity {
     public readonly socialNetworkId: number,
     public readonly username: string,
     public readonly status: number,
-  ) { }
+  ) {}
 }

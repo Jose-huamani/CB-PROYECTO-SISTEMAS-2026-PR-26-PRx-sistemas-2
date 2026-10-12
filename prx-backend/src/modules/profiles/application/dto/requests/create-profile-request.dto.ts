@@ -66,7 +66,9 @@ export class CreateProfileRequestDto {
       `El teléfono no puede superar los ${constraints[0]} caracteres`,
   })
   @NormalizeSpaces()
-  @Matches(/^[0-9+\s]+$/, { message: 'El teléfono sólo puede contener números, espacios y +' })
+  @Matches(/^[0-9+\s]+$/, {
+    message: 'El teléfono sólo puede contener números, espacios y +',
+  })
   phoneNumber?: string | null;
 
   @ApiProperty({ example: 1 })

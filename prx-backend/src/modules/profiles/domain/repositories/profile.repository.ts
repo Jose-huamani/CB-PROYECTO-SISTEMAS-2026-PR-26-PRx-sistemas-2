@@ -5,7 +5,10 @@ type Mutable<T> = {
   -readonly [P in keyof T]: T[P];
 };
 
-export type ProfileUpdateInput = Omit<Partial<Mutable<ProfileEntity>>, 'socialNetworks'> & {
+export type ProfileUpdateInput = Omit<
+  Partial<Mutable<ProfileEntity>>,
+  'socialNetworks'
+> & {
   socialNetworks?: Array<{
     socialNetworkId: number;
     username: string;

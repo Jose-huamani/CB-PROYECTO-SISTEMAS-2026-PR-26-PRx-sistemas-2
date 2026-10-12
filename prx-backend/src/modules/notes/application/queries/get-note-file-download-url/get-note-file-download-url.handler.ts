@@ -12,71 +12,70 @@ import { RepositoryRepository } from '@modules/repositories/domain/repositories/
 import { TigrisStorageService } from '@shared/infrastructure/storage/tigris-storage.service';
 
 @QueryHandler(GetNoteFileDownloadUrlQuery)
-export class GetNoteFileDownloadUrlHandler
-    implements IQueryHandler<GetNoteFileDownloadUrlQuery> {
-    constructor(
-        @Inject(NoteFileRepository)
-        private readonly noteFileRepository: NoteFileRepository,
-        @Inject(NoteRepository)
-        private readonly noteRepository: NoteRepository,
-        @Inject(RepositoryRepository)
-        private readonly repositoryRepository: RepositoryRepository,
-        @Inject(RepositoryUserRepository)
-        private readonly repositoryUserRepository: RepositoryUserRepository,
-        private readonly tigrisStorageService: TigrisStorageService,
-    ) { }
+export class GetNoteFileDownloadUrlHandler implements IQueryHandler<GetNoteFileDownloadUrlQuery> {
+  constructor(
+    @Inject(NoteFileRepository)
+    private readonly noteFileRepository: NoteFileRepository,
+    @Inject(NoteRepository)
+    private readonly noteRepository: NoteRepository,
+    @Inject(RepositoryRepository)
+    private readonly repositoryRepository: RepositoryRepository,
+    @Inject(RepositoryUserRepository)
+    private readonly repositoryUserRepository: RepositoryUserRepository,
+    private readonly tigrisStorageService: TigrisStorageService,
+  ) {}
 
-    async execute(query: GetNoteFileDownloadUrlQuery) {
-        const { fileId, userId } = query;
+  async execute(query: GetNoteFileDownloadUrlQuery) {
+    const { fileId, userId } = query;
 
-        const noteFile = await this.noteFileRepository.findById(fileId);
+    const noteFile = await this.noteFileRepository.findById(fileId);
 
-        if (!noteFile) {
-            throw new NotFoundException(NOTE_FILE_MESSAGES.NOT_FOUND);
-        }
-
-        const note = await this.noteRepository.findById(noteFile.noteId);
-
-        if (!note) {
-            throw new NotFoundException(NOTE_FILE_MESSAGES.NOTE_NOT_FOUND);
-        }
-
-        const repository = await this.repositoryRepository.findById(
-            note.repositoryId,
-        );
-
-        if (!repository) {
-            throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
-        }
-
-        const isOwner = repository.ownerUserId === userId;
-
-        if (repository.visibility === RepositoryVisibility.intimo && !isOwner) {
-            throw new ForbiddenException(NOTE_FILE_MESSAGES.DOWNLOAD_FORBIDDEN);
-        }
-
-        if (repository.visibility === RepositoryVisibility.privado && !isOwner) {
-            const repositoryUser =
-                await this.repositoryUserRepository.findByRepositoryIdAndUserId(
-                    repository.id as number,
-                    userId,
-                );
-
-            if (!repositoryUser) {
-                throw new ForbiddenException(NOTE_FILE_MESSAGES.DOWNLOAD_FORBIDDEN);
-            }
-        }
-
-        const url = await this.tigrisStorageService.getReadUrl(
-            noteFile.storagePath,
-            false,
-        );
-
-        return {
-            data: {
-                url,
-                fileName: noteFile.name,
-            },
-        };
+    if (!noteFile) {
+      throw new NotFoundException(NOTE_FILE_MESSAGES.NOT_FOUND);
     }
+
+    const note = await this.noteRepository.findById(noteFile.noteId);
+
+    if (!note) {
+      throw new NotFoundException(NOTE_FILE_MESSAGES.NOTE_NOT_FOUND);
+    }
+
+    const repository = await this.repositoryRepository.findById(
+      note.repositoryId,
+    );
+
+    if (!repository) {
+      throw new NotFoundException(REPOSITORY_MESSAGES.NOT_FOUND);
+    }
+
+    const isOwner = repository.ownerUserId === userId;
+
+    if (repository.visibility === RepositoryVisibility.intimo && !isOwner) {
+      throw new ForbiddenException(NOTE_FILE_MESSAGES.DOWNLOAD_FORBIDDEN);
+    }
+
+    if (repository.visibility === RepositoryVisibility.privado && !isOwner) {
+      const repositoryUser =
+        await this.repositoryUserRepository.findByRepositoryIdAndUserId(
+          repository.id as number,
+          userId,
+        );
+
+      if (!repositoryUser) {
+        throw new ForbiddenException(NOTE_FILE_MESSAGES.DOWNLOAD_FORBIDDEN);
+      }
+    }
+
+    const url = await this.tigrisStorageService.getReadUrl(
+      noteFile.storagePath,
+      false,
+    );
+
+    return {
+      data: {
+        url,
+        fileName: noteFile.name,
+      },
+    };
+  }
 }

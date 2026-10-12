@@ -18,25 +18,25 @@ import { GetNoteFileDownloadUrlHandler } from '@modules/notes/application/querie
 import { NoteMediaStorageService } from '@modules/notes/application/services/note-media-storage.service';
 
 @Module({
-    imports: [CqrsModule, RepositoriesModule],
-    controllers: [NotesController],
-    providers: [
-        NoteMediaStorageService,
-        CreateNoteHandler,
-        DeleteNoteHandler,
-        UpdateNoteHandler,
-        GetNotesHandler,
-        GetNoteByIdHandler,
-        GetNoteFileDownloadUrlHandler,
-        {
-            provide: NoteRepository,
-            useClass: PrismaNoteRepository,
-        },
-        {
-            provide: NoteFileRepository,
-            useClass: PrismaNoteFileRepository,
-        },
-    ],
-    exports: [NoteRepository, NoteFileRepository],
+  imports: [CqrsModule, RepositoriesModule],
+  controllers: [NotesController],
+  providers: [
+    NoteMediaStorageService,
+    CreateNoteHandler,
+    DeleteNoteHandler,
+    UpdateNoteHandler,
+    GetNotesHandler,
+    GetNoteByIdHandler,
+    GetNoteFileDownloadUrlHandler,
+    {
+      provide: NoteRepository,
+      useClass: PrismaNoteRepository,
+    },
+    {
+      provide: NoteFileRepository,
+      useClass: PrismaNoteFileRepository,
+    },
+  ],
+  exports: [NoteRepository, NoteFileRepository],
 })
-export class NotesModule { }
+export class NotesModule {}

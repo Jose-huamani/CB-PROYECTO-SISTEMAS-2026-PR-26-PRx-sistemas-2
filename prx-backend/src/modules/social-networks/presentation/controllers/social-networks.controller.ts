@@ -8,12 +8,12 @@ import { GetSocialNetworksQuery } from '@modules/social-networks/application/que
 @ApiTags('Social Networks')
 @Controller('social-networks')
 export class SocialNetworksController {
-    constructor(private readonly queryBus: QueryBus) { }
+  constructor(private readonly queryBus: QueryBus) {}
 
-    @Public()
-    @Get()
-    @HttpCode(HttpStatus.OK)
-    getSocialNetworks() {
-        return this.queryBus.execute(new GetSocialNetworksQuery());
-    }
+  @Public()
+  @Get()
+  @HttpCode(HttpStatus.OK)
+  getSocialNetworks() {
+    return this.queryBus.execute(new GetSocialNetworksQuery());
+  }
 }

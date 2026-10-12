@@ -1,1 +1,1 @@
-export class GetSocialNetworksQuery { }
+export class GetSocialNetworksQuery {}

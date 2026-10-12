@@ -9,7 +9,8 @@ import { TownEntity } from '@modules/profiles/domain/entities/town.entity';
 @Injectable()
 export class PrismaTownRepository
   extends BasePrismaRepository
-  implements TownRepository {
+  implements TownRepository
+{
   constructor(prisma: PrismaService) {
     super(prisma);
   }
@@ -17,7 +18,9 @@ export class PrismaTownRepository
   async findOrCreateByName(name: string): Promise<TownEntity> {
     const upperName = name?.toUpperCase();
 
-    const existing = await this.prisma.town.findFirst({ where: { name: upperName } });
+    const existing = await this.prisma.town.findFirst({
+      where: { name: upperName },
+    });
 
     if (existing) {
       if (existing.status === 1) {
@@ -32,7 +35,9 @@ export class PrismaTownRepository
       return TownPrismaMapper.toDomain(updated);
     }
 
-    const created = await this.prisma.town.create({ data: { name: upperName, status: 1 } });
+    const created = await this.prisma.town.create({
+      data: { name: upperName, status: 1 },
+    });
 
     return TownPrismaMapper.toDomain(created);
   }

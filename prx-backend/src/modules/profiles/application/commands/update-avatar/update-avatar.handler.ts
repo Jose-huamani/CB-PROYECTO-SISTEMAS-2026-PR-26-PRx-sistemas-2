@@ -19,7 +19,7 @@ export class UpdateAvatarHandler implements ICommandHandler<UpdateAvatarCommand>
     private readonly userRepository: UserRepository,
     private readonly avatarService: AvatarService,
     private readonly tigrisStorageService: TigrisStorageService,
-  ) { }
+  ) {}
 
   async execute(command: UpdateAvatarCommand) {
     if (!command.file) {
@@ -30,8 +30,12 @@ export class UpdateAvatarHandler implements ICommandHandler<UpdateAvatarCommand>
       throw new BadRequestException('La imagen no puede superar 5MB');
     }
 
-    if (!['image/jpeg', 'image/png', 'image/webp'].includes(command.file.mimetype)) {
-      throw new BadRequestException('Solo se permiten imágenes JPG, PNG o WEBP');
+    if (
+      !['image/jpeg', 'image/png', 'image/webp'].includes(command.file.mimetype)
+    ) {
+      throw new BadRequestException(
+        'Solo se permiten imágenes JPG, PNG o WEBP',
+      );
     }
 
     const profile = await this.profileRepository.findById(command.userId);
@@ -48,7 +52,10 @@ export class UpdateAvatarHandler implements ICommandHandler<UpdateAvatarCommand>
 
     const currentAvatarUrl = user.avatarUrl ?? '';
 
-    if (currentAvatarUrl && !this.avatarService.isDefaultAvatar(currentAvatarUrl)) {
+    if (
+      currentAvatarUrl &&
+      !this.avatarService.isDefaultAvatar(currentAvatarUrl)
+    ) {
       await this.tigrisStorageService.deleteObject(currentAvatarUrl, true);
     }
 
@@ -67,7 +74,9 @@ export class UpdateAvatarHandler implements ICommandHandler<UpdateAvatarCommand>
       updatedBy: command.userId,
     });
 
-    const updatedProfile = await this.profileRepository.findById(command.userId);
+    const updatedProfile = await this.profileRepository.findById(
+      command.userId,
+    );
 
     if (!updatedProfile) {
       throw new NotFoundException(PROFILE_MESSAGES.NOT_FOUND);

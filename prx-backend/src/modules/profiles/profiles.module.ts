@@ -62,4 +62,4 @@ import { PrismaTagProfileRepository } from '@modules/profiles/infrastructure/per
   ],
   exports: [ProfileRepository],
 })
-export class ProfilesModule { }
+export class ProfilesModule {}

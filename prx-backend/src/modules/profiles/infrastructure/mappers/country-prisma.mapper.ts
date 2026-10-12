@@ -16,11 +16,17 @@ type CountryPrismaModel = {
 
 export class CountryPrismaMapper {
   static toDomain(country: CountryPrismaModel): CountryEntity {
-    const phoneCode = country.phoneCodes && country.phoneCodes.length
-      ? country.phoneCodes[0].code
-      : null;
+    const phoneCode =
+      country.phoneCodes && country.phoneCodes.length
+        ? country.phoneCodes[0].code
+        : null;
 
-    return new CountryEntity(country.id, country.name, country.status, phoneCode);
+    return new CountryEntity(
+      country.id,
+      country.name,
+      country.status,
+      phoneCode,
+    );
   }
 
   static toDomainList(countries: CountryPrismaModel[]): CountryEntity[] {

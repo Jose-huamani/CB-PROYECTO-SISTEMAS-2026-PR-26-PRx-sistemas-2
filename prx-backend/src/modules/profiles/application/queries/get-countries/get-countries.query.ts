@@ -1,1 +1,1 @@
-export class GetCountriesQuery { }
+export class GetCountriesQuery {}

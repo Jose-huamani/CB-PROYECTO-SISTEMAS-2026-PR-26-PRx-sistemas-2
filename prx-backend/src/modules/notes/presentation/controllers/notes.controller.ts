@@ -1,17 +1,17 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Param,
-    ParseIntPipe,
-    Post,
-    Put,
-    Query,
-    UploadedFiles,
-    UseInterceptors,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
@@ -33,77 +33,79 @@ import { NoteFilesUploadPipe } from '@modules/notes/presentation/pipes/note-file
 @ApiBearerAuth()
 @Controller('notes')
 export class NotesController {
-    constructor(
-        private readonly queryBus: QueryBus,
-        private readonly commandBus: CommandBus,
-    ) { }
+  constructor(
+    private readonly queryBus: QueryBus,
+    private readonly commandBus: CommandBus,
+  ) {}
 
-    @Get('repository/:repositoryId')
-    @HttpCode(HttpStatus.OK)
-    findNotes(
-        @Param('repositoryId', ParseIntPipe) repositoryId: number,
-        @Query() query: GetNotesRequestDto,
-        @CurrentUser('sub') userId: number,
-    ) {
-        return this.queryBus.execute(
-            new GetNotesQuery(repositoryId, userId, query),
-        );
-    }
+  @Get('repository/:repositoryId')
+  @HttpCode(HttpStatus.OK)
+  findNotes(
+    @Param('repositoryId', ParseIntPipe) repositoryId: number,
+    @Query() query: GetNotesRequestDto,
+    @CurrentUser('sub') userId: number,
+  ) {
+    return this.queryBus.execute(
+      new GetNotesQuery(repositoryId, userId, query),
+    );
+  }
 
-    @Get('files/:id/download')
-    @HttpCode(HttpStatus.OK)
-    downloadFile(
-        @Param('id', ParseIntPipe) id: number,
-        @CurrentUser('sub') userId: number,
-    ) {
-        return this.queryBus.execute(new GetNoteFileDownloadUrlQuery(id, userId));
-    }
+  @Get('files/:id/download')
+  @HttpCode(HttpStatus.OK)
+  downloadFile(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('sub') userId: number,
+  ) {
+    return this.queryBus.execute(new GetNoteFileDownloadUrlQuery(id, userId));
+  }
 
-    @Get(':id')
-    @HttpCode(HttpStatus.OK)
-    findNoteById(
-        @Param('id', ParseIntPipe) id: number,
-        @CurrentUser('sub') userId: number,
-    ) {
-        return this.queryBus.execute(new GetNoteByIdQuery(id, userId));
-    }
+  @Get(':id')
+  @HttpCode(HttpStatus.OK)
+  findNoteById(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('sub') userId: number,
+  ) {
+    return this.queryBus.execute(new GetNoteByIdQuery(id, userId));
+  }
 
-    @Post('repository/:repositoryId')
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: CreateNoteRequestDto })
-    @UseInterceptors(FilesInterceptor('files', 5))
-    @HttpCode(HttpStatus.CREATED)
-    createNote(
-        @Param('repositoryId', ParseIntPipe) repositoryId: number,
-        @Body() createNoteRequestDto: CreateNoteRequestDto,
-        @UploadedFiles(NoteFilesUploadPipe) files: Express.Multer.File[],
-        @CurrentUser('sub') userId: number,
-    ) {
-        return this.commandBus.execute(
-            new CreateNoteCommand(repositoryId, createNoteRequestDto, userId, files),
-        );
-    }
+  @Post('repository/:repositoryId')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: CreateNoteRequestDto })
+  @UseInterceptors(FilesInterceptor('files', 5))
+  @HttpCode(HttpStatus.CREATED)
+  createNote(
+    @Param('repositoryId', ParseIntPipe) repositoryId: number,
+    @Body() createNoteRequestDto: CreateNoteRequestDto,
+    @UploadedFiles(NoteFilesUploadPipe) files: Express.Multer.File[],
+    @CurrentUser('sub') userId: number,
+  ) {
+    return this.commandBus.execute(
+      new CreateNoteCommand(repositoryId, createNoteRequestDto, userId, files),
+    );
+  }
 
-    @Put(':id')
-    @ApiConsumes('multipart/form-data')
-    @ApiBody({ type: UpdateNoteRequestDto })
-    @UseInterceptors(FilesInterceptor('files', 5))
-    @HttpCode(HttpStatus.OK)
-    updateNote(
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateNoteRequestDto,
-        @UploadedFiles(NoteFilesUploadPipe) files: Express.Multer.File[],
-        @CurrentUser('sub') userId: number,
-    ) {
-        return this.commandBus.execute(new UpdateNoteCommand(id, dto, userId, files));
-    }
+  @Put(':id')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: UpdateNoteRequestDto })
+  @UseInterceptors(FilesInterceptor('files', 5))
+  @HttpCode(HttpStatus.OK)
+  updateNote(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateNoteRequestDto,
+    @UploadedFiles(NoteFilesUploadPipe) files: Express.Multer.File[],
+    @CurrentUser('sub') userId: number,
+  ) {
+    return this.commandBus.execute(
+      new UpdateNoteCommand(id, dto, userId, files),
+    );
+  }
 
-    @Delete(':id')
-    @HttpCode(HttpStatus.OK)
-    deleteNote(
-        @Param('id', ParseIntPipe) id: number,
-        @CurrentUser('sub') userId: number,
-    ) {
-        return this.commandBus.execute(new DeleteNoteCommand(id, userId));
-    }
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  deleteNote(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser('sub') userId: number,
+  ) {
+    return this.commandBus.execute(new DeleteNoteCommand(id, userId));
+  }
 }
